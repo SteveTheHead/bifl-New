@@ -87,15 +87,16 @@ function SimpleProductCard({ product }: { product: any }) {
 interface ProductGridProps {
   initialProducts: any[]
   categories: any[]
-  brands: any[]
 }
 
-export function ProductGrid({ initialProducts, categories, brands }: ProductGridProps) {
+export function ProductGrid({ initialProducts, categories }: ProductGridProps) {
   const [filters, setFilters] = useState({
     search: '',
     categories: [] as string[],
     brands: [] as string[],
     scoreRanges: [] as string[],
+    countries: [] as string[],
+    priceRange: [0, 1000] as [number, number],
     sortBy: 'score-desc'
   })
 
@@ -131,7 +132,7 @@ export function ProductGrid({ initialProducts, categories, brands }: ProductGrid
     // Brand filter
     if (filters.brands.length > 0) {
       filtered = filtered.filter(product =>
-        filters.brands.includes(product.brand_id)
+        filters.brands.includes(product.wordpress_meta?.brand_name)
       )
     }
 
@@ -150,6 +151,20 @@ export function ProductGrid({ initialProducts, categories, brands }: ProductGrid
         })
       })
     }
+
+    // Country filter
+    if (filters.countries.length > 0) {
+      filtered = filtered.filter(product =>
+        filters.countries.includes(product.country_of_origin)
+      )
+    }
+
+    // Price range filter
+    filtered = filtered.filter(product => {
+      const price = parseFloat(product.price)
+      if (isNaN(price)) return true // Include products without prices
+      return price >= filters.priceRange[0] && price <= filters.priceRange[1]
+    })
 
     // Sort products
     filtered.sort((a, b) => {
@@ -178,7 +193,6 @@ export function ProductGrid({ initialProducts, categories, brands }: ProductGrid
       <ProductFilters
         onFiltersChange={setFilters}
         categories={categories}
-        brands={brands}
         products={initialProducts}
       />
 

@@ -1,13 +1,12 @@
-import { getProducts, getBrands, getCategories, getPriceRanges } from '@/lib/supabase/queries'
+import { getProducts, getCategories, getPriceRanges } from '@/lib/supabase/queries'
 import { Card, CardContent } from '@/components/ui/card'
 import { ProductGrid } from '@/components/products/product-grid'
 
 export default async function ProductsPage() {
   try {
     // Get products and taxonomy data
-    const [products, brands, categories, priceRanges] = await Promise.all([
+    const [products, categories, priceRanges] = await Promise.all([
       getProducts(24, 0), // Get first 24 products
-      getBrands(),
       getCategories(),
       getPriceRanges()
     ])
@@ -30,7 +29,6 @@ export default async function ProductsPage() {
             <ProductGrid
               initialProducts={products || []}
               categories={categories || []}
-              brands={brands || []}
             />
           </div>
         </section>
