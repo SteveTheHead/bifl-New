@@ -9,6 +9,13 @@ const config = {
     "./src/**/*.{ts,tsx}",
     "*.{js,ts,jsx,tsx,mdx}",
   ],
+  safelist: [
+    'bg-score-elite',
+    'bg-score-excellent',
+    'bg-score-good',
+    'bg-score-fair',
+    'bg-score-poor'
+  ],
   prefix: "",
   theme: {
     container: {
@@ -20,14 +27,24 @@ const config = {
     },
     extend: {
       colors: {
+        // BIFL Brand Colors
+        "brand-cream": "#F9F8F6",
+        "brand-teal": "#4A9D93",
+        "brand-dark": "#2C3539",
+        "brand-gray": "#6B7280",
+        "score-green": "#4CAF50",
+        "score-yellow": "#FFC107",
+        "score-red": "#F44336",
+
+        // Keep existing shadcn colors
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "#4A9D93", // Use brand-teal
+          foreground: "#ffffff",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -61,6 +78,22 @@ const config = {
           4: "hsl(var(--chart-4))",
           5: "hsl(var(--chart-5))",
         },
+      },
+      backgroundImage: {
+        "score-elite": "linear-gradient(135deg, #4CAF50 0%, #66BB6A 50%, #81C784 100%)",
+        "score-excellent": "linear-gradient(135deg, #FFC107 0%, #FFD54F 50%, #FFE082 100%)",
+        "score-good": "linear-gradient(135deg, #FF9800 0%, #FFB74D 50%, #FFCC02 100%)",
+        "score-fair": "linear-gradient(135deg, #F44336 0%, #EF5350 50%, #E57373 100%)",
+        "score-poor": "linear-gradient(135deg, #9E9E9E 0%, #BDBDBD 50%, #E0E0E0 100%)",
+      },
+      boxShadow: {
+        "score-green-glow": "0 0 15px rgba(76, 175, 80, 0.5)",
+        "score-yellow-glow": "0 0 15px rgba(255, 193, 7, 0.5)",
+        "score-red-glow": "0 0 15px rgba(244, 67, 54, 0.5)",
+        "teal-glow": "0 0 15px rgba(74, 157, 147, 0.5)",
+        "yellow-glow": "0 0 15px rgba(255, 193, 7, 0.5)",
+        "red-glow": "0 0 15px rgba(244, 67, 54, 0.5)",
+        "score-pill": "0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)",
       },
       borderRadius: {
         lg: "var(--radius)",
