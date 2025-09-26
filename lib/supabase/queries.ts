@@ -27,6 +27,7 @@ export async function getProducts(limit = 20, offset = 0) {
   return data
 }
 
+
 export async function getFeaturedProducts() {
   const supabase = await createClient()
 
@@ -55,7 +56,7 @@ export async function getProductById(id: string) {
 
   if (error) {
     console.error('Error fetching product by ID:', error)
-    throw error
+    return null
   }
 
   return data
@@ -222,6 +223,50 @@ export async function getProductReviews(productId: string) {
   }
 
   return data
+}
+
+// Get similar products based on category and exclude current product
+export async function getSimilarProducts(productId: string, categoryId?: string, limit = 8) {
+  const supabase = await createClient()
+
+  let query = supabase
+    .from('products_with_taxonomy')
+    .select('*')
+    .eq('status', 'published')
+    .neq('id', productId) // Exclude current product
+
+  // If we have a category, prioritize products from the same category
+  if (categoryId) {
+    query = query.eq('category_id', categoryId)
+  }
+
+  const { data, error } = await query
+    .order('bifl_total_score', { ascending: false })
+    .limit(limit)
+
+  if (error) {
+    console.error('Error fetching similar products:', error)
+    return []
+  }
+
+  // If we don't have enough products from the same category, get more from any category
+  if (data && data.length < limit) {
+    const remainingLimit = limit - data.length
+    const { data: additionalData, error: additionalError } = await supabase
+      .from('products_with_taxonomy')
+      .select('*')
+      .eq('status', 'published')
+      .neq('id', productId)
+      .not('id', 'in', `(${data.map(p => p.id).join(',')})`)
+      .order('bifl_total_score', { ascending: false })
+      .limit(remainingLimit)
+
+    if (!additionalError && additionalData) {
+      data.push(...additionalData)
+    }
+  }
+
+  return data || []
 }
 
 // Client-side queries for mutations
