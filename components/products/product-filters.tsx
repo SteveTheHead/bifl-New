@@ -70,6 +70,7 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
             case '8.0-8.9': return score >= 8.0 && score < 9.0
             case '7.0-7.9': return score >= 7.0 && score < 8.0
             case '6.0-6.9': return score >= 6.0 && score < 7.0
+            case '0.0-5.9': return score >= 0.0 && score < 6.0
             default: return false
           }
         })
@@ -227,10 +228,11 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
   }
 
   const scoreRanges = [
-    { range: '9.0-10', label: '9.0 - 10 (Legend)', gradient: 'linear-gradient(135deg, #4CAF50 0%, #66BB6A 50%, #81C784 100%)' },
-    { range: '8.0-8.9', label: '8.0 - 8.9 (Excellent)', gradient: 'linear-gradient(135deg, #FFC107 0%, #FFD54F 50%, #FFE082 100%)' },
-    { range: '7.0-7.9', label: '7.0 - 7.9 (Good)', gradient: 'linear-gradient(135deg, #FF9800 0%, #FFB74D 50%, #FFCC02 100%)' },
-    { range: '6.0-6.9', label: '6.0 - 6.9 (Fair)', gradient: 'linear-gradient(135deg, #F44336 0%, #EF5350 50%, #E57373 100%)' }
+    { range: '9.0-10', label: '9.0 - 10 (Legend)', gradient: 'linear-gradient(135deg, #00ff88, #00cc66)' },
+    { range: '8.0-8.9', label: '8.0 - 8.9 (Excellent)', gradient: 'linear-gradient(135deg, #a3ffbf, #66ff99)' },
+    { range: '7.0-7.9', label: '7.0 - 7.9 (Good)', gradient: 'linear-gradient(135deg, #fff886, #fbd786)' },
+    { range: '6.0-6.9', label: '6.0 - 6.9 (Fair)', gradient: 'linear-gradient(135deg, #ffb347, #ff9966)' },
+    { range: '0.0-5.9', label: '0.0 - 5.9 (Poor)', gradient: 'linear-gradient(135deg, #ff4c4c, #ff6e7f)' }
   ]
 
   return (

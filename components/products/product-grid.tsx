@@ -116,6 +116,7 @@ export function ProductGrid({ initialProducts, categories }: ProductGridProps) {
             case '8.0-8.9': return score >= 8.0 && score < 9.0
             case '7.0-7.9': return score >= 7.0 && score < 8.0
             case '6.0-6.9': return score >= 6.0 && score < 7.0
+            case '0.0-5.9': return score >= 0.0 && score < 6.0
             default: return false
           }
         })
