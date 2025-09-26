@@ -7,33 +7,11 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { FavoriteIcon } from '../favorites/favorite-button'
 
-// Get gradient pill styling based on BIFL score
 function getScoreBadgeStyle(score: number) {
-  if (score >= 9.0) {
-    return {
-      className: "text-white shadow-score-pill border border-green-200",
-      style: { background: "linear-gradient(135deg, #4CAF50 0%, #66BB6A 50%, #81C784 100%)" }
-    }
-  } else if (score >= 8.0) {
-    return {
-      className: "text-white shadow-score-pill border border-yellow-200",
-      style: { background: "linear-gradient(135deg, #FFC107 0%, #FFD54F 50%, #FFE082 100%)" }
-    }
-  } else if (score >= 7.0) {
-    return {
-      className: "text-white shadow-score-pill border border-orange-200",
-      style: { background: "linear-gradient(135deg, #FF9800 0%, #FFB74D 50%, #FFCC02 100%)" }
-    }
-  } else if (score >= 6.0) {
-    return {
-      className: "text-white shadow-score-pill border border-red-200",
-      style: { background: "linear-gradient(135deg, #F44336 0%, #EF5350 50%, #E57373 100%)" }
-    }
-  } else {
-    return {
-      className: "text-gray-700 shadow-score-pill border border-gray-200",
-      style: { background: "linear-gradient(135deg, #9E9E9E 0%, #BDBDBD 50%, #E0E0E0 100%)" }
-    }
+  const scoreString = score.toString()
+  return {
+    className: "score-field px-3 py-1 rounded-full transform transition-all duration-300",
+    dataScore: scoreString
   }
 }
 
@@ -211,8 +189,8 @@ export function SimilarProductsCarousel({ currentProductId, categoryId }: Simila
                     <div className="flex items-center justify-center space-x-2 mb-4 flex-shrink-0">
                       <span className="font-bold text-sm">BIFL Score:</span>
                       <div
-                        className={`relative px-3 py-1 rounded-full ${scoreBadge.className}`}
-                        style={scoreBadge.style}
+                        className={scoreBadge.className}
+                        data-score={scoreBadge.dataScore}
                       >
                         <span className="text-sm font-bold">
                           {(product.bifl_total_score || 0).toFixed(1)}

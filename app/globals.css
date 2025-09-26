@@ -129,6 +129,14 @@
 /* =============================
    Gradient Backgrounds by Score
 ============================= */
+/* Perfect 10.0 score - brightest green */
+.score-field[data-score="10"],
+.score-field[data-score="10.0"] {
+  background: linear-gradient(135deg, #00ff00, #00dd00);
+  box-shadow: 0 4px 10px rgba(0, 255, 0, 0.3);
+  color: #1a1a1a;
+}
+
 .score-field[data-score^="9"] {
   background: linear-gradient(135deg, #00ff88, #00cc66);
   box-shadow: 0 4px 10px rgba(0, 255, 136, 0.25);
@@ -154,11 +162,17 @@
 }
 
 .score-field[data-score^="0"],
-.score-field[data-score^="1"],
 .score-field[data-score^="2"],
 .score-field[data-score^="3"],
 .score-field[data-score^="4"],
 .score-field[data-score^="5"] {
+  background: linear-gradient(135deg, #ff4c4c, #ff6e7f);
+  box-shadow: 0 4px 10px rgba(255, 76, 76, 0.3);
+  color: white;
+}
+
+/* Handle 1.x scores specifically (not 10.x) */
+.score-field[data-score^="1"]:not([data-score="10"]):not([data-score="10.0"]) {
   background: linear-gradient(135deg, #ff4c4c, #ff6e7f);
   box-shadow: 0 4px 10px rgba(255, 76, 76, 0.3);
   color: white;

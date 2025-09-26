@@ -5,33 +5,11 @@ import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { ProductFilters } from './product-filters'
 
-// Get gradient pill styling based on BIFL score
 function getScoreBadgeStyle(score: number) {
-  if (score >= 9.0) {
-    return {
-      className: "text-white shadow-score-pill border border-green-200",
-      style: { background: "linear-gradient(135deg, #4CAF50 0%, #66BB6A 50%, #81C784 100%)" }
-    }
-  } else if (score >= 8.0) {
-    return {
-      className: "text-white shadow-score-pill border border-yellow-200",
-      style: { background: "linear-gradient(135deg, #FFC107 0%, #FFD54F 50%, #FFE082 100%)" }
-    }
-  } else if (score >= 7.0) {
-    return {
-      className: "text-white shadow-score-pill border border-orange-200",
-      style: { background: "linear-gradient(135deg, #FF9800 0%, #FFB74D 50%, #FFCC02 100%)" }
-    }
-  } else if (score >= 6.0) {
-    return {
-      className: "text-white shadow-score-pill border border-red-200",
-      style: { background: "linear-gradient(135deg, #F44336 0%, #EF5350 50%, #E57373 100%)" }
-    }
-  } else {
-    return {
-      className: "text-gray-700 shadow-score-pill border border-gray-200",
-      style: { background: "linear-gradient(135deg, #9E9E9E 0%, #BDBDBD 50%, #E0E0E0 100%)" }
-    }
+  const scoreString = score.toString()
+  return {
+    className: "score-field px-3 py-1 rounded-full transform transition-all duration-300",
+    dataScore: scoreString
   }
 }
 
@@ -60,8 +38,8 @@ function SimpleProductCard({ product }: { product: any }) {
       <div className="flex justify-center items-center gap-3 mb-6">
         <span className="text-sm font-medium text-brand-gray">BIFL Score:</span>
         <div
-          className={`relative px-5 py-2 rounded-full transform transition-all duration-300 hover:scale-105 ${getScoreBadgeStyle(totalScore).className}`}
-          style={getScoreBadgeStyle(totalScore).style}
+          className={`${getScoreBadgeStyle(totalScore).className} hover:scale-105`}
+          data-score={getScoreBadgeStyle(totalScore).dataScore}
         >
           <div className="flex items-center gap-2">
             <span className="text-sm font-bold tracking-wide">
@@ -116,17 +94,9 @@ export function ProductGrid({ initialProducts, categories }: ProductGridProps) {
 
     // Category filter
     if (filters.categories.length > 0) {
-      console.log('🔍 Category filtering:', filters.categories)
-      console.log('🔍 Sample product category_id:', filtered[0]?.category_id)
-      const beforeCount = filtered.length
       filtered = filtered.filter(product => {
-        const matches = filters.categories.includes(product.category_id)
-        if (matches) {
-          console.log('✅ Product matches:', product.name, product.category_id)
-        }
-        return matches
+        return filters.categories.includes(product.category_id)
       })
-      console.log(`🔍 Filtered from ${beforeCount} to ${filtered.length} products`)
     }
 
     // Brand filter

@@ -168,6 +168,8 @@ export async function getCategories() {
   const { data, error } = await supabase
     .from('categories')
     .select('*')
+    .not('name', 'is', null)
+    .neq('name', '')
     .order('display_order', { ascending: true })
 
   if (error) {
@@ -175,7 +177,14 @@ export async function getCategories() {
     throw error
   }
 
-  return data
+  // Filter out any categories that are just numbers or invalid
+  const validCategories = data?.filter(category => {
+    return category.name &&
+           category.name.trim() !== '' &&
+           isNaN(Number(category.name.trim()))
+  }) || []
+
+  return validCategories
 }
 
 export async function getMaterials() {

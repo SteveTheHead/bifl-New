@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { SiAmazon, SiReddit, SiGoogle } from 'react-icons/si'
 import { useState } from 'react'
 import { SimilarProductsCarousel } from './similar-products-carousel'
 import { ReviewForm } from '../reviews/review-form'
@@ -418,7 +419,9 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                     className="flex items-center justify-between w-full border border-gray-200 rounded-lg px-4 py-3 text-left hover:bg-gray-50 transition-colors"
                   >
                     <div className="flex items-center">
-                      <div className="w-8 h-8 bg-orange-500 rounded mr-3 flex items-center justify-center text-white text-sm font-bold">A</div>
+                      <div className="w-8 h-8 bg-orange-500 rounded mr-3 flex items-center justify-center text-white">
+                        <SiAmazon className="w-5 h-5" />
+                      </div>
                       <span>Amazon</span>
                     </div>
                     <span className="font-bold">${product.price || '—'}</span>
@@ -523,9 +526,15 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                   Based on <span className="font-bold text-brand-dark">199</span> reviews
                 </p>
                 <div className="flex justify-center items-center space-x-6 text-2xl text-brand-gray">
-                  <div className="w-6 h-6 bg-orange-500 rounded"></div>
-                  <div className="w-6 h-6 bg-red-500 rounded"></div>
-                  <div className="w-6 h-6 bg-blue-500 rounded"></div>
+                  <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white">
+                    <SiAmazon className="w-5 h-5" />
+                  </div>
+                  <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center text-white">
+                    <SiReddit className="w-5 h-5" />
+                  </div>
+                  <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center text-white">
+                    <SiGoogle className="w-5 h-5" />
+                  </div>
                 </div>
                 <p className="text-xs text-brand-gray mt-6 leading-relaxed">
                   We rate products using a 10-point scoring system focused on what matters most: durability, reliability, and repairability. Our scores are built from a wide net of sources: Amazon reviews, Reddit threads, expert opinions, brand sites, Google reviews, and what people are actually saying online.

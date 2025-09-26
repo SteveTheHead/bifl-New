@@ -259,39 +259,16 @@ export function RecommendationEngine() {
     }
   }
 
-  const getScoreBadgeStyle = (score: number | null) => {
-    if (!score) return { className: "text-gray-700 bg-gray-200", label: "N/A" }
+  function getScoreBadgeStyle(score: number | null) {
+    if (!score) return {
+      className: "score-field px-3 py-1 rounded-full transform transition-all duration-300",
+      dataScore: "0"
+    }
 
-    if (score >= 9.0) {
-      return {
-        className: "text-white border border-green-200",
-        style: { background: "linear-gradient(135deg, #4CAF50 0%, #66BB6A 50%, #81C784 100%)" },
-        label: "Legend"
-      }
-    } else if (score >= 8.0) {
-      return {
-        className: "text-white border border-yellow-200",
-        style: { background: "linear-gradient(135deg, #FFC107 0%, #FFD54F 50%, #FFE082 100%)" },
-        label: "Excellent"
-      }
-    } else if (score >= 7.0) {
-      return {
-        className: "text-white border border-orange-200",
-        style: { background: "linear-gradient(135deg, #FF9800 0%, #FFB74D 50%, #FFCC02 100%)" },
-        label: "Good"
-      }
-    } else if (score >= 6.0) {
-      return {
-        className: "text-white border border-red-200",
-        style: { background: "linear-gradient(135deg, #F44336 0%, #EF5350 50%, #E57373 100%)" },
-        label: "Fair"
-      }
-    } else {
-      return {
-        className: "text-gray-700 border border-gray-200",
-        style: { background: "linear-gradient(135deg, #9E9E9E 0%, #BDBDBD 50%, #E0E0E0 100%)" },
-        label: "Poor"
-      }
+    const scoreString = score.toString()
+    return {
+      className: "score-field px-3 py-1 rounded-full transform transition-all duration-300",
+      dataScore: scoreString
     }
   }
 
@@ -351,8 +328,8 @@ export function RecommendationEngine() {
                     {product.bifl_total_score && (
                       <div className="absolute top-3 left-3">
                         <div
-                          className={`px-3 py-1 rounded-full text-sm font-bold ${scoreBadge.className}`}
-                          style={scoreBadge.style}
+                          className={`${scoreBadge.className} text-sm font-bold`}
+                          data-score={scoreBadge.dataScore}
                         >
                           {product.bifl_total_score.toFixed(1)}
                         </div>
