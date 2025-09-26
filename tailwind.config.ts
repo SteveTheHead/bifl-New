@@ -14,7 +14,9 @@ const config = {
     'bg-score-excellent',
     'bg-score-good',
     'bg-score-fair',
-    'bg-score-poor'
+    'bg-score-poor',
+    'bg-brand-teal',
+    'hover:bg-brand-teal/90'
   ],
   prefix: "",
   theme: {

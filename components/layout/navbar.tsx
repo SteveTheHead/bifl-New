@@ -1,11 +1,34 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
-import { Menu, X, Search, User } from 'lucide-react'
+import { useState, useRef, useEffect } from 'react'
+import { Menu, X, Search, User, LogOut } from 'lucide-react'
+import { useSession, signOut } from '@/components/auth/auth-client'
+import { AISearch } from '../search/ai-search'
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
+  const [showUserMenu, setShowUserMenu] = useState(false)
+  const { data: session, isPending } = useSession()
+  const userMenuRef = useRef<HTMLDivElement>(null)
+
+  const handleSignOut = async () => {
+    await signOut()
+    setShowUserMenu(false)
+  }
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false)
+      }
+    }
+
+    if (showUserMenu) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showUserMenu])
 
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -34,12 +57,57 @@ export function Navbar() {
 
           {/* Desktop Right Side */}
           <div className="hidden md:flex items-center space-x-4">
-            <button className="p-2 text-brand-gray hover:text-brand-dark">
-              <Search className="w-5 h-5" />
-            </button>
-            <Link href="/auth/signin" className="p-2 text-brand-gray hover:text-brand-dark">
-              <User className="w-5 h-5" />
-            </Link>
+            <div className="w-96">
+              <AISearch />
+            </div>
+
+            {/* User Authentication */}
+            {isPending ? (
+              <div className="p-2 text-brand-gray">
+                <div className="w-5 h-5 animate-spin rounded-full border-2 border-brand-gray border-t-transparent"></div>
+              </div>
+            ) : session?.user ? (
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center space-x-2 p-2 text-brand-gray hover:text-brand-dark"
+                >
+                  <User className="w-5 h-5" />
+                  <span className="text-sm font-medium">{session.user.name || session.user.email}</span>
+                </button>
+
+                {showUserMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                    <Link
+                      href="/profile"
+                      className="block px-4 py-2 text-sm text-brand-gray hover:bg-gray-50 hover:text-brand-dark"
+                      onClick={() => setShowUserMenu(false)}
+                    >
+                      Profile
+                    </Link>
+                    <Link
+                      href="/favorites"
+                      className="block px-4 py-2 text-sm text-brand-gray hover:bg-gray-50 hover:text-brand-dark"
+                      onClick={() => setShowUserMenu(false)}
+                    >
+                      Favorites
+                    </Link>
+                    <button
+                      onClick={handleSignOut}
+                      className="w-full text-left px-4 py-2 text-sm text-brand-gray hover:bg-gray-50 hover:text-brand-dark flex items-center space-x-2"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link href="/auth/signin" className="p-2 text-brand-gray hover:text-brand-dark">
+                <User className="w-5 h-5" />
+              </Link>
+            )}
+
             <Link
               href="/products"
               className="bg-brand-teal text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-opacity"
@@ -89,13 +157,48 @@ export function Navbar() {
               About
             </Link>
             <div className="pt-4 border-t border-gray-200">
-              <Link
-                href="/auth/signin"
-                className="block text-brand-gray hover:text-brand-dark font-medium mb-3"
-                onClick={() => setIsOpen(false)}
-              >
-                Sign In
-              </Link>
+              {isPending ? (
+                <div className="flex items-center justify-center py-3">
+                  <div className="w-5 h-5 animate-spin rounded-full border-2 border-brand-gray border-t-transparent"></div>
+                </div>
+              ) : session?.user ? (
+                <>
+                  <div className="text-brand-dark font-medium mb-3 px-1">
+                    Welcome, {session.user.name || session.user.email}
+                  </div>
+                  <Link
+                    href="/profile"
+                    className="block text-brand-gray hover:text-brand-dark font-medium mb-3"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Profile
+                  </Link>
+                  <Link
+                    href="/favorites"
+                    className="block text-brand-gray hover:text-brand-dark font-medium mb-3"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Favorites
+                  </Link>
+                  <button
+                    onClick={() => {
+                      handleSignOut()
+                      setIsOpen(false)
+                    }}
+                    className="block text-brand-gray hover:text-brand-dark font-medium mb-3 w-full text-left"
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/auth/signin"
+                  className="block text-brand-gray hover:text-brand-dark font-medium mb-3"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Sign In
+                </Link>
+              )}
               <Link
                 href="/products"
                 className="block bg-brand-teal text-white px-4 py-2 rounded-lg text-center"

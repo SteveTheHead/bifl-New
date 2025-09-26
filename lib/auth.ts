@@ -31,6 +31,10 @@ export const auth = betterAuth({
     enabled: true,
     maxAge: 5 * 60, // Cache duration in seconds
   },
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: false, // Disable for development
+  },
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: {
@@ -43,8 +47,8 @@ export const auth = betterAuth({
   }),
   socialProviders: {
     google: {
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: process.env.GOOGLE_CLIENT_ID || "dummy_google_client_id",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "dummy_google_client_secret",
     },
   },
   plugins: [

@@ -38,8 +38,13 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  // Check for simple admin session cookie
+  const adminSession = request.cookies.get('admin-session')
+  const isAdminAuthenticated = adminSession?.value === 'admin-authenticated'
+
   if (
     !user &&
+    !isAdminAuthenticated &&
     !request.nextUrl.pathname.startsWith('/auth') &&
     !request.nextUrl.pathname.startsWith('/api') &&
     request.nextUrl.pathname !== '/' &&

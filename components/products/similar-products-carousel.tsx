@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { FavoriteIcon } from '../favorites/favorite-button'
 
 // Get gradient pill styling based on BIFL score
 function getScoreBadgeStyle(score: number) {
@@ -179,17 +180,17 @@ export function SimilarProductsCarousel({ currentProductId, categoryId }: Simila
               return (
                 <div
                   key={product.id}
-                  className="flex-shrink-0 px-4"
+                  className="flex-shrink-0 px-2 sm:px-3 md:px-4"
                   style={{ width: `${100 / itemsPerView}%` }}
                 >
-                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center flex flex-col" style={{ minHeight: '400px' }}>
-                    <p className="text-sm text-brand-gray mb-2">{product.brand_name || 'Unknown Brand'}</p>
-                    <h3 className="font-serif text-lg font-bold mb-3 line-clamp-2">
+                  <div className="bg-white p-3 sm:p-4 lg:p-6 rounded-2xl shadow-sm border border-gray-100 text-center flex flex-col" style={{ minHeight: '350px' }}>
+                    <p className="text-xs sm:text-sm text-brand-gray mb-2">{product.brand_name || 'Unknown Brand'}</p>
+                    <h3 className="font-serif text-sm sm:text-base lg:text-lg font-bold mb-3 line-clamp-2">
                       {product.name}
                     </h3>
 
                     {/* Product Image */}
-                    <div className="w-full h-40 bg-gray-200 rounded-lg mb-3 overflow-hidden flex-shrink-0">
+                    <div className="relative w-full h-32 sm:h-36 lg:h-40 bg-gray-200 rounded-lg mb-3 overflow-hidden flex-shrink-0">
                       {product.featured_image_url ? (
                         <Image
                           src={product.featured_image_url}
@@ -203,6 +204,7 @@ export function SimilarProductsCarousel({ currentProductId, categoryId }: Simila
                           <span className="text-gray-500 text-sm">No Image</span>
                         </div>
                       )}
+                      <FavoriteIcon productId={product.id} />
                     </div>
 
                     {/* BIFL Score */}

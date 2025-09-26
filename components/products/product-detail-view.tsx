@@ -5,6 +5,9 @@ import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 import { SimilarProductsCarousel } from './similar-products-carousel'
+import { ReviewForm } from '../reviews/review-form'
+import { ReviewsList } from '../reviews/reviews-list'
+import { FavoriteButtonWithText } from '../favorites/favorite-button'
 
 // Get gradient pill styling based on BIFL score
 function getScoreBadgeStyle(score: number) {
@@ -82,6 +85,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
 
   // Gallery state
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [reviewRefreshTrigger, setReviewRefreshTrigger] = useState(0)
 
   // Create gallery images array from actual gallery data
   const galleryImages = (() => {
@@ -127,41 +131,41 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
   return (
     <div className="bg-brand-cream text-brand-dark min-h-screen">
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-16 items-start">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-12 xl:gap-16 items-start">
 
           {/* Product Information - Left Column */}
           <div className="lg:col-span-2 space-y-10">
             {/* Product Header */}
             <section>
-              <h1 className="text-4xl font-bold mb-2">{product.name}</h1>
-              <p className="text-lg text-brand-gray mb-6">{product.wordpress_meta?.brand_name || 'Unknown Brand'}</p>
-              <p className="text-brand-gray leading-relaxed mb-8">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">{product.name}</h1>
+              <p className="text-base sm:text-lg text-brand-gray mb-4 sm:mb-6">{product.wordpress_meta?.brand_name || 'Unknown Brand'}</p>
+              <p className="text-sm sm:text-base text-brand-gray leading-relaxed mb-6 sm:mb-8">
                 {product.description || product.excerpt || 'No description available for this product.'}
               </p>
-              <div className="space-y-2 text-sm">
-                <div className="flex">
-                  <strong className="w-32 font-medium">Dimensions:</strong>
+              <div className="space-y-2 text-xs sm:text-sm">
+                <div className="flex flex-col sm:flex-row">
+                  <strong className="w-full sm:w-32 font-medium">Dimensions:</strong>
                   <span className="text-brand-gray">{product.dimensions || 'N/A'}</span>
                 </div>
-                <div className="flex">
-                  <strong className="w-32 font-medium">Lifespan:</strong>
+                <div className="flex flex-col sm:flex-row">
+                  <strong className="w-full sm:w-32 font-medium">Lifespan:</strong>
                   <span className="text-brand-gray">{product.lifespan_expectation ? `${product.lifespan_expectation}+ years` : 'N/A'}</span>
                 </div>
-                <div className="flex">
-                  <strong className="w-32 font-medium">Material:</strong>
+                <div className="flex flex-col sm:flex-row">
+                  <strong className="w-full sm:w-32 font-medium">Material:</strong>
                   <span className="text-brand-gray">{product.primary_material || 'N/A'}</span>
                 </div>
-                <div className="flex">
-                  <strong className="w-32 font-medium">Country of Origin:</strong>
+                <div className="flex flex-col sm:flex-row">
+                  <strong className="w-full sm:w-32 font-medium">Country of Origin:</strong>
                   <span className="text-brand-gray">{product.country_of_origin || 'Unknown'}</span>
                 </div>
               </div>
             </section>
 
             {/* Research Summary */}
-            <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-              <h2 className="text-2xl font-bold mb-6">Research Summary</h2>
+            <section className="bg-white p-4 sm:p-6 lg:p-8 rounded-2xl shadow-sm border border-gray-100">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-4 sm:mb-6">Research Summary</h2>
               <div className="space-y-4 text-brand-gray leading-relaxed text-sm">
                 {product.description || product.excerpt ? (
                   renderHTMLContent(product.description || product.excerpt)
@@ -264,7 +268,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
           </div>
 
           {/* Product Sidebar - Right Column */}
-          <div className="lg:col-span-1 space-y-8 sticky top-24">
+          <div className="lg:col-span-1 space-y-4 sm:space-y-6 lg:space-y-8 lg:sticky lg:top-24">
             {/* BIFL Score Card */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center">
               <div className="flex items-center justify-center gap-2 mb-4">
@@ -336,6 +340,14 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                     No Product Link Available
                   </button>
                 )}
+
+                {/* Favorite Button */}
+                <div className="mt-4">
+                  <FavoriteButtonWithText
+                    productId={product.id}
+                    className="w-full justify-center py-3 px-4"
+                  />
+                </div>
               </div>
             </div>
 
@@ -498,6 +510,19 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
               <p className="text-brand-gray text-sm">No product images to display</p>
             </div>
           )}
+        </section>
+
+        {/* Reviews Section */}
+        <section className="mt-16 space-y-8">
+          <ReviewForm
+            productId={product.id}
+            onReviewSubmitted={() => setReviewRefreshTrigger(prev => prev + 1)}
+          />
+
+          <ReviewsList
+            productId={product.id}
+            refreshTrigger={reviewRefreshTrigger}
+          />
         </section>
 
         {/* Similar Products Carousel */}
