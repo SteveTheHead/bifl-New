@@ -125,3 +125,41 @@
         @apply font-medium tracking-tight;
     }
 }
+
+/* =============================
+   Gradient Backgrounds by Score
+============================= */
+.score-field[data-score^="9"] {
+  background: linear-gradient(135deg, #00ff88, #00cc66);
+  box-shadow: 0 4px 10px rgba(0, 255, 136, 0.25);
+  color: #1a1a1a;
+}
+
+.score-field[data-score^="8"] {
+  background: linear-gradient(135deg, #a3ffbf, #66ff99);
+  box-shadow: 0 4px 10px rgba(102, 255, 153, 0.25);
+  color: #1a1a1a;
+}
+
+.score-field[data-score^="7"] {
+  background: linear-gradient(135deg, #fff886, #fbd786);
+  box-shadow: 0 4px 10px rgba(255, 248, 134, 0.25);
+  color: #1a1a1a;
+}
+
+.score-field[data-score^="6"] {
+  background: linear-gradient(135deg, #ffb347, #ff9966);
+  box-shadow: 0 4px 10px rgba(255, 179, 71, 0.25);
+  color: #1a1a1a;
+}
+
+.score-field[data-score^="0"],
+.score-field[data-score^="1"],
+.score-field[data-score^="2"],
+.score-field[data-score^="3"],
+.score-field[data-score^="4"],
+.score-field[data-score^="5"] {
+  background: linear-gradient(135deg, #ff4c4c, #ff6e7f);
+  box-shadow: 0 4px 10px rgba(255, 76, 76, 0.3);
+  color: white;
+}

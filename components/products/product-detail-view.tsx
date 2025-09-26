@@ -11,31 +11,11 @@ import { FavoriteButtonWithText } from '../favorites/favorite-button'
 
 // Get gradient pill styling based on BIFL score
 function getScoreBadgeStyle(score: number) {
-  if (score >= 9.0) {
-    return {
-      className: "text-white shadow-score-pill border border-green-200",
-      style: { background: "linear-gradient(135deg, #4CAF50 0%, #66BB6A 50%, #81C784 100%)" }
-    }
-  } else if (score >= 8.0) {
-    return {
-      className: "text-white shadow-score-pill border border-yellow-200",
-      style: { background: "linear-gradient(135deg, #FFC107 0%, #FFD54F 50%, #FFE082 100%)" }
-    }
-  } else if (score >= 7.0) {
-    return {
-      className: "text-white shadow-score-pill border border-orange-200",
-      style: { background: "linear-gradient(135deg, #FF9800 0%, #FFB74D 50%, #FFCC02 100%)" }
-    }
-  } else if (score >= 6.0) {
-    return {
-      className: "text-white shadow-score-pill border border-red-200",
-      style: { background: "linear-gradient(135deg, #F44336 0%, #EF5350 50%, #E57373 100%)" }
-    }
-  } else {
-    return {
-      className: "text-gray-700 shadow-score-pill border border-gray-200",
-      style: { background: "linear-gradient(135deg, #9E9E9E 0%, #BDBDBD 50%, #E0E0E0 100%)" }
-    }
+  const scoreString = score.toString()
+
+  return {
+    className: "score-field px-3 py-1 rounded-full transform transition-all duration-300",
+    dataScore: scoreString
   }
 }
 
@@ -309,8 +289,8 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-bold">Repairability Notes</h3>
                   <div
-                    className={`relative px-3 py-1 rounded-full ${getScoreBadgeStyle(product.repairability_score || 0).className}`}
-                    style={getScoreBadgeStyle(product.repairability_score || 0).style}
+                    className={getScoreBadgeStyle(product.repairability_score || 0).className}
+                    data-score={getScoreBadgeStyle(product.repairability_score || 0).dataScore}
                   >
                     <span className="text-sm font-bold">
                       {(product.repairability_score || 0).toFixed(1)}
@@ -331,8 +311,8 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-bold">Durability Notes</h3>
                   <div
-                    className={`relative px-3 py-1 rounded-full ${getScoreBadgeStyle(product.durability_score || 0).className}`}
-                    style={getScoreBadgeStyle(product.durability_score || 0).style}
+                    className={getScoreBadgeStyle(product.durability_score || 0).className}
+                    data-score={getScoreBadgeStyle(product.durability_score || 0).dataScore}
                   >
                     <span className="text-sm font-bold">
                       {(product.durability_score || 0).toFixed(1)}
@@ -353,8 +333,8 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-bold">Warranty Notes</h3>
                   <div
-                    className={`relative px-3 py-1 rounded-full ${getScoreBadgeStyle(product.warranty_score || 0).className}`}
-                    style={getScoreBadgeStyle(product.warranty_score || 0).style}
+                    className={getScoreBadgeStyle(product.warranty_score || 0).className}
+                    data-score={getScoreBadgeStyle(product.warranty_score || 0).dataScore}
                   >
                     <span className="text-sm font-bold">
                       {(product.warranty_score || 0).toFixed(1)}
@@ -375,8 +355,8 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-bold">Social Analysis</h3>
                   <div
-                    className={`relative px-3 py-1 rounded-full ${getScoreBadgeStyle(product.social_score || 0).className}`}
-                    style={getScoreBadgeStyle(product.social_score || 0).style}
+                    className={getScoreBadgeStyle(product.social_score || 0).className}
+                    data-score={getScoreBadgeStyle(product.social_score || 0).dataScore}
                   >
                     <span className="text-sm font-bold">
                       {(product.social_score || 0).toFixed(1)}
@@ -401,8 +381,8 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
               <div className="flex items-center justify-center gap-2 mb-4">
                 <span className="text-lg font-bold">BIFL Total Score:</span>
                 <div
-                  className={`relative px-4 py-2 rounded-full transform transition-all duration-300 ${scoreBadge.className}`}
-                  style={scoreBadge.style}
+                  className={scoreBadge.className}
+                  data-score={scoreBadge.dataScore}
                 >
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold tracking-wide">
@@ -485,8 +465,8 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                 <div className="flex justify-between items-center">
                   <span className="font-bold">BIFL TOTAL SCORE</span>
                   <div
-                    className={`relative px-3 py-1 rounded-full ${scoreBadge.className}`}
-                    style={scoreBadge.style}
+                    className={scoreBadge.className}
+                    data-score={scoreBadge.dataScore}
                   >
                     <span className="text-sm font-bold">
                       {totalScore.toFixed(1)}
@@ -496,8 +476,8 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                 <div className="flex justify-between items-center">
                   <span className="font-bold">Durability Score</span>
                   <div
-                    className={`relative px-3 py-1 rounded-full ${getScoreBadgeStyle(product.durability_score || 0).className}`}
-                    style={getScoreBadgeStyle(product.durability_score || 0).style}
+                    className={getScoreBadgeStyle(product.durability_score || 0).className}
+                    data-score={getScoreBadgeStyle(product.durability_score || 0).dataScore}
                   >
                     <span className="text-sm font-bold">
                       {(product.durability_score || 0).toFixed(1)}
@@ -507,8 +487,8 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                 <div className="flex justify-between items-center">
                   <span className="font-bold">Repairability Score</span>
                   <div
-                    className={`relative px-3 py-1 rounded-full ${getScoreBadgeStyle(product.repairability_score || 0).className}`}
-                    style={getScoreBadgeStyle(product.repairability_score || 0).style}
+                    className={getScoreBadgeStyle(product.repairability_score || 0).className}
+                    data-score={getScoreBadgeStyle(product.repairability_score || 0).dataScore}
                   >
                     <span className="text-sm font-bold">
                       {(product.repairability_score || 0).toFixed(1)}
@@ -518,8 +498,8 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                 <div className="flex justify-between items-center">
                   <span className="font-bold">Social Score</span>
                   <div
-                    className={`relative px-3 py-1 rounded-full ${getScoreBadgeStyle(product.social_score || 0).className}`}
-                    style={getScoreBadgeStyle(product.social_score || 0).style}
+                    className={getScoreBadgeStyle(product.social_score || 0).className}
+                    data-score={getScoreBadgeStyle(product.social_score || 0).dataScore}
                   >
                     <span className="text-sm font-bold">
                       {(product.social_score || 0).toFixed(1)}
@@ -529,8 +509,8 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                 <div className="flex justify-between items-center">
                   <span className="font-bold">Warranty Score</span>
                   <div
-                    className={`relative px-3 py-1 rounded-full ${getScoreBadgeStyle(product.warranty_score || 0).className}`}
-                    style={getScoreBadgeStyle(product.warranty_score || 0).style}
+                    className={getScoreBadgeStyle(product.warranty_score || 0).className}
+                    data-score={getScoreBadgeStyle(product.warranty_score || 0).dataScore}
                   >
                     <span className="text-sm font-bold">
                       {(product.warranty_score || 0).toFixed(1)}
