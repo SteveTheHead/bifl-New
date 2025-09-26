@@ -141,7 +141,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">{product.name}</h1>
               <p className="text-base sm:text-lg text-brand-gray mb-4 sm:mb-6">{product.wordpress_meta?.brand_name || 'Unknown Brand'}</p>
               <p className="text-sm sm:text-base text-brand-gray leading-relaxed mb-6 sm:mb-8">
-                {product.description || product.excerpt || 'No description available for this product.'}
+                {product.optimized_product_description || product.verdict_summary || product.description || product.excerpt || 'No description available for this product.'}
               </p>
               <div className="space-y-2 text-xs sm:text-sm">
                 <div className="flex flex-col sm:flex-row">
@@ -166,8 +166,135 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
             {/* Research Summary */}
             <section className="bg-white p-4 sm:p-6 lg:p-8 rounded-2xl shadow-sm border border-gray-100">
               <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-4 sm:mb-6">Research Summary</h2>
-              <div className="space-y-4 text-brand-gray leading-relaxed text-sm">
-                {product.description || product.excerpt ? (
+              <div className="space-y-6 text-brand-gray leading-relaxed">
+                {product.verdict_summary ? (
+                  <div className="space-y-4">
+                    <p className="text-base text-brand-dark">{product.verdict_summary}</p>
+                    {product.verdict_bullets && (
+                      <ul className="list-disc list-inside space-y-2 text-sm text-brand-dark ml-4">
+                        {(() => {
+                          // Check if verdict_bullets is already an array (parsed by Supabase)
+                          if (Array.isArray(product.verdict_bullets)) {
+                            return product.verdict_bullets
+                              .filter((bullet: string) => bullet && bullet.trim())
+                              .map((bullet: string, index: number) => {
+                                // Clean up any leading/trailing quotes and extra formatting
+                                const cleanBullet = bullet.trim()
+                                  .replace(/^["']+|["']+$/g, '') // Remove leading/trailing quotes
+                                  .replace(/^,+|,+$/g, '')        // Remove leading/trailing commas
+                                  .trim()
+
+                                return (
+                                  <li key={index} className="leading-relaxed font-semibold">{cleanBullet}</li>
+                                )
+                              })
+                          }
+
+                          try {
+                            // Try JSON parsing for string data
+                            const bullets = JSON.parse(product.verdict_bullets)
+                            return bullets
+                              .filter((bullet: string) => bullet && bullet.trim())
+                              .map((bullet: string, index: number) => {
+                                // Clean up any leading/trailing quotes and extra formatting
+                                const cleanBullet = bullet.trim()
+                                  .replace(/^["']+|["']+$/g, '') // Remove leading/trailing quotes
+                                  .replace(/^,+|,+$/g, '')        // Remove leading/trailing commas
+                                  .trim()
+
+                                return (
+                                  <li key={index} className="leading-relaxed font-semibold">{cleanBullet}</li>
+                                )
+                              })
+                          } catch (error) {
+                            // If JSON fails, try to handle malformed JSON or plain text
+                            const rawText = String(product.verdict_bullets || '')
+
+                            // Try multiple repair strategies for malformed JSON
+                            let bullets: string[] = []
+
+                            // Strategy 1: Fix JSON with proper quote escaping
+                            try {
+                              // Look for array-like structure and extract the content
+                              const arrayMatch = rawText.match(/^\s*\[(.*)\]\s*$/)
+                              if (arrayMatch) {
+                                const content = arrayMatch[1]
+                                // Split by quotes, comma, quotes pattern while preserving content
+                                const items = []
+                                let current = ''
+                                let inQuotes = false
+                                let i = 0
+
+                                while (i < content.length) {
+                                  const char = content[i]
+
+                                  if (char === '"' && (i === 0 || content[i-1] !== '\\')) {
+                                    if (!inQuotes) {
+                                      inQuotes = true
+                                      current = ''
+                                    } else {
+                                      // End of quoted string
+                                      if (current.trim()) {
+                                        items.push(current.trim())
+                                      }
+                                      inQuotes = false
+                                      current = ''
+                                      // Skip past comma and whitespace
+                                      while (i + 1 < content.length && /[,\s]/.test(content[i + 1])) {
+                                        i++
+                                      }
+                                    }
+                                  } else if (inQuotes) {
+                                    current += char
+                                  }
+                                  i++
+                                }
+
+                                if (items.length > 0) {
+                                  bullets = items
+                                }
+                              }
+                            } catch (repairError) {
+                              // Strategy 2: Fallback to regex-based splitting
+                              try {
+                                const cleanText = rawText
+                                  .replace(/^\s*\[|\]\s*$/g, '')  // Remove array brackets
+                                  .replace(/\\"/g, '"')           // Unescape quotes
+
+                                // Split by patterns that typically separate bullets
+                                bullets = cleanText
+                                  .split(/",\s*"/)
+                                  .map(bullet => bullet.replace(/^["']+|["']+$/g, '').trim())
+                                  .filter(bullet => bullet.length > 10)
+                              } catch (finalError) {
+                                // Strategy 3: Manual text splitting
+                                bullets = rawText
+                                  .replace(/^\s*\[|\]\s*$/g, '')
+                                  .replace(/["""'']/g, '')
+                                  .split(/(?<=\.)\s*(?=[A-Z])|(?=Reddit consensus)|(?=At \$)|(?=Lifetime warranty)|(?=Completely restorable)|(?=Multi-generational)|(?=Perfect for)/)
+                                  .filter(bullet => {
+                                    const cleaned = bullet.trim()
+                                    return cleaned.length > 10 && !cleaned.match(/^[\[\],\s]*$/)
+                                  })
+                                  .map(bullet => bullet.trim().replace(/^[,\s]+|[,\s]+$/g, ''))
+                              }
+                            }
+
+                            return bullets.map((bullet: string, index: number) => {
+                              const cleanBullet = bullet.trim()
+                                .replace(/^["']+|["']+$/g, '')
+                                .replace(/^,+|,+$/g, '')
+                                .trim()
+                              return (
+                                <li key={index} className="leading-relaxed font-semibold">{cleanBullet}</li>
+                              )
+                            })
+                          }
+                        })()}
+                      </ul>
+                    )}
+                  </div>
+                ) : product.description || product.excerpt ? (
                   renderHTMLContent(product.description || product.excerpt)
                 ) : (
                   <p>No research summary available for this product.</p>

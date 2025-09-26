@@ -22,6 +22,7 @@ export default function NewProductPage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [brands, setBrands] = useState<Brand[]>([])
   const [loading, setLoading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
@@ -84,6 +85,41 @@ export default function NewProductPage() {
     }))
   }
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadProgress(10)
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      setUploadProgress(50)
+
+      const response = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData
+      })
+
+      setUploadProgress(80)
+
+      if (response.ok) {
+        const data = await response.json()
+        setFormData(prev => ({ ...prev, featured_image_url: data.url }))
+        setUploadProgress(100)
+        setTimeout(() => setUploadProgress(0), 1000)
+      } else {
+        alert('Failed to upload image')
+        setUploadProgress(0)
+      }
+    } catch (error) {
+      console.error('Upload error:', error)
+      alert('Failed to upload image')
+      setUploadProgress(0)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -117,77 +153,77 @@ export default function NewProductPage() {
 
   if (isPending || !isAdmin) {
     return (
-      <div className=\"min-h-screen bg-brand-cream flex items-center justify-center\">
-        <div className=\"animate-spin rounded-full h-12 w-12 border-b-2 border-brand-teal\"></div>
+      <div className="min-h-screen bg-brand-cream flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-teal"></div>
       </div>
     )
   }
 
   return (
-    <div className=\"min-h-screen bg-brand-cream\">
+    <div className="min-h-screen bg-brand-cream">
       {/* Header */}
-      <header className=\"bg-white shadow-sm border-b border-gray-200\">
-        <div className=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8\">
-          <div className=\"flex justify-between items-center h-16\">
-            <div className=\"flex items-center space-x-4\">
+      <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-4">
               <Link
-                href=\"/admin/products\"
-                className=\"text-brand-gray hover:text-brand-dark\"
+                href="/admin/products"
+                className="text-brand-gray hover:text-brand-dark"
               >
                 ← Products
               </Link>
-              <h1 className=\"text-2xl font-bold text-brand-dark\">Add New Product</h1>
+              <h1 className="text-2xl font-bold text-brand-dark">Add New Product</h1>
             </div>
           </div>
         </div>
       </header>
 
-      <div className=\"max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8\">
-        <form onSubmit={handleSubmit} className=\"space-y-8\">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <form onSubmit={handleSubmit} className="space-y-8">
           {/* Basic Information */}
-          <div className=\"bg-white rounded-xl p-6 shadow-sm border border-gray-100\">
-            <h2 className=\"text-lg font-semibold text-brand-dark mb-6\">Basic Information</h2>
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h2 className="text-lg font-semibold text-brand-dark mb-6">Basic Information</h2>
 
-            <div className=\"grid grid-cols-1 md:grid-cols-2 gap-6\">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className=\"block text-sm font-medium text-brand-gray mb-2\">
+                <label className="block text-sm font-medium text-brand-gray mb-2">
                   Product Name *
                 </label>
                 <input
-                  type=\"text\"
+                  type="text"
                   required
                   value={formData.name}
                   onChange={(e) => handleNameChange(e.target.value)}
-                  className=\"w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal\"
-                  placeholder=\"Enter product name\"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                  placeholder="Enter product name"
                 />
               </div>
 
               <div>
-                <label className=\"block text-sm font-medium text-brand-gray mb-2\">
+                <label className="block text-sm font-medium text-brand-gray mb-2">
                   URL Slug *
                 </label>
                 <input
-                  type=\"text\"
+                  type="text"
                   required
                   value={formData.slug}
                   onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
-                  className=\"w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal\"
-                  placeholder=\"product-url-slug\"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                  placeholder="product-url-slug"
                 />
               </div>
 
               <div>
-                <label className=\"block text-sm font-medium text-brand-gray mb-2\">
+                <label className="block text-sm font-medium text-brand-gray mb-2">
                   Brand *
                 </label>
                 <select
                   required
                   value={formData.brand_id}
                   onChange={(e) => setFormData(prev => ({ ...prev, brand_id: e.target.value }))}
-                  className=\"w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal\"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
                 >
-                  <option value=\"\">Select a brand</option>
+                  <option value="">Select a brand</option>
                   {brands.map(brand => (
                     <option key={brand.id} value={brand.id}>{brand.name}</option>
                   ))}
@@ -195,16 +231,16 @@ export default function NewProductPage() {
               </div>
 
               <div>
-                <label className=\"block text-sm font-medium text-brand-gray mb-2\">
+                <label className="block text-sm font-medium text-brand-gray mb-2">
                   Category *
                 </label>
                 <select
                   required
                   value={formData.category_id}
                   onChange={(e) => setFormData(prev => ({ ...prev, category_id: e.target.value }))}
-                  className=\"w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal\"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
                 >
-                  <option value=\"\">Select a category</option>
+                  <option value="">Select a category</option>
                   {categories.map(category => (
                     <option key={category.id} value={category.id}>{category.name}</option>
                   ))}
@@ -212,44 +248,44 @@ export default function NewProductPage() {
               </div>
 
               <div>
-                <label className=\"block text-sm font-medium text-brand-gray mb-2\">
+                <label className="block text-sm font-medium text-brand-gray mb-2">
                   Price ($)
                 </label>
                 <input
-                  type=\"number\"
-                  step=\"0.01\"
+                  type="number"
+                  step="0.01"
                   value={formData.price}
                   onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
-                  className=\"w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal\"
-                  placeholder=\"99.99\"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                  placeholder="99.99"
                 />
               </div>
 
               <div>
-                <label className=\"block text-sm font-medium text-brand-gray mb-2\">
+                <label className="block text-sm font-medium text-brand-gray mb-2">
                   BIFL Score (0-10)
                 </label>
                 <input
-                  type=\"number\"
-                  step=\"0.1\"
-                  min=\"0\"
-                  max=\"10\"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="10"
                   value={formData.bifl_total_score}
                   onChange={(e) => setFormData(prev => ({ ...prev, bifl_total_score: e.target.value }))}
-                  className=\"w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal\"
-                  placeholder=\"8.5\"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                  placeholder="8.5"
                 />
               </div>
             </div>
           </div>
 
           {/* Content */}
-          <div className=\"bg-white rounded-xl p-6 shadow-sm border border-gray-100\">
-            <h2 className=\"text-lg font-semibold text-brand-dark mb-6\">Content</h2>
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h2 className="text-lg font-semibold text-brand-dark mb-6">Content</h2>
 
-            <div className=\"space-y-6\">
+            <div className="space-y-6">
               <div>
-                <label className=\"block text-sm font-medium text-brand-gray mb-2\">
+                <label className="block text-sm font-medium text-brand-gray mb-2">
                   Short Description *
                 </label>
                 <textarea
@@ -257,75 +293,103 @@ export default function NewProductPage() {
                   rows={3}
                   value={formData.excerpt}
                   onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
-                  className=\"w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal\"
-                  placeholder=\"Brief description for product cards and previews\"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                  placeholder="Brief description for product cards and previews"
                 />
               </div>
 
               <div>
-                <label className=\"block text-sm font-medium text-brand-gray mb-2\">
+                <label className="block text-sm font-medium text-brand-gray mb-2">
                   Full Description
                 </label>
                 <textarea
                   rows={8}
                   value={formData.description}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  className=\"w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal\"
-                  placeholder=\"Detailed product description, features, and benefits\"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                  placeholder="Detailed product description, features, and benefits"
                 />
               </div>
 
               <div>
-                <label className=\"block text-sm font-medium text-brand-gray mb-2\">
-                  Featured Image URL
+                <label className="block text-sm font-medium text-brand-gray mb-2">
+                  Featured Image
                 </label>
-                <input
-                  type=\"url\"
-                  value={formData.featured_image_url}
-                  onChange={(e) => setFormData(prev => ({ ...prev, featured_image_url: e.target.value }))}
-                  className=\"w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal\"
-                  placeholder=\"https://example.com/product-image.jpg\"
-                />
+                <div className="space-y-4">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                  />
+                  {uploadProgress > 0 && uploadProgress < 100 && (
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-brand-teal h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${uploadProgress}%` }}
+                      ></div>
+                    </div>
+                  )}
+                  <input
+                    type="url"
+                    value={formData.featured_image_url}
+                    onChange={(e) => setFormData(prev => ({ ...prev, featured_image_url: e.target.value }))}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                    placeholder="Or enter image URL directly"
+                  />
+                  {formData.featured_image_url && (
+                    <div className="mt-2">
+                      <img
+                        src={formData.featured_image_url}
+                        alt="Preview"
+                        className="max-w-xs h-32 object-cover rounded-lg border"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none'
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
 
           {/* Publishing */}
-          <div className=\"bg-white rounded-xl p-6 shadow-sm border border-gray-100\">
-            <h2 className=\"text-lg font-semibold text-brand-dark mb-6\">Publishing</h2>
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h2 className="text-lg font-semibold text-brand-dark mb-6">Publishing</h2>
 
             <div>
-              <label className=\"block text-sm font-medium text-brand-gray mb-2\">
+              <label className="block text-sm font-medium text-brand-gray mb-2">
                 Status
               </label>
               <select
                 value={formData.status}
                 onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value }))}
-                className=\"w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal\"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
               >
-                <option value=\"draft\">Draft</option>
-                <option value=\"published\">Published</option>
-                <option value=\"archived\">Archived</option>
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+                <option value="archived">Archived</option>
               </select>
             </div>
           </div>
 
           {/* Actions */}
-          <div className=\"flex items-center justify-between\">
+          <div className="flex items-center justify-between">
             <Link
-              href=\"/admin/products\"
-              className=\"flex items-center space-x-2 px-6 py-3 border border-gray-300 rounded-lg text-brand-gray hover:text-brand-dark hover:border-gray-400 transition-colors\"
+              href="/admin/products"
+              className="flex items-center space-x-2 px-6 py-3 border border-gray-300 rounded-lg text-brand-gray hover:text-brand-dark hover:border-gray-400 transition-colors"
             >
-              <X className=\"w-4 h-4\" />
+              <X className="w-4 h-4" />
               <span>Cancel</span>
             </Link>
 
             <button
-              type=\"submit\"
+              type="submit"
               disabled={loading}
-              className=\"flex items-center space-x-2 px-6 py-3 bg-brand-teal text-white rounded-lg hover:bg-brand-teal/90 transition-colors disabled:opacity-50\"
+              className="flex items-center space-x-2 px-6 py-3 bg-brand-teal text-white rounded-lg hover:bg-brand-teal/90 transition-colors disabled:opacity-50"
             >
-              <Save className=\"w-4 h-4\" />
+              <Save className="w-4 h-4" />
               <span>{loading ? 'Creating...' : 'Create Product'}</span>
             </button>
           </div>

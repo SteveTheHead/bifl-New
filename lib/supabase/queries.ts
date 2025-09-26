@@ -48,8 +48,12 @@ export async function getProductById(id: string) {
   const supabase = await createClient()
 
   const { data, error } = await supabase
-    .from('products_with_taxonomy')
-    .select('*')
+    .from('products')
+    .select(`
+      *,
+      brands!brand_id(name, slug, website, description),
+      categories!category_id(name, slug, description)
+    `)
     .eq('id', id)
     .eq('status', 'published')
     .single()
