@@ -221,6 +221,7 @@ async function importProducts(csvPath: string) {
             country_of_origin: row.country_of_origin || null,
             use_case: row.use_case || null,
             lifespan_expectation: row.lifespan_expectation ? parseInt(row.lifespan_expectation.replace(/[^0-9]/g, '')) : null,
+            bifl_certification: row.bifl_certification || null,
             status: row.Status?.toLowerCase() === 'published' ? 'published' : 'draft',
             is_featured: false,
             view_count: 0,

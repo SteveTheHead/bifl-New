@@ -102,6 +102,7 @@ export async function PUT(
         general_notes: body.general_notes,
         meta_title: body.meta_title,
         meta_description: body.meta_description,
+        bifl_certification: body.bifl_certification,
         status: body.status,
         updated_at: new Date().toISOString()
       })

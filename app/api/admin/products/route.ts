@@ -5,9 +5,22 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient()
 
+    // First, clean up empty products if requested
+    const url = new URL(request.url)
+    if (url.searchParams.get('cleanup') === 'true') {
+      await supabase
+        .from('products')
+        .delete()
+        .or('name.is.null,name.eq.')
+
+      console.log('Cleaned up empty products')
+    }
+
     const { data: products, error } = await supabase
       .from('products_with_taxonomy')
       .select('*')
+      .not('name', 'is', null)
+      .neq('name', '')
       .order('created_at', { ascending: false })
       .limit(100)
 
@@ -65,6 +78,7 @@ export async function POST(request: NextRequest) {
         general_notes: body.general_notes,
         meta_title: body.meta_title,
         meta_description: body.meta_description,
+        bifl_certification: body.bifl_certification,
         status: body.status || 'draft'
       }])
       .select()

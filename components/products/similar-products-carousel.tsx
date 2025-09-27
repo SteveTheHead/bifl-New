@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { FavoriteIcon } from '../favorites/favorite-button'
+import BadgeDisplay from '@/components/BadgeDisplay'
 
 function getScoreBadgeStyle(score: number) {
   const scoreString = score.toString()
@@ -182,6 +183,11 @@ export function SimilarProductsCarousel({ currentProductId, categoryId }: Simila
                           <span className="text-gray-500 text-sm">No Image</span>
                         </div>
                       )}
+                      <BadgeDisplay
+                        product={product}
+                        size="xs"
+                        overlay={true}
+                      />
                       <FavoriteIcon productId={product.id} />
                     </div>
 

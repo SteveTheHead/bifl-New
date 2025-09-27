@@ -9,6 +9,7 @@ import { SimilarProductsCarousel } from './similar-products-carousel'
 import { ReviewForm } from '../reviews/review-form'
 import { ReviewsList } from '../reviews/reviews-list'
 import { FavoriteButtonWithText } from '../favorites/favorite-button'
+import BadgeDisplay from '@/components/BadgeDisplay'
 
 // Get gradient pill styling based on BIFL score
 function getScoreBadgeStyle(score: number) {
@@ -120,26 +121,31 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
             {/* Product Header */}
             <section>
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">{product.name}</h1>
-              <p className="text-base sm:text-lg text-brand-gray mb-4 sm:mb-6">{product.wordpress_meta?.brand_name || 'Unknown Brand'}</p>
+              <p className="text-base sm:text-lg text-brand-gray mb-4">{product.wordpress_meta?.brand_name || 'Unknown Brand'}</p>
               <p className="text-sm sm:text-base text-brand-gray leading-relaxed mb-6 sm:mb-8">
                 {product.optimized_product_description || product.verdict_summary || product.description || product.excerpt || 'No description available for this product.'}
               </p>
-              <div className="space-y-2 text-xs sm:text-sm">
-                <div className="flex flex-col sm:flex-row">
-                  <strong className="w-full sm:w-32 font-medium">Dimensions:</strong>
-                  <span className="text-brand-gray">{product.dimensions || 'N/A'}</span>
+              <div className="flex flex-col sm:flex-row gap-6">
+                <div className="space-y-2 text-xs sm:text-sm flex-1">
+                  <div className="flex flex-col sm:flex-row">
+                    <strong className="w-full sm:w-32 font-medium">Dimensions:</strong>
+                    <span className="text-brand-gray">{product.dimensions || 'N/A'}</span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row">
+                    <strong className="w-full sm:w-32 font-medium">Lifespan:</strong>
+                    <span className="text-brand-gray">{product.lifespan_expectation ? `${product.lifespan_expectation}+ years` : 'N/A'}</span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row">
+                    <strong className="w-full sm:w-32 font-medium">Material:</strong>
+                    <span className="text-brand-gray">{product.primary_material || 'N/A'}</span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row">
+                    <strong className="w-full sm:w-32 font-medium">Country of Origin:</strong>
+                    <span className="text-brand-gray">{product.country_of_origin || 'Unknown'}</span>
+                  </div>
                 </div>
-                <div className="flex flex-col sm:flex-row">
-                  <strong className="w-full sm:w-32 font-medium">Lifespan:</strong>
-                  <span className="text-brand-gray">{product.lifespan_expectation ? `${product.lifespan_expectation}+ years` : 'N/A'}</span>
-                </div>
-                <div className="flex flex-col sm:flex-row">
-                  <strong className="w-full sm:w-32 font-medium">Material:</strong>
-                  <span className="text-brand-gray">{product.primary_material || 'N/A'}</span>
-                </div>
-                <div className="flex flex-col sm:flex-row">
-                  <strong className="w-full sm:w-32 font-medium">Country of Origin:</strong>
-                  <span className="text-brand-gray">{product.country_of_origin || 'Unknown'}</span>
+                <div className="flex-shrink-0">
+                  <BadgeDisplay product={product} size="xs" overlay={false} className="!flex !flex-row !gap-2" />
                 </div>
               </div>
             </section>

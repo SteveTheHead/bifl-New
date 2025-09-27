@@ -5,11 +5,65 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Search } from 'lucide-react'
 
+// Import badge calculation from BadgeDisplay
+function calculateBadges(product: any): string[] {
+  if (!product) return []
+
+  const badges: string[] = []
+  const totalScore = product.bifl_total_score || 0
+  const warrantyScore = product.warranty_score || 0
+  const socialScore = product.social_score || 0
+  const repairabilityScore = product.repairability_score || 0
+  const sustainabilityScore = product.sustainability_score || 0
+  const buildQualityScore = product.build_quality_score || 0
+  const durabilityScore = product.durability_score || 0
+
+  // Gold Standard: 9.0+ average across all scores with high individual scores
+  if (totalScore >= 9.0 &&
+      buildQualityScore >= 8.5 &&
+      durabilityScore >= 8.5 &&
+      warrantyScore >= 8.0) {
+    badges.push('Gold Standard')
+  }
+
+  // Lifetime Warranty: Warranty score = 10
+  if (warrantyScore >= 10.0) {
+    badges.push('Lifetime Warranty')
+  }
+
+  // Crowd Favorite: Social score ≥ 8.5
+  if (socialScore >= 8.5) {
+    badges.push('Crowd Favorite')
+  }
+
+  // Repair Friendly: Repairability score ≥ 8.5
+  if (repairabilityScore >= 8.5) {
+    badges.push('Repair Friendly')
+  }
+
+  // Eco Hero: Sustainability score ≥ 8.0
+  if (sustainabilityScore >= 8.0) {
+    badges.push('Eco Hero')
+  }
+
+  // BIFL Approved: 7.5+ across all categories (only if no other badges)
+  if (badges.length === 0 &&
+      totalScore >= 7.5 &&
+      buildQualityScore >= 7.0 &&
+      durabilityScore >= 7.0 &&
+      warrantyScore >= 6.0) {
+    badges.push('BIFL Approved')
+  }
+
+  return badges
+}
+
 interface FilterProps {
   onFiltersChange: (filters: {
     search: string
     categories: string[]
     brands: string[]
+    badges: string[]
     scoreRanges: string[]
     countries: string[]
     priceRange: [number, number]
@@ -23,6 +77,7 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
   const [search, setSearch] = useState('')
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
+  const [selectedBadges, setSelectedBadges] = useState<string[]>([])
   const [selectedScoreRanges, setSelectedScoreRanges] = useState<string[]>([])
   const [selectedCountries, setSelectedCountries] = useState<string[]>([])
   const [sortBy, setSortBy] = useState('score-desc')
@@ -60,6 +115,14 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
       )
     }
 
+    // Apply badge filter
+    if (selectedBadges.length > 0) {
+      filtered = filtered.filter(product => {
+        const productBadges = calculateBadges(product)
+        return selectedBadges.some(badge => productBadges.includes(badge))
+      })
+    }
+
     // Apply score range filter
     if (selectedScoreRanges.length > 0) {
       filtered = filtered.filter(product => {
@@ -85,7 +148,7 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
     }
 
     return filtered
-  }, [products, search, selectedCategories, selectedBrands, selectedScoreRanges, selectedCountries])
+  }, [products, search, selectedCategories, selectedBrands, selectedBadges, selectedScoreRanges, selectedCountries])
 
   const priceStats = useMemo(() => {
     if (filteredProductsForPriceCalc.length === 0) return { min: 0, max: 1000 }
@@ -113,12 +176,13 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
       search,
       categories: selectedCategories,
       brands: selectedBrands,
+      badges: selectedBadges,
       scoreRanges: selectedScoreRanges,
       countries: selectedCountries,
       priceRange,
       sortBy
     })
-  }, [search, selectedCategories, selectedBrands, selectedScoreRanges, selectedCountries, priceRange, sortBy, onFiltersChange])
+  }, [search, selectedCategories, selectedBrands, selectedBadges, selectedScoreRanges, selectedCountries, priceRange, sortBy, onFiltersChange])
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -150,6 +214,14 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
     )
   }
 
+  const toggleBadge = (badge: string) => {
+    setSelectedBadges(prev =>
+      prev.includes(badge)
+        ? prev.filter(b => b !== badge)
+        : [...prev, badge]
+    )
+  }
+
   const toggleScoreRange = (range: string) => {
     setSelectedScoreRanges(prev =>
       prev.includes(range)
@@ -170,6 +242,7 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
     setSearch('')
     setSelectedCategories([])
     setSelectedBrands([])
+    setSelectedBadges([])
     setSelectedScoreRanges([])
     setSelectedCountries([])
     setPriceRange([priceStats.min, priceStats.max])
@@ -194,6 +267,14 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
   const getCountryCount = (country: string) => {
     if (!products) return 0
     return products.filter(product => product.country_of_origin === country).length
+  }
+
+  const getBadgeCount = (badgeName: string) => {
+    if (!products) return 0
+    return products.filter(product => {
+      const badges = calculateBadges(product)
+      return badges.includes(badgeName)
+    }).length
   }
 
   // Get unique countries from products
@@ -233,6 +314,15 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
     { range: '7.0-7.9', label: '7.0 - 7.9 (Good)', gradient: 'linear-gradient(135deg, #fff886, #fbd786)' },
     { range: '6.0-6.9', label: '6.0 - 6.9 (Fair)', gradient: 'linear-gradient(135deg, #ffb347, #ff9966)' },
     { range: '0.0-5.9', label: '0.0 - 5.9 (Poor)', gradient: 'linear-gradient(135deg, #ff4c4c, #ff6e7f)' }
+  ]
+
+  const availableBadges = [
+    'Gold Standard',
+    'Lifetime Warranty',
+    'Crowd Favorite',
+    'BIFL Approved',
+    'Repair Friendly',
+    'Eco Hero'
   ]
 
   return (
@@ -324,6 +414,35 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
                   </label>
                 </li>
               ))}
+            </ul>
+          </div>
+
+          {/* Badges */}
+          <div className="mb-8">
+            <h4 className="font-semibold mb-4 text-lg">Badges</h4>
+            <ul className="space-y-2 text-brand-gray">
+              {availableBadges.map((badge) => {
+                const count = getBadgeCount(badge)
+                if (count === 0) return null
+                return (
+                  <li key={badge}>
+                    <label className="flex items-center justify-between hover:text-brand-dark transition-colors cursor-pointer">
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          checked={selectedBadges.includes(badge)}
+                          onChange={() => toggleBadge(badge)}
+                          className="w-4 h-4 text-brand-teal border-gray-300 rounded focus:ring-brand-teal"
+                        />
+                        <span>{badge}</span>
+                      </div>
+                      <span className="text-xs bg-gray-100 px-2 py-1 rounded-full">
+                        {count}
+                      </span>
+                    </label>
+                  </li>
+                )
+              })}
             </ul>
           </div>
 

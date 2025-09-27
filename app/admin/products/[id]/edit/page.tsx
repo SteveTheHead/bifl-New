@@ -181,6 +181,7 @@ export default function EditProductPage() {
           general_notes: product.general_notes || '',
           meta_title: product.meta_title || '',
           meta_description: product.meta_description || '',
+          bifl_certification: product.bifl_certification || '',
           status: product.status || 'draft'
         })
       } else {
@@ -1112,6 +1113,32 @@ export default function EditProductPage() {
                   {formData.meta_description.length}/160 characters (optimal: 150-160)
                 </p>
               </div>
+            </div>
+          </div>
+
+          {/* Badge Certification */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h2 className="text-lg font-semibold text-brand-dark mb-6">Badge Certification</h2>
+            <div>
+              <label className="block text-sm font-medium text-brand-gray mb-2">
+                BIFL Certification Badge
+              </label>
+              <select
+                value={formData.bifl_certification}
+                onChange={(e) => setFormData(prev => ({ ...prev, bifl_certification: e.target.value }))}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+              >
+                <option value="">No Badge</option>
+                <option value="Gold Standard">Gold Standard (9.0+ average across all scores)</option>
+                <option value="Lifetime Warranty">Lifetime Warranty (Warranty score = 10)</option>
+                <option value="Crowd Favorite">Crowd Favorite (Social score ≥ 8.5)</option>
+                <option value="BIFL Approved">BIFL Approved (7.5+ across all categories)</option>
+                <option value="Repair Friendly">Repair Friendly (Repairability score ≥ 8.5)</option>
+                <option value="Eco Hero">Eco Hero (Sustainability score ≥ 8.0)</option>
+              </select>
+              <p className="text-xs text-brand-gray mt-1">
+                Select the appropriate badge based on the product's BIFL scores
+              </p>
             </div>
           </div>
 

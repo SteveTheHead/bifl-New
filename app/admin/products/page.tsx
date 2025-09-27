@@ -85,9 +85,9 @@ export default function AdminProductsPage() {
   }
 
   const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.brand_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.category_name?.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesSearch = (product.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (product.brand_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (product.category_name || '').toLowerCase().includes(searchTerm.toLowerCase())
 
     const matchesStatus = statusFilter === 'all' || product.status === statusFilter
 
@@ -186,13 +186,13 @@ export default function AdminProductsPage() {
             {filteredProducts.map((product) => (
               <div key={product.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
                 {/* Product Image */}
-                <div className="relative h-48 bg-gray-200">
+                <div className="relative h-48 bg-white border border-gray-100 rounded-lg">
                   {product.featured_image_url ? (
                     <Image
                       src={product.featured_image_url}
                       alt={product.name}
                       fill
-                      className="object-cover"
+                      className="object-contain p-3"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
@@ -221,9 +221,9 @@ export default function AdminProductsPage() {
                 {/* Product Info */}
                 <div className="p-6">
                   <div className="mb-3">
-                    <h3 className="font-semibold text-lg text-brand-dark line-clamp-2">{product.name}</h3>
+                    <h3 className="font-semibold text-lg text-brand-dark line-clamp-2">{product.name || 'Untitled Product'}</h3>
                     <p className="text-sm text-brand-gray">
-                      {product.brand_name} • {product.category_name}
+                      {product.brand_name || 'No Brand'} • {product.category_name || 'No Category'}
                     </p>
                   </div>
 

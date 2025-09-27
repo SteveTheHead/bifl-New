@@ -6,7 +6,7 @@ export default async function ProductsPage() {
   try {
     // Get products and taxonomy data
     const [products, categories, priceRanges] = await Promise.all([
-      getProducts(24, 0), // Get first 24 products
+      getProducts(1000, 0), // Get all products (up to 1000)
       getCategories(),
       getPriceRanges()
     ])

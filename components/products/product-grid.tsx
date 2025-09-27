@@ -1,9 +1,63 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { ProductFilters } from './product-filters'
+import BadgeDisplay from '@/components/BadgeDisplay'
+
+// Badge calculation function (matching BadgeDisplay logic)
+function calculateBadges(product: any): string[] {
+  if (!product) return []
+
+  const badges: string[] = []
+  const totalScore = product.bifl_total_score || 0
+  const warrantyScore = product.warranty_score || 0
+  const socialScore = product.social_score || 0
+  const repairabilityScore = product.repairability_score || 0
+  const sustainabilityScore = product.sustainability_score || 0
+  const buildQualityScore = product.build_quality_score || 0
+  const durabilityScore = product.durability_score || 0
+
+  // Gold Standard: 9.0+ average across all scores with high individual scores
+  if (totalScore >= 9.0 &&
+      buildQualityScore >= 8.5 &&
+      durabilityScore >= 8.5 &&
+      warrantyScore >= 8.0) {
+    badges.push('Gold Standard')
+  }
+
+  // Lifetime Warranty: Warranty score = 10
+  if (warrantyScore >= 10.0) {
+    badges.push('Lifetime Warranty')
+  }
+
+  // Crowd Favorite: Social score ≥ 8.5
+  if (socialScore >= 8.5) {
+    badges.push('Crowd Favorite')
+  }
+
+  // Repair Friendly: Repairability score ≥ 8.5
+  if (repairabilityScore >= 8.5) {
+    badges.push('Repair Friendly')
+  }
+
+  // Eco Hero: Sustainability score ≥ 8.0
+  if (sustainabilityScore >= 8.0) {
+    badges.push('Eco Hero')
+  }
+
+  // BIFL Approved: 7.5+ across all categories (only if no other badges)
+  if (badges.length === 0 &&
+      totalScore >= 7.5 &&
+      buildQualityScore >= 7.0 &&
+      durabilityScore >= 7.0 &&
+      warrantyScore >= 6.0) {
+    badges.push('BIFL Approved')
+  }
+
+  return badges
+}
 
 function getScoreBadgeStyle(score: number) {
   const scoreString = score.toString()
@@ -28,11 +82,18 @@ function SimpleProductCard({ product }: { product: any }) {
 
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 text-center transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
-      <img
-        className="w-full h-56 object-contain mb-4"
-        src={product.featured_image_url || '/placeholder-product.png'}
-        alt={product.name || 'Product'}
-      />
+      <div className="relative mb-4">
+        <img
+          className="w-full h-56 object-contain"
+          src={product.featured_image_url || '/placeholder-product.png'}
+          alt={product.name || 'Product'}
+        />
+        <BadgeDisplay
+          product={product}
+          size="xs"
+          overlay={true}
+        />
+      </div>
       <h3 className="text-xl font-semibold">{product.name}</h3>
       <p className="text-brand-gray mb-4">{product.brand_name}</p>
       <div className="flex justify-center items-center gap-3 mb-6">
@@ -72,11 +133,20 @@ export function ProductGrid({ initialProducts, categories }: ProductGridProps) {
     search: '',
     categories: [] as string[],
     brands: [] as string[],
+    badges: [] as string[],
     scoreRanges: [] as string[],
     countries: [] as string[],
     priceRange: [0, 1000] as [number, number],
     sortBy: 'score-desc'
   })
+
+  const [displayCount, setDisplayCount] = useState(24)
+  const [pageSize, setPageSize] = useState(24)
+
+  // Reset display count when filters change
+  useEffect(() => {
+    setDisplayCount(pageSize)
+  }, [filters, pageSize])
 
   // Filter and sort products based on current filters
   const filteredProducts = useMemo(() => {
@@ -104,6 +174,14 @@ export function ProductGrid({ initialProducts, categories }: ProductGridProps) {
       filtered = filtered.filter(product =>
         filters.brands.includes(product.wordpress_meta?.brand_name)
       )
+    }
+
+    // Badge filter
+    if (filters.badges.length > 0) {
+      filtered = filtered.filter(product => {
+        const productBadges = calculateBadges(product)
+        return filters.badges.some(badge => productBadges.includes(badge))
+      })
     }
 
     // Score range filter
@@ -158,6 +236,23 @@ export function ProductGrid({ initialProducts, categories }: ProductGridProps) {
     return filtered
   }, [initialProducts, filters])
 
+  // Get products to display based on current display count
+  const displayedProducts = filteredProducts.slice(0, displayCount)
+  const hasMore = displayCount < filteredProducts.length
+
+  const handleLoadMore = () => {
+    setDisplayCount(prev => prev + pageSize)
+  }
+
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize)
+    if (newSize === filteredProducts.length) {
+      setDisplayCount(filteredProducts.length)
+    } else {
+      setDisplayCount(newSize)
+    }
+  }
+
   return (
     <div className="grid grid-cols-12 gap-8">
       {/* Filters Sidebar */}
@@ -170,9 +265,25 @@ export function ProductGrid({ initialProducts, categories }: ProductGridProps) {
       {/* Product Grid Container */}
       <div className="col-span-9">
         <div className="flex justify-between items-center mb-6">
-          <p className="text-brand-gray">
-            Showing <span className="font-bold text-brand-dark">1-{filteredProducts.length}</span> of <span className="font-bold text-brand-dark">{filteredProducts.length}</span> products
-          </p>
+          <div className="flex items-center gap-4">
+            <p className="text-brand-gray">
+              Showing <span className="font-bold text-brand-dark">1-{Math.min(displayCount, filteredProducts.length)}</span> of <span className="font-bold text-brand-dark">{filteredProducts.length}</span> products
+            </p>
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-brand-gray">Show:</label>
+              <select
+                className="border border-gray-300 rounded-lg px-2 py-1 text-sm focus:ring-brand-teal focus:border-brand-teal"
+                value={pageSize}
+                onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+              >
+                <option value={12}>12</option>
+                <option value={24}>24</option>
+                <option value={48}>48</option>
+                <option value={72}>72</option>
+                <option value={filteredProducts.length}>All ({filteredProducts.length})</option>
+              </select>
+            </div>
+          </div>
           <div className="flex items-center gap-2">
             <label className="text-sm text-brand-gray">Sort by:</label>
             <select
@@ -191,10 +302,22 @@ export function ProductGrid({ initialProducts, categories }: ProductGridProps) {
 
         {/* Product Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredProducts.map((product) => (
+          {displayedProducts.map((product) => (
             <SimpleProductCard key={product.id} product={product} />
           ))}
         </div>
+
+        {/* Load More Button */}
+        {hasMore && (
+          <div className="flex justify-center mt-8">
+            <button
+              onClick={handleLoadMore}
+              className="px-6 py-2 text-white font-medium text-sm rounded-lg transition-colors bg-gray-500 hover:bg-gray-600"
+            >
+              Load More ({filteredProducts.length - displayCount} remaining)
+            </button>
+          </div>
+        )}
 
         {/* No results message */}
         {filteredProducts.length === 0 && (
