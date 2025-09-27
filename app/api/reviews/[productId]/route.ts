@@ -21,8 +21,8 @@ export async function GET(
       }
     )
 
-    // In development, show pending reviews too
-    const statusFilter = process.env.NODE_ENV === 'development' ? ['approved', 'pending'] : ['approved']
+    // Only show approved reviews
+    const statusFilter = ['approved']
 
     const { data, error } = await supabase
       .from('reviews')

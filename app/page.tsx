@@ -208,7 +208,7 @@ export default async function HomePage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
                     <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
                       <h3 className="text-2xl font-bold text-white mb-4">{category.name}</h3>
-                      <span className="inline-block text-white px-4 py-2 rounded-lg font-medium hover:bg-opacity-90 transition-colors cursor-pointer relative z-20 border-2" style={{ backgroundColor: '#4A9D93', borderColor: '#4A9D93' }}>
+                      <span className="inline-block text-white px-3 py-1.5 rounded-lg font-medium hover:bg-opacity-90 transition-colors cursor-pointer relative z-20 border-2 text-sm" style={{ backgroundColor: '#4A9D93', borderColor: '#4A9D93' }}>
                         View Products
                       </span>
                     </div>
