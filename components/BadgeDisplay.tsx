@@ -130,7 +130,7 @@ export default function BadgeDisplay({ certification, size = 'md', className = '
 
   return (
     <div className={`${overlayClasses} ${containerClasses} ${className}`}>
-      {badges.map((badgeName, index) => {
+      {badges.map((badgeName) => {
         const badge = badgeConfig[badgeName as keyof typeof badgeConfig]
         if (!badge) return null
 

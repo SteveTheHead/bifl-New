@@ -1,7 +1,6 @@
 'use client'
 
 import Image from 'next/image'
-import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { SiAmazon, SiReddit, SiGoogle } from 'react-icons/si'
 import { useState } from 'react'
