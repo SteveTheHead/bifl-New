@@ -149,35 +149,12 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-brand-dark">
-        <div className="container mx-auto px-6">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-            <div>
-              <div className="text-4xl font-bold text-brand-teal mb-2">15,000+</div>
-              <div className="text-white/80">Products Tested</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-yellow-500 mb-2">2,500+</div>
-              <div className="text-white/80">BIFL Approved</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-green-500 mb-2">50,000+</div>
-              <div className="text-white/80">Community Members</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-brand-teal mb-2">8 Years</div>
-              <div className="text-white/80">Average Testing Period</div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Category Grid Section - Dynamic */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-brand-dark mb-6">Shop by Category</h2>
+            <h2 className="text-4xl font-serif font-bold text-brand-dark mb-6">Shop by Category</h2>
             <p className="text-xl text-brand-gray max-w-3xl mx-auto">
               Explore our carefully curated categories of durable goods, each containing only the finest products that have stood the test of time.
             </p>
@@ -229,7 +206,7 @@ export default async function HomePage() {
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-brand-dark mb-6">Featured Products</h2>
+            <h2 className="text-4xl font-serif font-bold text-brand-dark mb-6">Featured Products</h2>
             <p className="text-xl text-brand-gray max-w-3xl mx-auto">
               Our top-rated products that have earned the highest community ratings and longest durability records.
             </p>
@@ -298,7 +275,7 @@ export default async function HomePage() {
       <section className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-brand-dark mb-6">What Our Community Says</h2>
+            <h2 className="text-4xl font-serif font-bold text-brand-dark mb-6">What Our Community Says</h2>
             <p className="text-xl text-brand-gray max-w-3xl mx-auto">
               Real stories from real people who have experienced the value of buying for life.
             </p>
@@ -396,7 +373,7 @@ export default async function HomePage() {
       <section className="py-20 bg-brand-dark">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-6">Our Research Process</h2>
+            <h2 className="text-4xl font-serif font-bold text-white mb-6">Our Research Process</h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
               Transparency is key to trust. Here's exactly how we evaluate every product that enters our directory.
             </p>
@@ -493,7 +470,7 @@ export default async function HomePage() {
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-brand-dark mb-6">Share Your Experience</h2>
+              <h2 className="text-4xl font-serif font-bold text-brand-dark mb-6">Share Your Experience</h2>
               <p className="text-xl text-brand-gray max-w-3xl mx-auto">
                 Have a product that's lasted you years? Submit it for community evaluation and help others make better purchasing decisions.
               </p>
