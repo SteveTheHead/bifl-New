@@ -9,8 +9,14 @@ import { AISearch } from '../search/ai-search'
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const [isClient, setIsClient] = useState(false)
   const { data: session, isPending } = useSession()
   const userMenuRef = useRef<HTMLDivElement>(null)
+
+  // Fix hydration mismatch
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   const handleSignOut = async () => {
     await signOut()
@@ -62,11 +68,23 @@ export function Navbar() {
             </div>
 
             {/* User Authentication */}
-            {isPending ? (
+            {!isClient ? (
+              <div className="p-2 text-brand-gray">
+                <div className="w-5 h-5 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+            ) : isPending ? (
               <div className="p-2 text-brand-gray">
                 <div className="w-5 h-5 animate-spin rounded-full border-2 border-brand-gray border-t-transparent"></div>
               </div>
-            ) : session?.user ? (
+            ) : !session?.user ? (
+              <Link
+                href="/auth/signin"
+                className="flex items-center space-x-2 p-2 text-brand-gray hover:text-brand-dark transition-colors"
+              >
+                <User className="w-5 h-5" />
+                <span className="text-sm font-medium">Sign In</span>
+              </Link>
+            ) : (
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
@@ -102,10 +120,6 @@ export function Navbar() {
                   </div>
                 )}
               </div>
-            ) : (
-              <Link href="/auth/signin" className="p-2 text-brand-gray hover:text-brand-dark">
-                <User className="w-5 h-5" />
-              </Link>
             )}
 
             <Link

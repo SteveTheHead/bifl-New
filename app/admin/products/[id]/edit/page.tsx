@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
-import { Save, X, Upload } from 'lucide-react'
+import { Save, X } from 'lucide-react'
 
 interface Category {
   id: string
@@ -15,10 +15,45 @@ interface Brand {
   name: string
 }
 
-export default function NewProductPage() {
+interface Product {
+  id: string
+  name: string
+  slug: string
+  brand_id: string
+  category_id: string
+  excerpt: string | null
+  description: string | null
+  price: number | null
+  featured_image_url: string | null
+  gallery_images: string[] | null
+  bifl_total_score: number | null
+  durability_score: number | null
+  repairability_score: number | null
+  sustainability_score: number | null
+  social_score: number | null
+  warranty_score: number | null
+  dimensions: string | null
+  weight: string | null
+  lifespan_expectation: number | null
+  warranty_years: number | null
+  country_of_origin: string | null
+  use_case: string | null
+  affiliate_link: string | null
+  manufacturer_link: string | null
+  verdict_summary: string | null
+  meta_title: string | null
+  meta_description: string | null
+  status: string
+}
+
+export default function EditProductPage() {
   const router = useRouter()
+  const params = useParams()
+  const productId = params.id as string
+
   const [session, setSession] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [product, setProduct] = useState<Product | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
   const [brands, setBrands] = useState<Brand[]>([])
   const [saving, setSaving] = useState(false)
@@ -60,10 +95,13 @@ export default function NewProductPage() {
   }, [])
 
   useEffect(() => {
-    if (session) {
-      fetchCategoriesAndBrands()
+    if (session && productId) {
+      Promise.all([
+        fetchProduct(),
+        fetchCategoriesAndBrands()
+      ])
     }
-  }, [session])
+  }, [session, productId])
 
   const checkSession = async () => {
     try {
@@ -79,6 +117,53 @@ export default function NewProductPage() {
     } catch (error) {
       console.error('Session check error:', error)
       router.push('/auth/signin')
+    }
+  }
+
+  const fetchProduct = async () => {
+    try {
+      const response = await fetch(`/api/admin/products/${productId}`)
+      if (response.ok) {
+        const data = await response.json()
+        const product = data.product
+        setProduct(product)
+
+        // Populate form with existing product data
+        setFormData({
+          name: product.name || '',
+          slug: product.slug || '',
+          brand_id: product.brand_id || '',
+          category_id: product.category_id || '',
+          excerpt: product.excerpt || '',
+          description: product.description || '',
+          price: product.price ? product.price.toString() : '',
+          featured_image_url: product.featured_image_url || '',
+          gallery_images: Array.isArray(product.gallery_images) ? product.gallery_images : [],
+          bifl_total_score: product.bifl_total_score ? product.bifl_total_score.toString() : '',
+          durability_score: product.durability_score ? product.durability_score.toString() : '',
+          repairability_score: product.repairability_score ? product.repairability_score.toString() : '',
+          sustainability_score: product.sustainability_score ? product.sustainability_score.toString() : '',
+          social_score: product.social_score ? product.social_score.toString() : '',
+          warranty_score: product.warranty_score ? product.warranty_score.toString() : '',
+          dimensions: product.dimensions || '',
+          weight: product.weight || '',
+          lifespan_expectation: product.lifespan_expectation ? product.lifespan_expectation.toString() : '',
+          warranty_years: product.warranty_years ? product.warranty_years.toString() : '',
+          country_of_origin: product.country_of_origin || '',
+          use_case: product.use_case || '',
+          affiliate_link: product.affiliate_link || '',
+          manufacturer_link: product.manufacturer_link || '',
+          verdict_summary: product.verdict_summary || '',
+          meta_title: product.meta_title || '',
+          meta_description: product.meta_description || '',
+          status: product.status || 'draft'
+        })
+      } else {
+        router.push('/admin/products')
+      }
+    } catch (error) {
+      console.error('Failed to fetch product:', error)
+      router.push('/admin/products')
     }
   }
 
@@ -220,15 +305,22 @@ export default function NewProductPage() {
     setSaving(true)
 
     try {
-      const response = await fetch('/api/admin/products', {
-        method: 'POST',
+      const response = await fetch(`/api/admin/products/${productId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           ...formData,
           price: formData.price ? parseFloat(formData.price) : null,
-          bifl_total_score: formData.bifl_total_score ? parseFloat(formData.bifl_total_score) : null
+          bifl_total_score: formData.bifl_total_score ? parseFloat(formData.bifl_total_score) : null,
+          durability_score: formData.durability_score ? parseFloat(formData.durability_score) : null,
+          repairability_score: formData.repairability_score ? parseFloat(formData.repairability_score) : null,
+          sustainability_score: formData.sustainability_score ? parseFloat(formData.sustainability_score) : null,
+          social_score: formData.social_score ? parseFloat(formData.social_score) : null,
+          warranty_score: formData.warranty_score ? parseFloat(formData.warranty_score) : null,
+          lifespan_expectation: formData.lifespan_expectation ? parseInt(formData.lifespan_expectation) : null,
+          warranty_years: formData.warranty_years ? parseFloat(formData.warranty_years) : null
         })
       })
 
@@ -236,11 +328,11 @@ export default function NewProductPage() {
         router.push('/admin/products')
       } else {
         const error = await response.json()
-        alert(`Failed to create product: ${error.message || 'Unknown error'}`)
+        alert(`Failed to update product: ${error.message || 'Unknown error'}`)
       }
     } catch (error) {
-      console.error('Failed to create product:', error)
-      alert('Failed to create product')
+      console.error('Failed to update product:', error)
+      alert('Failed to update product')
     } finally {
       setSaving(false)
     }
@@ -254,7 +346,7 @@ export default function NewProductPage() {
     )
   }
 
-  if (!session) {
+  if (!session || !product) {
     return null
   }
 
@@ -271,7 +363,7 @@ export default function NewProductPage() {
               >
                 ← Products
               </Link>
-              <h1 className="text-2xl font-bold text-brand-dark">Add New Product</h1>
+              <h1 className="text-2xl font-bold text-brand-dark">Edit Product</h1>
             </div>
           </div>
         </div>
@@ -838,7 +930,7 @@ export default function NewProductPage() {
               className="flex items-center space-x-2 px-6 py-3 bg-brand-teal text-white rounded-lg hover:bg-brand-teal/90 transition-colors disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
-              <span>{saving ? 'Creating...' : 'Create Product'}</span>
+              <span>{saving ? 'Updating...' : 'Update Product'}</span>
             </button>
           </div>
         </form>

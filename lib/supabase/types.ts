@@ -374,7 +374,9 @@ export interface Database {
           user_name: string | null
           overall_rating: number
           durability_rating: number | null
-          value_rating: number | null
+          repairability_rating: number | null
+          warranty_rating: number | null
+          social_rating: number | null
           title: string | null
           content: string | null
           pros: Json
@@ -397,7 +399,9 @@ export interface Database {
           user_name?: string | null
           overall_rating: number
           durability_rating?: number | null
-          value_rating?: number | null
+          repairability_rating?: number | null
+          warranty_rating?: number | null
+          social_rating?: number | null
           title?: string | null
           content?: string | null
           pros?: Json
@@ -420,7 +424,9 @@ export interface Database {
           user_name?: string | null
           overall_rating?: number
           durability_rating?: number | null
-          value_rating?: number | null
+          repairability_rating?: number | null
+          warranty_rating?: number | null
+          social_rating?: number | null
           title?: string | null
           content?: string | null
           pros?: Json

@@ -1,36 +1,51 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const supabase = await createClient()
+    const productId = params.id
 
-    const { data: products, error } = await supabase
-      .from('products_with_taxonomy')
+    const { data: product, error } = await supabase
+      .from('products')
       .select('*')
-      .order('created_at', { ascending: false })
-      .limit(100)
+      .eq('id', productId)
+      .single()
 
     if (error) throw error
 
-    return NextResponse.json({ products })
+    if (!product) {
+      return NextResponse.json(
+        { error: 'Product not found' },
+        { status: 404 }
+      )
+    }
+
+    return NextResponse.json({ product })
   } catch (error) {
-    console.error('Error fetching products:', error)
+    console.error('Error fetching product:', error)
     return NextResponse.json(
-      { error: 'Failed to fetch products' },
+      { error: 'Failed to fetch product' },
       { status: 500 }
     )
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const body = await request.json()
     const supabase = await createClient()
+    const productId = params.id
 
     const { data: product, error } = await supabase
       .from('products')
-      .insert([{
+      .update({
         name: body.name,
         slug: body.slug,
         brand_id: body.brand_id,
@@ -57,8 +72,10 @@ export async function POST(request: NextRequest) {
         verdict_summary: body.verdict_summary,
         meta_title: body.meta_title,
         meta_description: body.meta_description,
-        status: body.status || 'draft'
-      }])
+        status: body.status,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', productId)
       .select()
       .single()
 
@@ -66,9 +83,34 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ product })
   } catch (error) {
-    console.error('Error creating product:', error)
+    console.error('Error updating product:', error)
     return NextResponse.json(
-      { error: 'Failed to create product' },
+      { error: 'Failed to update product' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const supabase = await createClient()
+    const productId = params.id
+
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', productId)
+
+    if (error) throw error
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Error deleting product:', error)
+    return NextResponse.json(
+      { error: 'Failed to delete product' },
       { status: 500 }
     )
   }

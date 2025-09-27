@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ThumbsUp, Flag, Shield, CheckCircle } from 'lucide-react'
+import { ThumbsUp, Flag, Shield, CheckCircle, Star, ChevronDown, ChevronUp } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useSession } from '@/components/auth/auth-client'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 // Get gradient pill styling based on rating
 function getScoreBadgeStyle(score: number) {
@@ -14,6 +15,52 @@ function getScoreBadgeStyle(score: number) {
   }
 }
 
+// Calculate average rating from individual ratings (convert from 1-5 scale to 0-10 scale)
+function calculateAverageRating(review: Review): number {
+  const ratings = [
+    review.durability_rating,
+    review.repairability_rating,
+    review.warranty_rating,
+    review.value_rating
+  ].filter(rating => rating !== null && rating !== undefined) as number[]
+
+  if (ratings.length === 0) return 0
+  // Convert from 1-5 scale back to 0-10 scale, then average
+  const convertedRatings = ratings.map(rating => rating * 2)
+  return convertedRatings.reduce((sum, rating) => sum + rating, 0) / convertedRatings.length
+}
+
+// Pill score display component (matching site-wide styling with dynamic gradient)
+function ScorePill({ rating }: { rating: number }) {
+  // Get the dynamic gradient background based on score
+  const getScoreGradient = (score: number) => {
+    if (score === 10.0) return 'linear-gradient(135deg, #00ff00, #00dd00)' // Perfect 10
+    if (score >= 9.0) return 'linear-gradient(135deg, #00ff88, #00cc66)' // 9.x
+    if (score >= 8.0) return 'linear-gradient(135deg, #a3ffbf, #66ff99)' // 8.x
+    if (score >= 7.0) return 'linear-gradient(135deg, #fff886, #fbd786)' // 7.x
+    if (score >= 6.0) return 'linear-gradient(135deg, #ffb347, #ff9966)' // 6.x
+    return 'linear-gradient(135deg, #ff4c4c, #ff6e7f)' // 0-5.9
+  }
+
+  const getScoreTextColor = (score: number) => {
+    if (score >= 6.0) return '#1a1a1a' // Dark text for light backgrounds
+    return 'white' // White text for dark/red backgrounds
+  }
+
+  return (
+    <div
+      className="px-3 py-1 rounded-full text-xs font-bold"
+      style={{
+        background: getScoreGradient(rating),
+        color: getScoreTextColor(rating),
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+      }}
+    >
+      {rating.toFixed(1)}
+    </div>
+  )
+}
+
 interface Review {
   id: string
   product_id: string
@@ -21,6 +68,8 @@ interface Review {
   user_name: string | null
   overall_rating: number
   durability_rating: number | null
+  repairability_rating: number | null
+  warranty_rating: number | null
   value_rating: number | null
   title: string | null
   content: string | null
@@ -43,61 +92,39 @@ interface ReviewsListProps {
 }
 
 export function ReviewsList({ productId, refreshTrigger }: ReviewsListProps) {
-  const { data: session } = useSession()
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
-  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'highest' | 'lowest' | 'helpful'>('newest')
-  const [filterRating, setFilterRating] = useState<number | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [isReviewsSectionExpanded, setIsReviewsSectionExpanded] = useState(false)
+  const { data: session } = useSession()
+  const supabase = createClient()
 
   useEffect(() => {
     fetchReviews()
-  }, [productId, refreshTrigger, sortBy, filterRating])
+  }, [productId, refreshTrigger])
 
   const fetchReviews = async () => {
     try {
       setLoading(true)
-      const supabase = createClient()
+      setError(null)
 
-      let query = supabase
-        .from('reviews')
-        .select('*')
-        .eq('product_id', productId)
-        .eq('status', 'approved') // Only show approved reviews
+      console.log('ReviewsList: Starting fetch for productId:', productId)
 
-      // Apply rating filter
-      if (filterRating) {
-        query = query.eq('overall_rating', filterRating)
-      }
+      const response = await fetch(`/api/reviews/${productId}`)
+      const result = await response.json()
 
-      // Apply sorting
-      switch (sortBy) {
-        case 'newest':
-          query = query.order('created_at', { ascending: false })
-          break
-        case 'oldest':
-          query = query.order('created_at', { ascending: true })
-          break
-        case 'highest':
-          query = query.order('overall_rating', { ascending: false })
-          break
-        case 'lowest':
-          query = query.order('overall_rating', { ascending: true })
-          break
-        case 'helpful':
-          query = query.order('helpful_count', { ascending: false })
-          break
-      }
+      console.log('ReviewsList: API response:', result)
 
-      const { data, error } = await query
-
-      if (error) {
-        console.error('Error fetching reviews:', error)
+      if (!response.ok) {
+        setError(`Failed to load reviews: ${result.error || 'Unknown error'}`)
         return
       }
 
-      setReviews(data || [])
-    } catch (error) {
-      console.error('Error fetching reviews:', error)
+      console.log('ReviewsList: Setting reviews data:', result.reviews?.length || 0, 'reviews')
+      setReviews(result.reviews || [])
+    } catch (err) {
+      console.error('Error:', err)
+      setError(`Failed to load reviews: ${err instanceof Error ? err.message : String(err)}`)
     } finally {
       setLoading(false)
     }
@@ -107,24 +134,19 @@ export function ReviewsList({ productId, refreshTrigger }: ReviewsListProps) {
     if (!session?.user) return
 
     try {
-      const supabase = createClient()
+      const { error } = await supabase.rpc('increment_helpful_count', {
+        review_id: reviewId
+      })
 
-      // In a real implementation, you'd track which reviews a user has marked helpful
-      // For now, just increment the count
-      const { error } = await supabase
-        .from('reviews')
-        .update({ helpful_count: reviews.find(r => r.id === reviewId)!.helpful_count + 1 })
-        .eq('id', reviewId)
-
-      if (!error) {
-        setReviews(reviews.map(r =>
-          r.id === reviewId
-            ? { ...r, helpful_count: r.helpful_count + 1 }
-            : r
-        ))
+      if (error) {
+        console.error('Error marking review as helpful:', error)
+        return
       }
-    } catch (error) {
-      console.error('Error marking review helpful:', error)
+
+      // Refresh reviews to show updated count
+      fetchReviews()
+    } catch (err) {
+      console.error('Error:', err)
     }
   }
 
@@ -132,262 +154,216 @@ export function ReviewsList({ productId, refreshTrigger }: ReviewsListProps) {
     if (!session?.user) return
 
     try {
-      const supabase = createClient()
+      const { error } = await supabase.rpc('increment_report_count', {
+        review_id: reviewId
+      })
 
-      const { error } = await supabase
-        .from('reviews')
-        .update({ reported_count: reviews.find(r => r.id === reviewId)!.reported_count + 1 })
-        .eq('id', reviewId)
-
-      if (!error) {
-        setReviews(reviews.map(r =>
-          r.id === reviewId
-            ? { ...r, reported_count: r.reported_count + 1 }
-            : r
-        ))
+      if (error) {
+        console.error('Error reporting review:', error)
+        return
       }
-    } catch (error) {
-      console.error('Error reporting review:', error)
+
+      // Refresh reviews to show updated count
+      fetchReviews()
+    } catch (err) {
+      console.error('Error:', err)
     }
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
-  }
-
-  const ScoreDisplay = ({ rating }: { rating: number }) => {
-    const scoreStyle = getScoreBadgeStyle(rating)
-    return (
-      <div
-        className={scoreStyle.className}
-        data-score={scoreStyle.dataScore}
-      >
-        <span className="text-sm font-bold">
-          {rating}/10
-        </span>
-      </div>
-    )
+  const toggleReviewsSection = () => {
+    setIsReviewsSectionExpanded(prev => !prev)
   }
 
   if (loading) {
     return (
       <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <div className="text-center">
-          <div className="w-8 h-8 animate-spin rounded-full border-2 border-brand-teal border-t-transparent mx-auto"></div>
-          <p className="text-brand-gray mt-2">Loading reviews...</p>
+        <div className="animate-pulse space-y-4">
+          <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+          <div className="space-y-3">
+            <div className="h-4 bg-gray-200 rounded"></div>
+            <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+          </div>
         </div>
       </div>
     )
   }
 
-  const averageRating = reviews.length > 0
-    ? reviews.reduce((sum, review) => sum + review.overall_rating, 0) / reviews.length
-    : 0
-
-  const ratingCounts = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map(rating =>
-    reviews.filter(review => review.overall_rating === rating).length
-  )
-
-  return (
-    <div className="space-y-6">
-      {/* Review Summary */}
+  if (error) {
+    return (
       <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-brand-dark mb-2">Customer Reviews</h2>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <ScoreDisplay rating={Math.round(averageRating)} />
-                <span className="text-lg font-medium text-brand-dark">
-                  {averageRating.toFixed(1)}/10
-                </span>
-                <span className="text-brand-gray">({reviews.length} reviews)</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Rating Distribution */}
-          <div className="mt-4 md:mt-0 space-y-1">
-            {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map((rating, index) => (
-              <div key={rating} className="flex items-center space-x-2 text-sm">
-                <span className="w-8 text-brand-gray">{rating}</span>
-                <div className="w-24 bg-gray-200 rounded-full h-2">
-                  <div
-                    className="h-2 rounded-full"
-                    style={{
-                      width: `${reviews.length > 0 ? (ratingCounts[index] / reviews.length) * 100 : 0}%`,
-                      background: rating >= 9 ? 'linear-gradient(135deg, #00ff88, #00cc66)' :
-                                 rating >= 8 ? 'linear-gradient(135deg, #a3ffbf, #66ff99)' :
-                                 rating >= 7 ? 'linear-gradient(135deg, #fff886, #fbd786)' :
-                                 rating >= 6 ? 'linear-gradient(135deg, #ffb347, #ff9966)' :
-                                 'linear-gradient(135deg, #ff4c4c, #ff6e7f)'
-                    }}
-                  />
-                </div>
-                <span className="w-8 text-brand-gray text-right">{ratingCounts[index]}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Filters and Sorting */}
-        <div className="flex flex-wrap gap-4 items-center">
-          <div>
-            <label className="text-sm font-medium text-brand-dark mr-2">Sort by:</label>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
-              className="px-3 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-brand-teal focus:border-brand-teal"
-            >
-              <option value="newest">Newest</option>
-              <option value="oldest">Oldest</option>
-              <option value="highest">Highest Rated</option>
-              <option value="lowest">Lowest Rated</option>
-              <option value="helpful">Most Helpful</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-brand-dark mr-2">Filter by rating:</label>
-            <select
-              value={filterRating || ''}
-              onChange={(e) => setFilterRating(e.target.value ? parseInt(e.target.value) : null)}
-              className="px-3 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-brand-teal focus:border-brand-teal"
-            >
-              <option value="">All ratings</option>
-              <option value="5">5 stars</option>
-              <option value="4">4 stars</option>
-              <option value="3">3 stars</option>
-              <option value="2">2 stars</option>
-              <option value="1">1 star</option>
-            </select>
-          </div>
+        <div className="text-red-600 text-center">
+          <p>{error}</p>
+          <button
+            onClick={fetchReviews}
+            className="mt-2 text-brand-teal hover:underline"
+          >
+            Try again
+          </button>
         </div>
       </div>
+    )
+  }
 
-      {/* Reviews */}
-      {reviews.length === 0 ? (
-        <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-          <p className="text-brand-gray text-lg">No reviews yet</p>
-          <p className="text-brand-gray text-sm mt-2">Be the first to share your experience!</p>
-        </div>
-      ) : (
+  if (reviews.length === 0) {
+    return (
+      <div className="bg-white rounded-lg border border-gray-200 p-6 text-center">
+        <h3 className="text-lg font-medium text-brand-dark mb-2">No reviews yet</h3>
+        <p className="text-brand-gray">Be the first to review this product!</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="bg-white rounded-lg border border-gray-200 p-4">
+      {/* Collapsible Reviews Header */}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-bold text-brand-dark">
+          Reviews ({reviews.length})
+        </h2>
+        <button
+          onClick={toggleReviewsSection}
+          className="text-brand-gray hover:text-brand-dark transition-colors"
+        >
+          {isReviewsSectionExpanded ? (
+            <ChevronUp className="w-6 h-6" />
+          ) : (
+            <ChevronDown className="w-6 h-6" />
+          )}
+        </button>
+      </div>
+
+      {/* Collapsible Reviews Content */}
+      {isReviewsSectionExpanded && (
         <div className="space-y-4">
           {reviews.map((review) => (
-            <div key={review.id} className="bg-white rounded-lg border border-gray-200 p-6">
+            <div key={review.id} className="border border-gray-100 rounded-lg p-4 hover:shadow-sm transition-shadow">
               {/* Review Header */}
-              <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-4">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-3 mb-2">
-                    <h4 className="font-medium text-brand-dark">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center space-x-3">
+                  <Avatar className="h-8 w-8">
+                    {review.user_email === 'testuser@bifl.dev' ? (
+                      <AvatarImage
+                        src="https://api.dicebear.com/7.x/avataaars/svg?seed=TestUser&backgroundColor=b6e3f4&clothesColor=2563eb&eyebrowType=default&eyeType=happy&mouthType=smile"
+                        alt="Test User Avatar"
+                      />
+                    ) : null}
+                    <AvatarFallback className="bg-brand-teal text-white text-sm font-medium">
+                      {(review.user_name || review.user_email || 'A').charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex items-center space-x-2">
+                    <span className="font-medium text-brand-dark text-sm">
                       {review.user_name || 'Anonymous'}
-                    </h4>
+                    </span>
                     {review.verified_purchase && (
-                      <div className="flex items-center space-x-1 text-green-600">
-                        <Shield className="w-4 h-4" />
-                        <span className="text-xs font-medium">Verified Purchase</span>
-                      </div>
+                      <CheckCircle className="w-4 h-4 text-green-600" />
                     )}
-                  </div>
-
-                  <div className="flex items-center space-x-4 mb-2">
-                    <StarDisplay rating={review.overall_rating} />
-                    {review.durability_rating && (
-                      <span className="text-sm text-brand-gray">
-                        Durability: {review.durability_rating}/5
-                      </span>
-                    )}
-                    {review.value_rating && (
-                      <span className="text-sm text-brand-gray">
-                        Value: {review.value_rating}/5
+                    {process.env.NODE_ENV === 'development' && review.status === 'pending' && (
+                      <span className="px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs rounded">
+                        Pending
                       </span>
                     )}
                   </div>
-
-                  {review.title && (
-                    <h5 className="font-medium text-brand-dark mb-2">{review.title}</h5>
-                  )}
                 </div>
-
-                <div className="text-sm text-brand-gray mt-2 md:mt-0">
-                  {formatDate(review.created_at)}
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs text-brand-gray">
+                    {new Date(review.created_at).toLocaleDateString()}
+                  </span>
                 </div>
               </div>
+
+              {/* Review Title */}
+              {review.title && (
+                <h5 className="font-bold text-brand-dark text-sm mb-1">{review.title}</h5>
+              )}
 
               {/* Review Content */}
               {review.content && (
-                <p className="text-brand-gray mb-4 leading-relaxed">{review.content}</p>
+                <p className="text-brand-gray text-sm mb-3">{review.content}</p>
               )}
 
-              {/* Pros and Cons */}
-              {(review.pros.length > 0 || review.cons.length > 0) && (
-                <div className="grid md:grid-cols-2 gap-4 mb-4">
-                  {review.pros.length > 0 && (
+              {/* Rating Pills */}
+              <div className="flex flex-wrap gap-2 mb-3">
+                {review.durability_rating !== null && review.durability_rating !== undefined && (
+                  <div className="flex items-center space-x-1">
+                    <span className="text-xs text-brand-gray">Durability:</span>
+                    <ScorePill rating={review.durability_rating * 2} />
+                  </div>
+                )}
+                {review.repairability_rating !== null && review.repairability_rating !== undefined && (
+                  <div className="flex items-center space-x-1">
+                    <span className="text-xs text-brand-gray">Repair:</span>
+                    <ScorePill rating={review.repairability_rating * 2} />
+                  </div>
+                )}
+                {review.warranty_rating !== null && review.warranty_rating !== undefined && (
+                  <div className="flex items-center space-x-1">
+                    <span className="text-xs text-brand-gray">Warranty:</span>
+                    <ScorePill rating={review.warranty_rating * 2} />
+                  </div>
+                )}
+                {review.value_rating !== null && review.value_rating !== undefined && (
+                  <div className="flex items-center space-x-1">
+                    <span className="text-xs text-brand-gray">Experience:</span>
+                    <ScorePill rating={review.value_rating * 2} />
+                  </div>
+                )}
+              </div>
+
+              {/* Pros/Cons */}
+              {(review.pros?.length > 0 || review.cons?.length > 0) && (
+                <div className="mb-3 text-xs space-y-1">
+                  {review.pros?.length > 0 && (
                     <div>
-                      <h6 className="font-medium text-green-600 mb-2">Pros:</h6>
-                      <ul className="space-y-1">
-                        {review.pros.map((pro, index) => (
-                          <li key={index} className="text-sm text-brand-gray flex items-start">
-                            <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                            {pro}
-                          </li>
-                        ))}
-                      </ul>
+                      <span className="font-medium text-green-700">Pros: </span>
+                      <span className="text-brand-gray">{review.pros.join(', ')}</span>
                     </div>
                   )}
-
-                  {review.cons.length > 0 && (
+                  {review.cons?.length > 0 && (
                     <div>
-                      <h6 className="font-medium text-red-600 mb-2">Cons:</h6>
-                      <ul className="space-y-1">
-                        {review.cons.map((con, index) => (
-                          <li key={index} className="text-sm text-brand-gray flex items-start">
-                            <span className="w-4 h-4 text-red-500 mr-2 mt-0.5 flex-shrink-0">×</span>
-                            {con}
-                          </li>
-                        ))}
-                      </ul>
+                      <span className="font-medium text-red-700">Cons: </span>
+                      <span className="text-brand-gray">{review.cons.join(', ')}</span>
                     </div>
                   )}
                 </div>
               )}
 
-              {/* Additional Info */}
-              <div className="flex flex-wrap gap-4 text-sm text-brand-gray mb-4">
-                {review.years_owned && (
-                  <span>Owned for {review.years_owned} year{review.years_owned !== 1 ? 's' : ''}</span>
-                )}
-                {review.still_works !== null && (
-                  <span>Still working: {review.still_works ? 'Yes' : 'No'}</span>
-                )}
-                {review.would_buy_again !== null && (
-                  <span>Would buy again: {review.would_buy_again ? 'Yes' : 'No'}</span>
-                )}
-              </div>
+              {/* Bottom row - status indicators and actions */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3 text-xs">
+                  {review.still_works !== null && (
+                    <span className={review.still_works ? 'text-green-600' : 'text-red-600'}>
+                      {review.still_works ? '✓ Works' : '✗ Broken'}
+                    </span>
+                  )}
+                  {review.would_buy_again !== null && (
+                    <span className={review.would_buy_again ? 'text-green-600' : 'text-red-600'}>
+                      {review.would_buy_again ? '✓ Buy again' : '✗ Won\'t buy'}
+                    </span>
+                  )}
+                  {review.years_owned && (
+                    <span className="text-brand-gray">
+                      {review.years_owned}y owned
+                    </span>
+                  )}
+                </div>
 
-              {/* Review Actions */}
-              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-3">
                   <button
                     onClick={() => handleHelpful(review.id)}
                     disabled={!session?.user}
-                    className="flex items-center space-x-1 text-brand-gray hover:text-brand-dark disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center space-x-1 text-brand-gray hover:text-brand-teal disabled:opacity-50 text-xs"
                   >
-                    <ThumbsUp className="w-4 h-4" />
-                    <span className="text-sm">Helpful ({review.helpful_count})</span>
+                    <ThumbsUp className="w-3 h-3" />
+                    <span>{review.helpful_count}</span>
                   </button>
 
                   <button
                     onClick={() => handleReport(review.id)}
                     disabled={!session?.user}
-                    className="flex items-center space-x-1 text-brand-gray hover:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center space-x-1 text-brand-gray hover:text-red-600 disabled:opacity-50 text-xs"
                   >
-                    <Flag className="w-4 h-4" />
-                    <span className="text-sm">Report</span>
+                    <Flag className="w-3 h-3" />
                   </button>
                 </div>
               </div>
