@@ -66,8 +66,8 @@ export function Navbar() {
             <Link href="/categories" className="text-brand-gray hover:text-brand-dark font-medium">
               Categories
             </Link>
-            <Link href="/brands" className="text-brand-gray hover:text-brand-dark font-medium">
-              Brands
+            <Link href="/how-it-works" className="text-brand-gray hover:text-brand-dark font-medium">
+              How It Works
             </Link>
             <Link href="/about" className="text-brand-gray hover:text-brand-dark font-medium">
               About
@@ -156,11 +156,11 @@ export function Navbar() {
               Categories
             </Link>
             <Link
-              href="/brands"
+              href="/how-it-works"
               className="block text-brand-gray hover:text-brand-dark font-medium"
               onClick={() => setIsOpen(false)}
             >
-              Brands
+              How It Works
             </Link>
             <Link
               href="/about"

@@ -16,6 +16,7 @@ const config = {
     'bg-score-fair',
     'bg-score-poor',
     'bg-brand-teal',
+    'text-brand-teal',
     'hover:bg-brand-teal/90'
   ],
   prefix: "",
