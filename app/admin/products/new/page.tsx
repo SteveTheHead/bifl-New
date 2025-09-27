@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Save, X } from 'lucide-react'
+import { Save, X, Plus, Trash2 } from 'lucide-react'
 
 interface Category {
   id: string
@@ -33,6 +33,7 @@ export default function NewProductPage() {
     category_id: '',
     excerpt: '',
     description: '',
+    optimized_product_description: '',
     price: '',
     featured_image_url: '',
     gallery_images: [] as string[],
@@ -51,6 +52,13 @@ export default function NewProductPage() {
     affiliate_link: '',
     manufacturer_link: '',
     verdict_summary: '',
+    verdict_bullets: [] as string[],
+    durability_notes: '',
+    repairability_notes: '',
+    sustainability_notes: '',
+    social_notes: '',
+    warranty_notes: '',
+    general_notes: '',
     meta_title: '',
     meta_description: '',
     status: 'draft'
@@ -105,6 +113,30 @@ export default function NewProductPage() {
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
+  }
+
+  // Verdict bullets helper functions
+  const addVerdictBullet = () => {
+    setFormData(prev => ({
+      ...prev,
+      verdict_bullets: [...prev.verdict_bullets, '']
+    }))
+  }
+
+  const updateVerdictBullet = (index: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      verdict_bullets: prev.verdict_bullets.map((bullet, i) =>
+        i === index ? value : bullet
+      )
+    }))
+  }
+
+  const removeVerdictBullet = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      verdict_bullets: prev.verdict_bullets.filter((_, i) => i !== index)
+    }))
   }
 
   const handleNameChange = (name: string) => {
@@ -386,6 +418,22 @@ export default function NewProductPage() {
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-brand-gray mb-2">
+                  Optimized Product Description
+                </label>
+                <textarea
+                  rows={6}
+                  value={formData.optimized_product_description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, optimized_product_description: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                  placeholder="Primary optimized description that will be displayed prominently on the product page..."
+                />
+                <p className="text-xs text-brand-gray mt-1">
+                  This is the main description shown on product pages. If empty, will fall back to verdict summary, description, or excerpt.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-brand-gray mb-2">
                   Short Description *
                 </label>
                 <textarea
@@ -633,6 +681,90 @@ export default function NewProductPage() {
             </div>
           </div>
 
+          {/* Score Notes */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h2 className="text-lg font-semibold text-brand-dark mb-6">Score Notes</h2>
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-brand-gray mb-2">
+                  Durability Notes
+                </label>
+                <textarea
+                  rows={3}
+                  value={formData.durability_notes}
+                  onChange={(e) => setFormData(prev => ({ ...prev, durability_notes: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                  placeholder="Notes on product durability, build quality, materials..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-brand-gray mb-2">
+                  Repairability Notes
+                </label>
+                <textarea
+                  rows={3}
+                  value={formData.repairability_notes}
+                  onChange={(e) => setFormData(prev => ({ ...prev, repairability_notes: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                  placeholder="Notes on ease of repair, spare parts availability, user serviceability..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-brand-gray mb-2">
+                  Sustainability Notes
+                </label>
+                <textarea
+                  rows={3}
+                  value={formData.sustainability_notes}
+                  onChange={(e) => setFormData(prev => ({ ...prev, sustainability_notes: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                  placeholder="Notes on environmental impact, materials sourcing, recycling..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-brand-gray mb-2">
+                  Social Score Notes
+                </label>
+                <textarea
+                  rows={3}
+                  value={formData.social_notes}
+                  onChange={(e) => setFormData(prev => ({ ...prev, social_notes: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                  placeholder="Notes on labor practices, community impact, ethical sourcing..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-brand-gray mb-2">
+                  Warranty Notes
+                </label>
+                <textarea
+                  rows={3}
+                  value={formData.warranty_notes}
+                  onChange={(e) => setFormData(prev => ({ ...prev, warranty_notes: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                  placeholder="Notes on warranty coverage, terms, claim process..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-brand-gray mb-2">
+                  General Notes
+                </label>
+                <textarea
+                  rows={3}
+                  value={formData.general_notes}
+                  onChange={(e) => setFormData(prev => ({ ...prev, general_notes: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                  placeholder="Additional notes or observations about the product..."
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Product Specifications */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
             <h2 className="text-lg font-semibold text-brand-dark mb-6">Product Specifications</h2>
@@ -763,6 +895,59 @@ export default function NewProductPage() {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
                   placeholder="Our final thoughts and recommendation for this product..."
                 />
+              </div>
+
+              {/* Verdict Bullet Points */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="block text-sm font-medium text-brand-gray">
+                    Verdict Bullet Points
+                  </label>
+                  <button
+                    type="button"
+                    onClick={addVerdictBullet}
+                    className="flex items-center space-x-1 px-3 py-1 text-sm bg-brand-teal text-white rounded-lg hover:bg-brand-teal/90 transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add Bullet Point</span>
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {formData.verdict_bullets.map((bullet, index) => (
+                    <div key={index} className="flex items-center space-x-3">
+                      <div className="flex-shrink-0 w-2 h-2 bg-brand-teal rounded-full mt-3"></div>
+                      <input
+                        type="text"
+                        value={bullet}
+                        onChange={(e) => updateVerdictBullet(index, e.target.value)}
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                        placeholder={`Bullet point ${index + 1}...`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeVerdictBullet(index)}
+                        className="flex-shrink-0 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+
+                  {formData.verdict_bullets.length === 0 && (
+                    <div className="text-center py-8 text-gray-500">
+                      <p className="mb-3">No verdict bullet points added yet.</p>
+                      <button
+                        type="button"
+                        onClick={addVerdictBullet}
+                        className="flex items-center space-x-1 px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors mx-auto"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Add First Bullet Point</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

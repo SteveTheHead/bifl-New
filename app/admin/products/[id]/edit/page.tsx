@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Save, X } from 'lucide-react'
+import { Save, X, Plus, Trash2 } from 'lucide-react'
 
 interface Category {
   id: string
@@ -24,6 +24,7 @@ interface Product {
   category_id: string
   excerpt: string | null
   description: string | null
+  optimized_product_description: string | null
   price: number | null
   featured_image_url: string | null
   gallery_images: string[] | null
@@ -42,6 +43,13 @@ interface Product {
   affiliate_link: string | null
   manufacturer_link: string | null
   verdict_summary: string | null
+  verdict_bullets: string[] | null
+  durability_notes: string | null
+  repairability_notes: string | null
+  sustainability_notes: string | null
+  social_notes: string | null
+  warranty_notes: string | null
+  general_notes: string | null
   meta_title: string | null
   meta_description: string | null
   status: string
@@ -68,6 +76,7 @@ export default function EditProductPage() {
     category_id: '',
     excerpt: '',
     description: '',
+    optimized_product_description: '',
     price: '',
     featured_image_url: '',
     gallery_images: [] as string[],
@@ -86,6 +95,13 @@ export default function EditProductPage() {
     affiliate_link: '',
     manufacturer_link: '',
     verdict_summary: '',
+    verdict_bullets: [] as string[],
+    durability_notes: '',
+    repairability_notes: '',
+    sustainability_notes: '',
+    social_notes: '',
+    warranty_notes: '',
+    general_notes: '',
     meta_title: '',
     meta_description: '',
     status: 'draft'
@@ -137,6 +153,7 @@ export default function EditProductPage() {
           category_id: product.category_id || '',
           excerpt: product.excerpt || '',
           description: product.description || '',
+          optimized_product_description: product.optimized_product_description || '',
           price: product.price ? product.price.toString() : '',
           featured_image_url: product.featured_image_url || '',
           gallery_images: Array.isArray(product.gallery_images) ? product.gallery_images : [],
@@ -155,6 +172,13 @@ export default function EditProductPage() {
           affiliate_link: product.affiliate_link || '',
           manufacturer_link: product.manufacturer_link || '',
           verdict_summary: product.verdict_summary || '',
+          verdict_bullets: Array.isArray(product.verdict_bullets) ? product.verdict_bullets : [],
+          durability_notes: product.durability_notes || '',
+          repairability_notes: product.repairability_notes || '',
+          sustainability_notes: product.sustainability_notes || '',
+          social_notes: product.social_notes || '',
+          warranty_notes: product.warranty_notes || '',
+          general_notes: product.general_notes || '',
           meta_title: product.meta_title || '',
           meta_description: product.meta_description || '',
           status: product.status || 'draft'
@@ -190,6 +214,30 @@ export default function EditProductPage() {
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
+  }
+
+  // Verdict bullets helper functions
+  const addVerdictBullet = () => {
+    setFormData(prev => ({
+      ...prev,
+      verdict_bullets: [...prev.verdict_bullets, '']
+    }))
+  }
+
+  const updateVerdictBullet = (index: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      verdict_bullets: prev.verdict_bullets.map((bullet, i) =>
+        i === index ? value : bullet
+      )
+    }))
+  }
+
+  const removeVerdictBullet = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      verdict_bullets: prev.verdict_bullets.filter((_, i) => i !== index)
+    }))
   }
 
   const handleNameChange = (name: string) => {
@@ -366,12 +414,27 @@ export default function EditProductPage() {
               </Link>
               <h1 className="text-2xl font-bold text-brand-dark">Edit Product</h1>
             </div>
+            <div className="flex items-center space-x-3">
+              <button
+                type="submit"
+                form="edit-product-form"
+                disabled={saving}
+                className="flex items-center space-x-2 px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50 font-medium shadow-sm border border-teal-700"
+                style={{ backgroundColor: '#0d9488', color: 'white' }}
+              >
+                <Save className="w-4 h-4" />
+                <span>{saving ? 'Saving...' : 'Save Product'}</span>
+              </button>
+              <span className="text-sm text-brand-gray">
+                {saving ? 'Please wait...' : 'Changes will be saved immediately'}
+              </span>
+            </div>
           </div>
         </div>
       </header>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form id="edit-product-form" onSubmit={handleSubmit} className="space-y-8">
           {/* Basic Information */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
             <h2 className="text-lg font-semibold text-brand-dark mb-6">Basic Information</h2>
@@ -476,6 +539,22 @@ export default function EditProductPage() {
             <h2 className="text-lg font-semibold text-brand-dark mb-6">Content</h2>
 
             <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-brand-gray mb-2">
+                  Optimized Product Description
+                </label>
+                <textarea
+                  rows={6}
+                  value={formData.optimized_product_description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, optimized_product_description: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                  placeholder="Primary optimized description that will be displayed prominently on the product page..."
+                />
+                <p className="text-xs text-brand-gray mt-1">
+                  This is the main description shown on product pages. If empty, will fall back to verdict summary, description, or excerpt.
+                </p>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-brand-gray mb-2">
                   Short Description *
@@ -725,6 +804,90 @@ export default function EditProductPage() {
             </div>
           </div>
 
+          {/* Score Notes */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h2 className="text-lg font-semibold text-brand-dark mb-6">Score Notes</h2>
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-brand-gray mb-2">
+                  Durability Notes
+                </label>
+                <textarea
+                  rows={3}
+                  value={formData.durability_notes}
+                  onChange={(e) => setFormData(prev => ({ ...prev, durability_notes: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                  placeholder="Notes on product durability, build quality, materials..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-brand-gray mb-2">
+                  Repairability Notes
+                </label>
+                <textarea
+                  rows={3}
+                  value={formData.repairability_notes}
+                  onChange={(e) => setFormData(prev => ({ ...prev, repairability_notes: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                  placeholder="Notes on ease of repair, spare parts availability, user serviceability..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-brand-gray mb-2">
+                  Sustainability Notes
+                </label>
+                <textarea
+                  rows={3}
+                  value={formData.sustainability_notes}
+                  onChange={(e) => setFormData(prev => ({ ...prev, sustainability_notes: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                  placeholder="Notes on environmental impact, materials sourcing, recycling..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-brand-gray mb-2">
+                  Social Score Notes
+                </label>
+                <textarea
+                  rows={3}
+                  value={formData.social_notes}
+                  onChange={(e) => setFormData(prev => ({ ...prev, social_notes: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                  placeholder="Notes on labor practices, community impact, ethical sourcing..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-brand-gray mb-2">
+                  Warranty Notes
+                </label>
+                <textarea
+                  rows={3}
+                  value={formData.warranty_notes}
+                  onChange={(e) => setFormData(prev => ({ ...prev, warranty_notes: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                  placeholder="Notes on warranty coverage, terms, claim process..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-brand-gray mb-2">
+                  General Notes
+                </label>
+                <textarea
+                  rows={3}
+                  value={formData.general_notes}
+                  onChange={(e) => setFormData(prev => ({ ...prev, general_notes: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                  placeholder="Additional notes or observations about the product..."
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Product Specifications */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
             <h2 className="text-lg font-semibold text-brand-dark mb-6">Product Specifications</h2>
@@ -856,6 +1019,59 @@ export default function EditProductPage() {
                   placeholder="Our final thoughts and recommendation for this product..."
                 />
               </div>
+
+              {/* Verdict Bullet Points */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="block text-sm font-medium text-brand-gray">
+                    Verdict Bullet Points
+                  </label>
+                  <button
+                    type="button"
+                    onClick={addVerdictBullet}
+                    className="flex items-center space-x-1 px-3 py-1 text-sm bg-brand-teal text-white rounded-lg hover:bg-brand-teal/90 transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add Bullet Point</span>
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {formData.verdict_bullets.map((bullet, index) => (
+                    <div key={index} className="flex items-center space-x-3">
+                      <div className="flex-shrink-0 w-2 h-2 bg-brand-teal rounded-full mt-3"></div>
+                      <input
+                        type="text"
+                        value={bullet}
+                        onChange={(e) => updateVerdictBullet(index, e.target.value)}
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                        placeholder={`Bullet point ${index + 1}...`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeVerdictBullet(index)}
+                        className="flex-shrink-0 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+
+                  {formData.verdict_bullets.length === 0 && (
+                    <div className="text-center py-8 text-gray-500">
+                      <p className="mb-3">No verdict bullet points added yet.</p>
+                      <button
+                        type="button"
+                        onClick={addVerdictBullet}
+                        className="flex items-center space-x-1 px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors mx-auto"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Add First Bullet Point</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -932,7 +1148,8 @@ export default function EditProductPage() {
             <button
               type="submit"
               disabled={saving}
-              className="flex items-center space-x-2 px-6 py-3 bg-brand-teal text-white rounded-lg hover:bg-brand-teal/90 transition-colors disabled:opacity-50"
+              className="flex items-center space-x-2 px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50 font-medium shadow-sm border border-teal-700"
+              style={{ backgroundColor: '#0d9488', color: 'white' }}
             >
               <Save className="w-4 h-4" />
               <span>{saving ? 'Updating...' : 'Update Product'}</span>

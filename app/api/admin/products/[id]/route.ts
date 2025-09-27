@@ -1,13 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@supabase/supabase-js'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createClient()
-    const productId = params.id
+    // Use service role key to bypass RLS
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    )
+    const { id: productId } = await params
 
     const { data: product, error } = await supabase
       .from('products')
@@ -36,12 +46,24 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const body = await request.json()
-    const supabase = await createClient()
-    const productId = params.id
+
+    // Use service role key to bypass RLS
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    )
+
+    const { id: productId } = await params
 
     const { data: product, error } = await supabase
       .from('products')
@@ -52,6 +74,7 @@ export async function PUT(
         category_id: body.category_id,
         excerpt: body.excerpt,
         description: body.description,
+        optimized_product_description: body.optimized_product_description,
         price: body.price,
         featured_image_url: body.featured_image_url,
         gallery_images: body.gallery_images || [],
@@ -70,6 +93,13 @@ export async function PUT(
         affiliate_link: body.affiliate_link,
         manufacturer_link: body.manufacturer_link,
         verdict_summary: body.verdict_summary,
+        verdict_bullets: body.verdict_bullets || [],
+        durability_notes: body.durability_notes,
+        repairability_notes: body.repairability_notes,
+        sustainability_notes: body.sustainability_notes,
+        social_notes: body.social_notes,
+        warranty_notes: body.warranty_notes,
+        general_notes: body.general_notes,
         meta_title: body.meta_title,
         meta_description: body.meta_description,
         status: body.status,
@@ -93,11 +123,21 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createClient()
-    const productId = params.id
+    // Use service role key to bypass RLS
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    )
+    const { id: productId } = await params
 
     const { error } = await supabase
       .from('products')
