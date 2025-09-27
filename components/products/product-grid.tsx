@@ -126,11 +126,12 @@ function SimpleProductCard({ product }: { product: any }) {
 interface ProductGridProps {
   initialProducts: any[]
   categories: any[]
+  initialSearch?: string
 }
 
-export function ProductGrid({ initialProducts, categories }: ProductGridProps) {
+export function ProductGrid({ initialProducts, categories, initialSearch = '' }: ProductGridProps) {
   const [filters, setFilters] = useState({
-    search: '',
+    search: initialSearch,
     categories: [] as string[],
     brands: [] as string[],
     badges: [] as string[],
@@ -140,8 +141,8 @@ export function ProductGrid({ initialProducts, categories }: ProductGridProps) {
     sortBy: 'score-desc'
   })
 
-  const [displayCount, setDisplayCount] = useState(24)
-  const [pageSize, setPageSize] = useState(24)
+  const [displayCount, setDisplayCount] = useState(48)
+  const [pageSize, setPageSize] = useState(48)
 
   // Reset display count when filters change
   useEffect(() => {

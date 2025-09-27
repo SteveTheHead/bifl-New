@@ -2,11 +2,16 @@ import { getProducts, getCategories, getPriceRanges } from '@/lib/supabase/queri
 import { Card, CardContent } from '@/components/ui/card'
 import { ProductGrid } from '@/components/products/product-grid'
 
-export default async function ProductsPage() {
+interface ProductsPageProps {
+  searchParams: Promise<{ search?: string }>
+}
+
+export default async function ProductsPage({ searchParams }: ProductsPageProps) {
+  const { search } = await searchParams
   try {
     // Get products and taxonomy data
     const [products, categories, priceRanges] = await Promise.all([
-      getProducts(1000, 0), // Get all products (up to 1000)
+      getProducts(0, 0), // Get all products (0 = no limit)
       getCategories(),
       getPriceRanges()
     ])
@@ -29,6 +34,7 @@ export default async function ProductsPage() {
             <ProductGrid
               initialProducts={products || []}
               categories={categories || []}
+              initialSearch={search || ''}
             />
           </div>
         </section>

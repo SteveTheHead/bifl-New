@@ -1,4 +1,4 @@
-import { createClient } from './server'
+import { createClient, createAdminClient } from './server'
 import { Database } from './types'
 
 type Product = Database['public']['Tables']['products']['Row']
@@ -12,12 +12,18 @@ type PriceRange = Database['public']['Tables']['price_ranges']['Row']
 export async function getProducts(limit = 20, offset = 0) {
   const supabase = await createClient()
 
-  const { data, error } = await supabase
+  let query = supabase
     .from('products_with_taxonomy')
     .select('*')
     .eq('status', 'published')
     .order('bifl_total_score', { ascending: false })
-    .range(offset, offset + limit - 1)
+
+  // Only apply range if limit is not 0 (0 means get all)
+  if (limit > 0) {
+    query = query.range(offset, offset + limit - 1)
+  }
+
+  const { data, error } = await query
 
   if (error) {
     console.error('Error fetching products:', error)
@@ -32,8 +38,11 @@ export async function getFeaturedProducts() {
   const supabase = await createClient()
 
   const { data, error } = await supabase
-    .from('featured_products')
+    .from('products_with_taxonomy')
     .select('*')
+    .eq('status', 'published')
+    .eq('is_featured', true)
+    .order('bifl_total_score', { ascending: false })
     .limit(8)
 
   if (error) {
@@ -187,6 +196,33 @@ export async function getCategories() {
   return validCategories
 }
 
+export async function getCategoriesWithProductCounts() {
+  const supabase = await createClient()
+
+  // First get all categories
+  const categories = await getCategories()
+
+  // Then get product counts for each category
+  const categoriesWithCounts = await Promise.all(
+    categories.map(async (category) => {
+      const { count, error } = await supabase
+        .from('products')
+        .select('*', { count: 'exact', head: true })
+        .eq('category_id', category.id)
+        .eq('status', 'published')
+
+      if (error) {
+        console.error(`Error counting products for category ${category.id}:`, error)
+        return { ...category, product_count: 0 }
+      }
+
+      return { ...category, product_count: count || 0 }
+    })
+  )
+
+  return categoriesWithCounts
+}
+
 export async function getMaterials() {
   const supabase = await createClient()
 
@@ -294,6 +330,78 @@ export async function addReview(review: Database['public']['Tables']['reviews'][
 
   if (error) {
     console.error('Error adding review:', error)
+    throw error
+  }
+
+  return data
+}
+
+// Admin functions for managing featured products
+export async function toggleProductFeatured(productId: string, isFeatured: boolean) {
+  console.log('toggleProductFeatured called with:', { productId, isFeatured })
+
+  // Use admin client to bypass RLS policies
+  const adminClient = createAdminClient()
+
+  // First check if the product exists
+  const { data: existingProduct, error: checkError } = await adminClient
+    .from('products')
+    .select('id, name, is_featured')
+    .eq('id', productId)
+    .single()
+
+  if (checkError) {
+    console.error('Product not found:', checkError)
+    throw new Error(`Product with ID ${productId} not found`)
+  }
+
+  console.log('Found product:', existingProduct)
+
+  // Update using admin client with full permissions
+  const { data, error, count } = await adminClient
+    .from('products')
+    .update({ is_featured: isFeatured })
+    .eq('id', productId)
+    .select()
+
+  console.log('Admin update result:', { data, error, count })
+
+  if (error) {
+    console.error('Error updating featured status:', error)
+    throw error
+  }
+
+  if (!data || data.length === 0) {
+    throw new Error('Update succeeded but no data returned')
+  }
+
+  console.log('Successfully updated product featured status')
+  return data[0]
+}
+
+export async function getAllProductsForAdmin() {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('products')
+    .select(`
+      id,
+      name,
+      slug,
+      brand_id,
+      brands!brand_id(name),
+      category_id,
+      categories!category_id(name),
+      bifl_total_score,
+      featured_image_url,
+      is_featured,
+      status,
+      created_at
+    `)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching products for admin:', error)
     throw error
   }
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useMemo } from 'react'
+import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Search } from 'lucide-react'
@@ -74,6 +75,10 @@ interface FilterProps {
 }
 
 export function ProductFilters({ onFiltersChange, categories, products }: FilterProps) {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const pathname = usePathname()
+
   const [search, setSearch] = useState('')
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
@@ -161,6 +166,24 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
   }, [filteredProductsForPriceCalc])
 
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000])
+
+  // Initialize filters from URL parameters
+  useEffect(() => {
+    const searchParam = searchParams.get('search')
+    if (searchParam) {
+      setSearch(searchParam)
+    }
+
+    const badgeParam = searchParams.get('badge')
+    if (badgeParam) {
+      setSelectedBadges([badgeParam])
+    }
+
+    const categoriesParam = searchParams.get('categories')
+    if (categoriesParam) {
+      setSelectedCategories([categoriesParam])
+    }
+  }, [searchParams])
 
   // Update price range when priceStats change (but keep current values if they're within the new range)
   useEffect(() => {

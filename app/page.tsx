@@ -1,8 +1,19 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import BadgeDisplay from '@/components/BadgeDisplay'
+import { getCategories, getFeaturedProducts } from '@/lib/supabase/queries'
+import { Card, CardContent } from '@/components/ui/card'
+// import BadgeDisplay from '@/components/BadgeDisplay' // Temporarily disabled for server compatibility
 
-export default function HomePage() {
+export default async function HomePage() {
+  try {
+    // Get categories and featured products from database
+    const [categories, featuredProducts] = await Promise.all([
+      getCategories(),
+      getFeaturedProducts()
+    ])
+
+    console.log('Categories being used:', categories?.map(c => c.name) || [])
+    console.log('Featured products:', featuredProducts?.length || 0)
   return (
     <div className="bg-brand-cream font-sans">
 
@@ -52,11 +63,11 @@ export default function HomePage() {
 
             {/* Quality Badges */}
             <div className="flex flex-wrap gap-7 mb-10">
-              <BadgeDisplay certification="Gold Standard" size="sm" />
-              <BadgeDisplay certification="Crowd Favorite" size="sm" />
-              <BadgeDisplay certification="Lifetime Warranty" size="sm" />
-              <BadgeDisplay certification="BIFL Approved" size="sm" />
-              <BadgeDisplay certification="Repair Friendly" size="sm" />
+              <div className="bg-yellow-500 text-white px-3 py-1 rounded text-sm font-medium">Gold Standard</div>
+              <div className="bg-blue-500 text-white px-3 py-1 rounded text-sm font-medium">Crowd Favorite</div>
+              <div className="bg-purple-500 text-white px-3 py-1 rounded text-sm font-medium">Lifetime Warranty</div>
+              <div className="bg-green-500 text-white px-3 py-1 rounded text-sm font-medium">BIFL Approved</div>
+              <div className="bg-orange-500 text-white px-3 py-1 rounded text-sm font-medium">Repair Friendly</div>
             </div>
 
             <Link
@@ -152,7 +163,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Category Grid Section */}
+      {/* Category Grid Section - Dynamic */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
@@ -162,119 +173,49 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-              <Image
-                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/2975f36488-5ec7d4762e536981263f.png"
-                alt="premium leather boots and shoes crafted materials"
-                width={400}
-                height={256}
-                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <h3 className="text-2xl font-bold text-white mb-2">Footwear</h3>
-                <p className="text-gray-200 mb-4">Boots, shoes, and sandals built to last decades</p>
-                <span className="inline-block bg-green-600 text-white px-4 py-2 rounded-lg font-medium">
-                  245 Products
-                </span>
-              </div>
-            </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+            {categories?.map((category) => {
+              // Map category names to local images
+              const categoryImageMap: Record<string, string> = {
+                'Footwear & Accessories': '/images/categories/Footwear.png',
+                'Tools & Hardware': '/images/categories/Tools.png',
+                'Home & Kitchen': '/images/categories/Home & Kitchen.png',
+                'Outdoor & Camping': '/images/categories/Outdoor and camping.png',
+                'Clothing & Apparel': '/images/categories/clothing.png',
+                'Travel & Everyday Carry': '/images/categories/everyday carry.png',
+                'Electronics & Tech': '/images/categories/electronics and tech.png',
+                'Automotive & Cycling': '/images/categories/automotivecycling.png'
+              }
 
-            <div className="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-              <Image
-                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/1b4401ca5e-d721744287c0b2d34873.png"
-                alt="vintage hand tools workshop craftsman quality"
-                width={400}
-                height={256}
-                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <h3 className="text-2xl font-bold text-white mb-2">Tools</h3>
-                <p className="text-gray-200 mb-4">Professional-grade tools for every trade</p>
-                <span className="inline-block bg-green-600 text-white px-4 py-2 rounded-lg font-medium">
-                  380 Products
-                </span>
-              </div>
-            </div>
+              const imageUrl = categoryImageMap[category.name] || '/images/categories/Home & Kitchen.png'
 
-            <div className="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-              <Image
-                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/a0784db89d-c0e8895cab404b6b793a.png"
-                alt="premium kitchen appliances cast iron cookware"
-                width={400}
-                height={256}
-                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <h3 className="text-2xl font-bold text-white mb-2">Kitchen</h3>
-                <p className="text-gray-200 mb-4">Cookware and appliances that last generations</p>
-                <span className="inline-block bg-green-600 text-white px-4 py-2 rounded-lg font-medium">
-                  192 Products
-                </span>
-              </div>
-            </div>
-
-            <div className="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-              <Image
-                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/fdf87cc3c1-5e2171721fd11cc1f540.png"
-                alt="outdoor gear backpacks camping equipment durable"
-                width={400}
-                height={256}
-                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <h3 className="text-2xl font-bold text-white mb-2">Outdoor</h3>
-                <p className="text-gray-200 mb-4">Gear for adventures that never lets you down</p>
-                <span className="inline-block bg-green-600 text-white px-4 py-2 rounded-lg font-medium">
-                  156 Products
-                </span>
-              </div>
-            </div>
-
-            <div className="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-              <Image
-                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/57ee3a5c3c-c320850b3a3b2bae86ab.png"
-                alt="quality clothing denim jackets timeless fashion"
-                width={400}
-                height={256}
-                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <h3 className="text-2xl font-bold text-white mb-2">Clothing</h3>
-                <p className="text-gray-200 mb-4">Garments designed to age beautifully</p>
-                <span className="inline-block bg-green-600 text-white px-4 py-2 rounded-lg font-medium">
-                  203 Products
-                </span>
-              </div>
-            </div>
-
-            <div className="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-              <Image
-                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/cdc37851dc-1cf33d3ec169cef605ac.png"
-                alt="home goods furniture quality craftsmanship"
-                width={400}
-                height={256}
-                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <h3 className="text-2xl font-bold text-white mb-2">Home</h3>
-                <p className="text-gray-200 mb-4">Furniture and goods for the modern home</p>
-                <span className="inline-block bg-green-600 text-white px-4 py-2 rounded-lg font-medium">
-                  167 Products
-                </span>
-              </div>
-            </div>
+              return (
+                <Link key={category.id} href={`/products?categories=${category.id}`}>
+                  <div className="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer">
+                    <Image
+                      src={imageUrl}
+                      alt={`${category.name.toLowerCase()} products`}
+                      width={400}
+                      height={256}
+                      className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                    <div className="absolute bottom-0 left-0 right-0 p-6">
+                      <h3 className="text-2xl font-bold text-white mb-2">{category.name}</h3>
+                      <p className="text-gray-200 mb-4">{category.description || 'Quality products built to last'}</p>
+                      <span className="inline-block bg-brand-teal text-white px-4 py-2 rounded-lg font-medium">
+                        View Products
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              )
+            })}
           </div>
         </div>
       </section>
 
-      {/* Featured Products Section */}
+      {/* Featured Products Section - Dynamic */}
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
@@ -285,143 +226,60 @@ export default function HomePage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-              <Image
-                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/02770c08dd-fe5f7d4a8154347e706b.png"
-                alt="red wing heritage boots leather craftsmanship"
-                width={400}
-                height={192}
-                className="w-full h-48 object-cover"
-              />
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">Gold Standard</span>
-                  <div className="flex items-center">
-                    <div className="flex text-yellow-400">
-                      <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                      <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                      <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                      <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                      <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    </div>
-                    <span className="text-brand-gray ml-2">4.9</span>
-                  </div>
-                </div>
-                <h3 className="text-xl font-semibold text-brand-dark mb-2">Red Wing Heritage Iron Ranger</h3>
-                <p className="text-brand-gray mb-4">Legendary boots that improve with age, tested over 15+ years by our community.</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold text-brand-dark">$320</span>
-                  <button
-                    className="text-white px-4 py-2 rounded-lg font-medium transition-colors relative z-10 border-2 border-solid hover:opacity-90"
-                    style={{ backgroundColor: '#4A9D93', borderColor: '#4A9D93' }}
-                  >
-                    View Details
-                  </button>
-                </div>
-              </div>
-            </div>
+            {featuredProducts?.map((product) => {
+              // Calculate simple badge from score
+              const getBadgeFromScore = (score: number) => {
+                if (score >= 9.0) return { text: 'Gold Standard', color: 'bg-yellow-500 text-white' }
+                if (score >= 8.5) return { text: 'Crowd Favorite', color: 'bg-blue-500 text-white' }
+                if (score >= 8.0) return { text: 'BIFL Approved', color: 'bg-green-500 text-white' }
+                if (score >= 7.5) return { text: 'Quality Choice', color: 'bg-purple-500 text-white' }
+                return { text: 'Featured', color: 'bg-gray-500 text-white' }
+              }
 
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-              <Image
-                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/1009c5f332-427adb393b95e6260348.png"
-                alt="lodge cast iron skillet cooking kitchen"
-                width={400}
-                height={192}
-                className="w-full h-48 object-cover"
-              />
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">Crowd Favorite</span>
-                  <div className="flex items-center">
-                    <div className="flex text-yellow-400">
-                      <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                      <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                      <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                      <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                      <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    </div>
-                    <span className="text-brand-gray ml-2">4.8</span>
-                  </div>
-                </div>
-                <h3 className="text-xl font-semibold text-brand-dark mb-2">Lodge Cast Iron Skillet</h3>
-                <p className="text-brand-gray mb-4">Pre-seasoned cast iron that gets better with every use, passed down through generations.</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold text-brand-dark">$45</span>
-                  <button
-                    className="text-white px-4 py-2 rounded-lg font-medium transition-colors relative z-10 border-2 border-solid hover:opacity-90"
-                    style={{ backgroundColor: '#4A9D93', borderColor: '#4A9D93' }}
-                  >
-                    View Details
-                  </button>
-                </div>
-              </div>
-            </div>
+              const badge = getBadgeFromScore(product.bifl_total_score || 0)
+              const stars = Array(5).fill(0).map((_, i) => i < Math.floor(product.star_rating || 0))
 
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-              <Image
-                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/63bdf89ca1-8856820d0bd50ab5c1ac.png"
-                alt="patagonia better sweater fleece outdoor clothing"
-                width={400}
-                height={192}
-                className="w-full h-48 object-cover"
-              />
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium">Lifetime Warranty</span>
-                  <div className="flex items-center">
-                    <div className="flex text-yellow-400">
-                      <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                      <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                      <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                      <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                      <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
+              return (
+                <Link key={product.id} href={`/products/${product.id}`}>
+                  <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer">
+                    <Image
+                      src={product.featured_image_url || '/placeholder-product.png'}
+                      alt={product.name || 'Product'}
+                      width={400}
+                      height={192}
+                      className="w-full h-48 object-cover"
+                    />
+                    <div className="p-6">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${badge.color}`}>
+                          {badge.text}
+                        </span>
+                        <div className="flex items-center">
+                          <div className="flex text-yellow-400">
+                            {stars.map((filled, i) => (
+                              <svg key={i} className={`w-4 h-4 ${filled ? 'fill-current' : 'stroke-current fill-none'}`} viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                              </svg>
+                            ))}
+                          </div>
+                          <span className="text-brand-gray ml-2">{(product.star_rating || 0).toFixed(1)}</span>
+                        </div>
+                      </div>
+                      <h3 className="text-xl font-semibold text-brand-dark mb-2">{product.name}</h3>
+                      <p className="text-brand-gray mb-4">{product.excerpt || 'Quality product with proven durability.'}</p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-2xl font-bold text-brand-dark">
+                          {product.price ? `$${product.price}` : 'View Details'}
+                        </span>
+                        <span className="text-white px-4 py-2 rounded-lg font-medium transition-colors bg-[#4A9D93] hover:opacity-90">
+                          View Product
+                        </span>
+                      </div>
                     </div>
-                    <span className="text-brand-gray ml-2">4.7</span>
                   </div>
-                </div>
-                <h3 className="text-xl font-semibold text-brand-dark mb-2">Patagonia Better Sweater</h3>
-                <p className="text-brand-gray mb-4">Sustainable fleece jacket with unmatched durability and Patagonia's repair guarantee.</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold text-brand-dark">$99</span>
-                  <button
-                    className="text-white px-4 py-2 rounded-lg font-medium transition-colors relative z-10 border-2 border-solid hover:opacity-90"
-                    style={{ backgroundColor: '#4A9D93', borderColor: '#4A9D93' }}
-                  >
-                    View Details
-                  </button>
-                </div>
-              </div>
-            </div>
+                </Link>
+              )
+            })}
           </div>
         </div>
       </section>
@@ -802,4 +660,25 @@ export default function HomePage() {
 
     </div>
   )
+  } catch (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-brand-cream to-white">
+        <div className="container mx-auto py-12">
+          <Card className="border-red-500 bg-white shadow-lg rounded-2xl max-w-2xl mx-auto">
+            <CardContent className="p-12 text-center">
+              <div className="w-20 h-20 mx-auto mb-6 bg-red-500/10 rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 bg-red-500/20 rounded-full"></div>
+              </div>
+              <h3 className="text-2xl font-bold text-red-600 mb-3">
+                Failed to load homepage
+              </h3>
+              <p className="text-brand-gray">
+                {error instanceof Error ? error.message : 'Unknown error occurred'}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
+  }
 }

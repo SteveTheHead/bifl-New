@@ -24,6 +24,7 @@ interface Product {
   bifl_total_score: number | null
   price: number | null
   status: string
+  is_featured: boolean
   created_at: string
 }
 
@@ -33,6 +34,7 @@ export default function AdminProductsPage() {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [sortBy, setSortBy] = useState('created_at')
 
   const isAdmin = session?.user?.email?.endsWith('@bifl.com') ||
                  session?.user?.email === 'admin@example.com' ||
@@ -83,15 +85,58 @@ export default function AdminProductsPage() {
     }
   }
 
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = (product.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (product.brand_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (product.category_name || '').toLowerCase().includes(searchTerm.toLowerCase())
+  const toggleFeatured = async (productId: string, currentFeaturedStatus: boolean) => {
+    try {
+      const response = await fetch(`/api/admin/products/${productId}/featured`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ is_featured: !currentFeaturedStatus }),
+      })
 
-    const matchesStatus = statusFilter === 'all' || product.status === statusFilter
+      if (response.ok) {
+        // Update the local state
+        setProducts(products.map(p =>
+          p.id === productId
+            ? { ...p, is_featured: !currentFeaturedStatus }
+            : p
+        ))
+      } else {
+        alert('Failed to toggle featured status')
+      }
+    } catch (error) {
+      console.error('Error toggling featured status:', error)
+      alert('Failed to toggle featured status')
+    }
+  }
 
-    return matchesSearch && matchesStatus
-  })
+  const filteredProducts = products
+    .filter(product => {
+      const matchesSearch = (product.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           (product.brand_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           (product.category_name || '').toLowerCase().includes(searchTerm.toLowerCase())
+
+      const matchesStatus = statusFilter === 'all' || product.status === statusFilter
+
+      return matchesSearch && matchesStatus
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return (a.name || '').localeCompare(b.name || '')
+        case 'score':
+          return (b.bifl_total_score || 0) - (a.bifl_total_score || 0)
+        case 'featured':
+          if (a.is_featured === b.is_featured) {
+            return (b.bifl_total_score || 0) - (a.bifl_total_score || 0) // Secondary sort by score
+          }
+          return a.is_featured ? -1 : 1 // Featured items first
+        case 'created_at':
+        default:
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      }
+    })
 
   if (isPending || !isAdmin) {
     return (
@@ -153,6 +198,18 @@ export default function AdminProductsPage() {
                 <option value="published">Published</option>
                 <option value="draft">Draft</option>
                 <option value="archived">Archived</option>
+              </select>
+            </div>
+            <div className="min-w-[200px]">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+              >
+                <option value="created_at">Newest First</option>
+                <option value="name">Name A-Z</option>
+                <option value="score">Highest Score</option>
+                <option value="featured">Featured First</option>
               </select>
             </div>
           </div>
@@ -248,6 +305,17 @@ export default function AdminProductsPage() {
                       <Edit className="w-4 h-4" />
                       <span>Edit</span>
                     </Link>
+                    <button
+                      onClick={() => toggleFeatured(product.id, product.is_featured)}
+                      className={`px-3 py-2 rounded-lg transition-colors ${
+                        product.is_featured
+                          ? 'text-yellow-600 bg-yellow-50 hover:bg-yellow-100'
+                          : 'text-gray-400 hover:text-yellow-600 hover:bg-yellow-50'
+                      }`}
+                      title={product.is_featured ? 'Remove from featured' : 'Add to featured'}
+                    >
+                      <Star className={`w-4 h-4 ${product.is_featured ? 'fill-current' : ''}`} />
+                    </button>
                     <button
                       onClick={() => deleteProduct(product.id)}
                       className="px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors"

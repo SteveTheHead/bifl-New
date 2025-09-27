@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { getAllProductsForAdmin } from '@/lib/supabase/queries'
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,15 +17,8 @@ export async function GET(request: NextRequest) {
       console.log('Cleaned up empty products')
     }
 
-    const { data: products, error } = await supabase
-      .from('products_with_taxonomy')
-      .select('*')
-      .not('name', 'is', null)
-      .neq('name', '')
-      .order('created_at', { ascending: false })
-      .limit(100)
-
-    if (error) throw error
+    // Use the new function that includes is_featured
+    const products = await getAllProductsForAdmin()
 
     return NextResponse.json({ products })
   } catch (error) {

@@ -42,11 +42,24 @@ export function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <span className="text-2xl font-bold text-brand-dark">BIFL</span>
+            <div className="flex flex-col leading-none -space-y-2.5">
+              <span className="text-base font-bold text-brand-dark">BUYITFORLIFE</span>
+              <span className="text-base font-bold text-brand-gray">
+                PRODUCTS<span className="text-xs font-normal">.com</span>
+              </span>
+            </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          {/* Desktop Center - Search */}
+          <div className="hidden md:flex items-center justify-center flex-1 max-w-4xl mx-8">
+            <div className="w-full">
+              <AISearch />
+            </div>
+          </div>
+
+          {/* Desktop Right Side */}
+          <div className="hidden md:flex items-center space-x-6">
+            {/* Navigation Links */}
             <Link href="/products" className="text-brand-gray hover:text-brand-dark font-medium">
               Products
             </Link>
@@ -59,13 +72,6 @@ export function Navbar() {
             <Link href="/about" className="text-brand-gray hover:text-brand-dark font-medium">
               About
             </Link>
-          </div>
-
-          {/* Desktop Right Side */}
-          <div className="hidden md:flex items-center space-x-4">
-            <div className="w-96">
-              <AISearch />
-            </div>
 
             {/* User Authentication */}
             {!isClient ? (
@@ -121,13 +127,6 @@ export function Navbar() {
                 )}
               </div>
             )}
-
-            <Link
-              href="/products"
-              className="bg-brand-teal text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-opacity"
-            >
-              Browse Products
-            </Link>
           </div>
 
           {/* Mobile menu button */}
