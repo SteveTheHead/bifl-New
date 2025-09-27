@@ -4,6 +4,24 @@ import { getCategories, getFeaturedProducts } from '@/lib/supabase/queries'
 import { Card, CardContent } from '@/components/ui/card'
 import BadgeDisplay from '@/components/BadgeDisplay'
 
+// Score badge styling function (matching product grid)
+function getScoreBadgeStyle(score: number) {
+  const scoreString = score.toString()
+  return {
+    className: "score-field px-3 py-1 rounded-full transform transition-all duration-300",
+    dataScore: scoreString
+  }
+}
+
+// Get score label for accessibility
+function getScoreLabel(score: number) {
+  if (score >= 9.0) return "Legend"
+  if (score >= 8.0) return "Excellent"
+  if (score >= 7.0) return "Good"
+  if (score >= 6.0) return "Fair"
+  return "Poor"
+}
+
 export default async function HomePage() {
   try {
     // Get categories and featured products from database
@@ -213,53 +231,47 @@ export default async function HomePage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredProducts?.map((product) => {
-              // Calculate simple badge from score
-              const getBadgeFromScore = (score: number) => {
-                if (score >= 9.0) return { text: 'Gold Standard', color: 'bg-yellow-500 text-white' }
-                if (score >= 8.5) return { text: 'Crowd Favorite', color: 'bg-blue-500 text-white' }
-                if (score >= 8.0) return { text: 'BIFL Approved', color: 'bg-green-500 text-white' }
-                if (score >= 7.5) return { text: 'Quality Choice', color: 'bg-purple-500 text-white' }
-                return { text: 'Featured', color: 'bg-gray-500 text-white' }
-              }
-
-              const badge = getBadgeFromScore(product.bifl_total_score || 0)
-              const stars = Array(5).fill(0).map((_, i) => i < Math.floor(product.star_rating || 0))
+              const totalScore = product.bifl_total_score || 0
 
               return (
                 <Link key={product.id} href={`/products/${product.id}`}>
                   <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer">
-                    <Image
-                      src={product.featured_image_url || '/placeholder-product.png'}
-                      alt={product.name || 'Product'}
-                      width={400}
-                      height={192}
-                      className="w-full h-48 object-cover"
-                    />
-                    <div className="p-6">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${badge.color}`}>
-                          {badge.text}
-                        </span>
-                        <div className="flex items-center">
-                          <div className="flex text-yellow-400">
-                            {stars.map((filled, i) => (
-                              <svg key={i} className={`w-4 h-4 ${filled ? 'fill-current' : 'stroke-current fill-none'}`} viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                              </svg>
-                            ))}
+                    <div className="relative">
+                      <Image
+                        src={product.featured_image_url || '/placeholder-product.png'}
+                        alt={product.name || 'Product'}
+                        width={400}
+                        height={224}
+                        className="w-full h-56 object-contain"
+                      />
+                      <BadgeDisplay
+                        product={product}
+                        size="sm"
+                        overlay={true}
+                        className="top-3 right-3"
+                      />
+                    </div>
+                    <div className="p-6 text-center">
+                      <h3 className="text-xl font-semibold">{product.name}</h3>
+                      <p className="text-brand-gray mb-4">{product.brand_name}</p>
+                      <div className="flex justify-center items-center gap-3 mb-6">
+                        <span className="text-sm font-medium text-brand-gray">BIFL Score:</span>
+                        <div
+                          className={`${getScoreBadgeStyle(totalScore).className} hover:scale-105`}
+                          data-score={getScoreBadgeStyle(totalScore).dataScore}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-bold tracking-wide">
+                              {totalScore.toFixed(1)}
+                            </span>
+                            <span className="text-xs font-medium opacity-90">
+                              {getScoreLabel(totalScore)}
+                            </span>
                           </div>
-                          <span className="text-brand-gray ml-2">{(product.star_rating || 0).toFixed(1)}</span>
                         </div>
                       </div>
-                      <h3 className="text-xl font-semibold text-brand-dark mb-2">{product.name}</h3>
-                      <p className="text-brand-gray mb-4">{product.excerpt || 'Quality product with proven durability.'}</p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-2xl font-bold text-brand-dark">
-                          {product.price ? `$${product.price}` : 'View Details'}
-                        </span>
-                        <span className="text-white px-4 py-2 rounded-lg font-medium transition-colors bg-[#4A9D93] hover:opacity-90">
-                          View Product
-                        </span>
+                      <div className="block text-white font-semibold py-2 px-6 rounded-lg hover:bg-opacity-90 transition-colors cursor-pointer" style={{ backgroundColor: '#4A9D93' }}>
+                        View Product
                       </div>
                     </div>
                   </div>
