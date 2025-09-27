@@ -402,10 +402,10 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                     alt={product.name || 'Product'}
                     width={400}
                     height={400}
-                    className="w-full h-auto object-contain"
+                    className="w-full h-56 object-contain"
                   />
                 ) : (
-                  <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+                  <div className="w-full h-56 bg-gray-200 rounded-lg flex items-center justify-center">
                     <span className="text-gray-500">No image available</span>
                   </div>
                 )}

@@ -162,20 +162,20 @@ export function SimilarProductsCarousel({ currentProductId, categoryId }: Simila
                   style={{ width: `${100 / itemsPerView}%` }}
                 >
                   <div className="bg-white p-3 sm:p-4 lg:p-6 rounded-2xl shadow-sm border border-gray-100 text-center flex flex-col" style={{ minHeight: '350px' }}>
-                    <p className="text-xs sm:text-sm text-brand-gray mb-2">{product.brand_name || 'Unknown Brand'}</p>
-                    <h3 className="font-serif text-sm sm:text-base lg:text-lg font-bold mb-3 line-clamp-2">
+                    <h3 className="text-xl font-semibold mb-2 line-clamp-2">
                       {product.name}
                     </h3>
+                    <p className="text-brand-gray mb-4">{product.brand_name || 'Unknown Brand'}</p>
 
                     {/* Product Image */}
-                    <div className="relative w-full h-32 sm:h-36 lg:h-40 bg-gray-200 rounded-lg mb-3 overflow-hidden flex-shrink-0">
+                    <div className="relative w-full h-32 sm:h-36 lg:h-40 bg-white rounded-lg mb-3 overflow-hidden flex-shrink-0 border border-gray-100">
                       {product.featured_image_url ? (
                         <Image
                           src={product.featured_image_url}
                           alt={product.name}
                           width={300}
                           height={160}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain p-2"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
