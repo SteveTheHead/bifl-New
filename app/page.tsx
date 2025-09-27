@@ -188,8 +188,7 @@ export default async function HomePage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
                     <div className="absolute bottom-0 left-0 right-0 p-6">
-                      <h3 className="text-2xl font-bold text-white mb-2">{category.name}</h3>
-                      <p className="text-gray-200 mb-4">{category.description || 'Quality products built to last'}</p>
+                      <h3 className="text-2xl font-bold text-white mb-4">{category.name}</h3>
                       <span className="inline-block bg-brand-teal text-white px-4 py-2 rounded-lg font-medium">
                         View Products
                       </span>
