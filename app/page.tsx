@@ -39,13 +39,13 @@ export default async function HomePage() {
       <section className="relative h-[700px] overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/a6463f6164-726c642a32f6c3e2618d.png"
+            src="/images/categories/hero Picture 1.png"
             alt="high quality leather boots vintage tools compass on wooden surface dark moody lighting"
             fill
             className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-brand-dark bg-opacity-60"></div>
+          <div className="absolute inset-0 bg-black/50"></div>
         </div>
 
         <div className="relative z-10 container mx-auto px-6 h-full flex items-center">
@@ -204,10 +204,11 @@ export default async function HomePage() {
                       height={256}
                       className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
                     />
+                    <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-all duration-300"></div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
                     <div className="absolute bottom-0 left-0 right-0 p-6">
                       <h3 className="text-2xl font-bold text-white mb-4">{category.name}</h3>
-                      <span className="inline-block bg-brand-teal text-white px-4 py-2 rounded-lg font-medium">
+                      <span className="inline-block bg-brand-teal text-white px-4 py-2 rounded-lg font-medium hover:bg-opacity-90 transition-colors cursor-pointer">
                         View Products
                       </span>
                     </div>
