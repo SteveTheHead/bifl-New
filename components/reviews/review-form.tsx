@@ -1,9 +1,18 @@
 'use client'
 
 import { useState } from 'react'
-import { Star, Plus, X } from 'lucide-react'
+import { Plus, X } from 'lucide-react'
 import { useSession } from '@/components/auth/auth-client'
 import { createClient } from '@/lib/supabase/client'
+
+// Get gradient pill styling based on rating (convert 10-point to our system)
+function getScoreBadgeStyle(score: number) {
+  const scoreString = score.toString()
+  return {
+    className: "score-field px-3 py-1 rounded-full transform transition-all duration-300",
+    dataScore: scoreString
+  }
+}
 
 interface ReviewFormProps {
   productId: string
@@ -97,25 +106,32 @@ export function ReviewForm({ productId, onReviewSubmitted }: ReviewFormProps) {
     }
   }
 
-  const StarRating = ({ rating, setRating, label }: { rating: number; setRating: (rating: number) => void; label: string }) => (
+  const ScoreRating = ({ rating, setRating, label }: { rating: number; setRating: (rating: number) => void; label: string }) => (
     <div className="space-y-2">
       <label className="block text-sm font-medium text-brand-dark">{label}</label>
-      <div className="flex space-x-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <button
-            key={star}
-            type="button"
-            onClick={() => setRating(star)}
-            className="focus:outline-none"
-          >
-            <Star
-              className={`w-6 h-6 ${
-                star <= rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
-              }`}
-            />
-          </button>
-        ))}
+      <div className="flex flex-wrap gap-2">
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((score) => {
+          const scoreStyle = getScoreBadgeStyle(score)
+          return (
+            <button
+              key={score}
+              type="button"
+              onClick={() => setRating(score)}
+              className={`${scoreStyle.className} ${
+                score === rating ? 'ring-2 ring-brand-teal ring-offset-2' : ''
+              } hover:scale-105 cursor-pointer`}
+              data-score={scoreStyle.dataScore}
+            >
+              <span className="text-sm font-bold">{score}</span>
+            </button>
+          )
+        })}
       </div>
+      {rating > 0 && (
+        <p className="text-xs text-brand-gray">
+          Selected: {rating}/10
+        </p>
+      )}
     </div>
   )
 
@@ -183,10 +199,10 @@ export function ReviewForm({ productId, onReviewSubmitted }: ReviewFormProps) {
           )}
 
           {/* Ratings */}
-          <div className="grid md:grid-cols-3 gap-6">
-            <StarRating rating={overallRating} setRating={setOverallRating} label="Overall Rating *" />
-            <StarRating rating={durabilityRating} setRating={setDurabilityRating} label="Durability" />
-            <StarRating rating={valueRating} setRating={setValueRating} label="Value for Money" />
+          <div className="space-y-6">
+            <ScoreRating rating={overallRating} setRating={setOverallRating} label="Overall Rating *" />
+            <ScoreRating rating={durabilityRating} setRating={setDurabilityRating} label="Durability" />
+            <ScoreRating rating={valueRating} setRating={setValueRating} label="Value for Money" />
           </div>
 
           {/* Review Title */}

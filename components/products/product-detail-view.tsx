@@ -395,7 +395,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                   </div>
                 </div>
               </div>
-              <div className="bg-gray-50 rounded-lg p-4">
+              <div className="bg-white rounded-lg p-4 border border-gray-100">
                 {product.featured_image_url ? (
                   <Image
                     src={product.featured_image_url}
@@ -405,7 +405,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                     className="w-full h-56 object-contain"
                   />
                 ) : (
-                  <div className="w-full h-56 bg-gray-200 rounded-lg flex items-center justify-center">
+                  <div className="w-full h-56 bg-white rounded-lg flex items-center justify-center">
                     <span className="text-gray-500">No image available</span>
                   </div>
                 )}
@@ -427,37 +427,12 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                     <span className="font-bold">${product.price || '—'}</span>
                   </a>
                 )}
-                {product.manufacturer_link ? (
-                  <a
-                    href={product.manufacturer_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full bg-brand-teal text-white font-bold py-4 rounded-lg hover:bg-opacity-90 transition-opacity text-center inline-block"
-                  >
-                    View Product
-                  </a>
-                ) : product.affiliate_link ? (
-                  <a
-                    href={product.affiliate_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full bg-brand-teal text-white font-bold py-4 rounded-lg hover:bg-opacity-90 transition-opacity text-center inline-block"
-                  >
-                    View Product
-                  </a>
-                ) : (
-                  <button className="w-full bg-gray-400 text-white font-bold py-4 rounded-lg cursor-not-allowed" disabled>
-                    No Product Link Available
-                  </button>
-                )}
 
                 {/* Favorite Button */}
-                <div className="mt-4">
-                  <FavoriteButtonWithText
-                    productId={product.id}
-                    className="w-full justify-center py-3 px-4"
-                  />
-                </div>
+                <FavoriteButtonWithText
+                  productId={product.id}
+                  className="w-full justify-center py-3 px-4"
+                />
               </div>
             </div>
 

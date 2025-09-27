@@ -1,9 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Star, ThumbsUp, Flag, Shield, CheckCircle } from 'lucide-react'
+import { ThumbsUp, Flag, Shield, CheckCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useSession } from '@/components/auth/auth-client'
+
+// Get gradient pill styling based on rating
+function getScoreBadgeStyle(score: number) {
+  const scoreString = score.toString()
+  return {
+    className: "score-field px-3 py-1 rounded-full transform transition-all duration-300",
+    dataScore: scoreString
+  }
+}
 
 interface Review {
   id: string
@@ -150,18 +159,19 @@ export function ReviewsList({ productId, refreshTrigger }: ReviewsListProps) {
     })
   }
 
-  const StarDisplay = ({ rating, size = 'w-4 h-4' }: { rating: number; size?: string }) => (
-    <div className="flex">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <Star
-          key={star}
-          className={`${size} ${
-            star <= rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
-          }`}
-        />
-      ))}
-    </div>
-  )
+  const ScoreDisplay = ({ rating }: { rating: number }) => {
+    const scoreStyle = getScoreBadgeStyle(rating)
+    return (
+      <div
+        className={scoreStyle.className}
+        data-score={scoreStyle.dataScore}
+      >
+        <span className="text-sm font-bold">
+          {rating}/10
+        </span>
+      </div>
+    )
+  }
 
   if (loading) {
     return (
@@ -178,7 +188,7 @@ export function ReviewsList({ productId, refreshTrigger }: ReviewsListProps) {
     ? reviews.reduce((sum, review) => sum + review.overall_rating, 0) / reviews.length
     : 0
 
-  const ratingCounts = [5, 4, 3, 2, 1].map(rating =>
+  const ratingCounts = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map(rating =>
     reviews.filter(review => review.overall_rating === rating).length
   )
 
@@ -191,9 +201,9 @@ export function ReviewsList({ productId, refreshTrigger }: ReviewsListProps) {
             <h2 className="text-2xl font-bold text-brand-dark mb-2">Customer Reviews</h2>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <StarDisplay rating={Math.round(averageRating)} size="w-5 h-5" />
+                <ScoreDisplay rating={Math.round(averageRating)} />
                 <span className="text-lg font-medium text-brand-dark">
-                  {averageRating.toFixed(1)}
+                  {averageRating.toFixed(1)}/10
                 </span>
                 <span className="text-brand-gray">({reviews.length} reviews)</span>
               </div>
@@ -202,14 +212,19 @@ export function ReviewsList({ productId, refreshTrigger }: ReviewsListProps) {
 
           {/* Rating Distribution */}
           <div className="mt-4 md:mt-0 space-y-1">
-            {[5, 4, 3, 2, 1].map((rating, index) => (
+            {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map((rating, index) => (
               <div key={rating} className="flex items-center space-x-2 text-sm">
-                <span className="w-8 text-brand-gray">{rating}★</span>
+                <span className="w-8 text-brand-gray">{rating}</span>
                 <div className="w-24 bg-gray-200 rounded-full h-2">
                   <div
-                    className="bg-yellow-400 h-2 rounded-full"
+                    className="h-2 rounded-full"
                     style={{
-                      width: `${reviews.length > 0 ? (ratingCounts[index] / reviews.length) * 100 : 0}%`
+                      width: `${reviews.length > 0 ? (ratingCounts[index] / reviews.length) * 100 : 0}%`,
+                      background: rating >= 9 ? 'linear-gradient(135deg, #00ff88, #00cc66)' :
+                                 rating >= 8 ? 'linear-gradient(135deg, #a3ffbf, #66ff99)' :
+                                 rating >= 7 ? 'linear-gradient(135deg, #fff886, #fbd786)' :
+                                 rating >= 6 ? 'linear-gradient(135deg, #ffb347, #ff9966)' :
+                                 'linear-gradient(135deg, #ff4c4c, #ff6e7f)'
                     }}
                   />
                 </div>
