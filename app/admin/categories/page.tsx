@@ -49,7 +49,7 @@ export default function AdminCategoriesPage() {
   const fetchCategories = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/categories')
+      const response = await fetch('/api/admin/categories')
       const data = await response.json()
       setCategories(data.categories || [])
     } catch (error) {
@@ -217,15 +217,17 @@ export default function AdminCategoriesPage() {
                         <div className="flex items-center space-x-2">
                           <Link
                             href={`/admin/categories/${category.id}/edit`}
-                            className="text-brand-teal hover:text-brand-teal/80"
+                            className="flex items-center space-x-1 px-3 py-1 bg-gray-800 text-white rounded hover:bg-gray-700 text-sm"
                           >
                             <Edit className="w-4 h-4" />
+                            <span>Edit</span>
                           </Link>
                           <button
                             onClick={() => deleteCategory(category.id)}
-                            className="text-red-600 hover:text-red-800"
+                            className="flex items-center space-x-1 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
                           >
                             <Trash2 className="w-4 h-4" />
+                            <span>Delete</span>
                           </button>
                         </div>
                       </td>

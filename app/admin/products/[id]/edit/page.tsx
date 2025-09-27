@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Save, X } from 'lucide-react'
 
 interface Category {
@@ -530,9 +531,11 @@ export default function EditProductPage() {
                   />
                   {formData.featured_image_url && (
                     <div className="mt-2">
-                      <img
+                      <Image
                         src={formData.featured_image_url}
                         alt="Preview"
+                        width={300}
+                        height={128}
                         className="max-w-xs h-32 object-cover rounded-lg border"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none'
@@ -593,9 +596,11 @@ export default function EditProductPage() {
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {formData.gallery_images.map((imageUrl, index) => (
                           <div key={index} className="relative group">
-                            <img
+                            <Image
                               src={imageUrl}
                               alt={`Gallery ${index + 1}`}
+                              width={96}
+                              height={96}
                               className="w-full h-24 object-cover rounded-lg border"
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none'

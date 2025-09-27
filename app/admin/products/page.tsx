@@ -244,7 +244,7 @@ export default function AdminProductsPage() {
                     </Link>
                     <Link
                       href={`/admin/products/${product.id}/edit`}
-                      className="flex-1 bg-brand-teal text-white px-3 py-2 rounded-lg hover:bg-brand-teal/90 transition-colors text-center text-sm font-medium flex items-center justify-center space-x-1"
+                      className="flex-1 bg-gray-800 text-white px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors text-center text-sm font-medium flex items-center justify-center space-x-1"
                     >
                       <Edit className="w-4 h-4" />
                       <span>Edit</span>
