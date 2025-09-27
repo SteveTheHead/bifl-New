@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { getCategories, getFeaturedProducts } from '@/lib/supabase/queries'
 import { Card, CardContent } from '@/components/ui/card'
-// import BadgeDisplay from '@/components/BadgeDisplay' // Temporarily disabled for server compatibility
+import BadgeDisplay from '@/components/BadgeDisplay'
 
 export default async function HomePage() {
   try {
@@ -62,12 +62,22 @@ export default async function HomePage() {
             </div>
 
             {/* Quality Badges */}
-            <div className="flex flex-wrap gap-7 mb-10">
-              <div className="bg-yellow-500 text-white px-3 py-1 rounded text-sm font-medium">Gold Standard</div>
-              <div className="bg-blue-500 text-white px-3 py-1 rounded text-sm font-medium">Crowd Favorite</div>
-              <div className="bg-purple-500 text-white px-3 py-1 rounded text-sm font-medium">Lifetime Warranty</div>
-              <div className="bg-green-500 text-white px-3 py-1 rounded text-sm font-medium">BIFL Approved</div>
-              <div className="bg-orange-500 text-white px-3 py-1 rounded text-sm font-medium">Repair Friendly</div>
+            <div className="flex flex-wrap gap-3 mb-10">
+              <Link href="/products?badge=Gold%20Standard">
+                <BadgeDisplay certification="Gold Standard" size="sm" />
+              </Link>
+              <Link href="/products?badge=Crowd%20Favorite">
+                <BadgeDisplay certification="Crowd Favorite" size="sm" />
+              </Link>
+              <Link href="/products?badge=Lifetime%20Warranty">
+                <BadgeDisplay certification="Lifetime Warranty" size="sm" />
+              </Link>
+              <Link href="/products?badge=BIFL%20Approved">
+                <BadgeDisplay certification="BIFL Approved" size="sm" />
+              </Link>
+              <Link href="/products?badge=Repair%20Friendly">
+                <BadgeDisplay certification="Repair Friendly" size="sm" />
+              </Link>
             </div>
 
             <Link

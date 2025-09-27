@@ -1,3 +1,5 @@
+'use client'
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +16,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { logError } from "@/lib/logger";
 
 interface UserInfo {
   id: string;
@@ -45,7 +48,7 @@ export default function UserProfile({ mini }: { mini?: boolean }) {
 
       setUserInfo(result.data?.user);
     } catch (error) {
-      console.error("Error fetching user data:", error);
+      logError(error as Error, "UserProfile", { action: "fetchUserData" });
       setError("Failed to load user profile. Please try refreshing the page.");
     } finally {
       setLoading(false);
