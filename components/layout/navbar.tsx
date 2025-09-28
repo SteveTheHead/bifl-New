@@ -20,28 +20,54 @@ export function Navbar() {
   }, [])
 
   // Check authentication using our Supabase auth system
-  useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const response = await fetch('/api/user/auth')
-        const data = await response.json()
-        setUser(data.user)
-      } catch (error) {
-        console.error('Error checking auth:', error)
-        setUser(null)
-      } finally {
-        setLoading(false)
-      }
+  const checkUser = async () => {
+    try {
+      const response = await fetch('/api/user/auth')
+      const data = await response.json()
+      setUser(data.user)
+    } catch (error) {
+      console.error('Error checking auth:', error)
+      setUser(null)
+    } finally {
+      setLoading(false)
     }
+  }
+
+  useEffect(() => {
     checkUser()
+  }, [])
+
+  // Check user state when the window gains focus (e.g., after login in another tab/window)
+  useEffect(() => {
+    const handleFocus = () => {
+      checkUser()
+    }
+
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [])
+
+  // Periodic check for user state (backup in case focus events don't work)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      checkUser()
+    }, 5000) // Check every 5 seconds
+
+    return () => clearInterval(interval)
   }, [])
 
   const handleSignOut = async () => {
     try {
       setShowUserMenu(false)
+      setUser(null) // Clear user state immediately
       await logout()
+      // Force a page refresh to ensure all client-side state is cleared
+      window.location.href = '/auth/signin'
     } catch (error) {
       console.error('Sign out error:', error)
+      // Still clear user state on error and redirect
+      setUser(null)
+      window.location.href = '/auth/signin'
     }
   }
 

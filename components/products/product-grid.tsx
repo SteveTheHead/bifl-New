@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { ProductFilters } from './product-filters'
 import BadgeDisplay from '@/components/BadgeDisplay'
 import { AddToCompareButton } from '@/components/compare/add-to-compare-button'
+import { FavoriteButton } from '@/components/favorites/favorite-button'
 
 // Badge calculation function (matching BadgeDisplay logic)
 function calculateBadges(product: any): string[] {
@@ -121,7 +122,12 @@ function SimpleProductCard({ product }: { product: any }) {
         >
           View Product
         </Link>
-        <div className="flex justify-center">
+        <div className="flex justify-center items-center gap-2">
+          <FavoriteButton
+            productId={product.id}
+            variant="small"
+            className="border border-gray-300 bg-white hover:bg-gray-50"
+          />
           <AddToCompareButton
             product={{
               id: product.id,

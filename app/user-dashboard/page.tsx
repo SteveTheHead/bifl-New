@@ -16,6 +16,10 @@ import {
   TrendingUp
 } from 'lucide-react'
 import { SimpleProductCard } from '@/components/products/SimpleProductCard'
+import { MiniProductCard } from '@/components/products/MiniProductCard'
+import { RecentlyViewedCard } from '@/components/user/RecentlyViewedCard'
+import { MiniRecentlyViewedCard } from '@/components/user/MiniRecentlyViewedCard'
+import { AnimatedCounter } from '@/components/user/AnimatedCounter'
 import { Avatar } from '@/components/user/avatar-upload'
 
 interface DashboardStats {
@@ -145,27 +149,34 @@ export default function UserDashboardPage() {
   return (
     <div className="min-h-screen bg-brand-cream">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-white shadow-md border-b-2 border-brand-teal">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Avatar
-                src={session.user.user_metadata?.avatar_url}
-                name={session.user.user_metadata?.name || session.user.email}
-                size="xl"
-              />
+              <div className="relative">
+                <Avatar
+                  src={session.user.user_metadata?.avatar_url}
+                  name={session.user.user_metadata?.name || session.user.email}
+                  size="lg"
+                />
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-brand-teal rounded-full border-2 border-white shadow-md flex items-center justify-center">
+                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                </div>
+              </div>
               <div>
-                <h1 className="text-3xl font-bold text-brand-dark">My Dashboard</h1>
-                <p className="text-brand-gray mt-1">
+                <h1 className="text-2xl font-bold text-brand-dark">
+                  My Dashboard
+                </h1>
+                <p className="text-brand-gray mt-1 text-sm">
                   Welcome back, {session.user.user_metadata?.name || session.user.email}
                 </p>
               </div>
             </div>
             <Link
               href="/products"
-              className="bg-brand-teal text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity font-medium flex items-center gap-2"
+              className="text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all duration-200 font-semibold shadow-md text-sm"
+              style={{ backgroundColor: '#4A9D93' }}
             >
-              <Search className="w-4 h-4" />
               Browse Products
             </Link>
           </div>
@@ -174,39 +185,29 @@ export default function UserDashboardPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="group bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 p-4 border border-gray-100">
             <div className="flex items-center">
-              <div className="bg-red-100 p-3 rounded-lg">
-                <Heart className="w-6 h-6 text-red-500" />
+              <div className="bg-red-50 p-3 rounded-lg group-hover:bg-red-100 transition-colors duration-200">
+                <Heart className="w-5 h-5 text-red-500" />
               </div>
               <div className="ml-4">
-                <p className="text-sm text-brand-gray">Favorites</p>
-                <p className="text-2xl font-bold text-brand-dark">{stats.favoritesCount}</p>
+                <p className="text-xs font-medium text-brand-gray uppercase tracking-wide">Favorites</p>
+                <p className="text-2xl font-bold text-brand-dark mt-0.5">
+                  <AnimatedCounter end={stats.favoritesCount} />
+                </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="group bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 p-4 border border-gray-100">
             <div className="flex items-center">
-              <div className="bg-blue-100 p-3 rounded-lg">
-                <Eye className="w-6 h-6 text-blue-500" />
+              <div className="bg-green-50 p-3 rounded-lg group-hover:bg-green-100 transition-colors duration-200">
+                <Calendar className="w-5 h-5 text-green-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm text-brand-gray">Recently Viewed</p>
-                <p className="text-2xl font-bold text-brand-dark">{stats.recentlyViewedCount}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <div className="flex items-center">
-              <div className="bg-green-100 p-3 rounded-lg">
-                <Calendar className="w-6 h-6 text-green-500" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm text-brand-gray">Member Since</p>
-                <p className="text-2xl font-bold text-brand-dark">
+                <p className="text-xs font-medium text-brand-gray uppercase tracking-wide">Member Since</p>
+                <p className="text-lg font-bold text-brand-dark mt-0.5">
                   {new Date(stats.joinDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
                 </p>
               </div>
@@ -215,63 +216,56 @@ export default function UserDashboardPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-          <h2 className="text-xl font-bold text-brand-dark mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Link
-              href="/products"
-              className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-brand-teal hover:bg-brand-teal/5 transition-colors"
-            >
-              <Search className="w-5 h-5 text-brand-teal mr-3" />
-              <div>
-                <p className="font-medium text-brand-dark">Browse Products</p>
-                <p className="text-sm text-brand-gray">Discover new BIFL items</p>
-              </div>
-              <ArrowRight className="w-4 h-4 text-brand-gray ml-auto" />
-            </Link>
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8 border border-gray-100">
+          <h2 className="text-lg font-bold text-brand-dark mb-4">Quick Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
             <Link
               href="/products?sort=newest"
-              className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-brand-teal hover:bg-brand-teal/5 transition-colors"
+              className="group flex items-center p-4 bg-green-50 border border-green-200 rounded-lg hover:shadow-md hover:bg-green-100 transition-all duration-200"
             >
-              <TrendingUp className="w-5 h-5 text-brand-teal mr-3" />
-              <div>
-                <p className="font-medium text-brand-dark">New Products</p>
-                <p className="text-sm text-brand-gray">See latest additions</p>
+              <div className="bg-green-600 p-2 rounded-lg mr-3">
+                <TrendingUp className="w-4 h-4 text-white" />
               </div>
-              <ArrowRight className="w-4 h-4 text-brand-gray ml-auto" />
+              <div className="flex-1">
+                <p className="font-medium text-brand-dark text-sm">New Products</p>
+                <p className="text-xs text-brand-gray">See latest additions</p>
+              </div>
+              <ArrowRight className="w-4 h-4 text-brand-gray group-hover:text-green-600 group-hover:translate-x-1 transition-all duration-200" />
             </Link>
 
             <Link
               href="/user-dashboard/settings"
-              className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-brand-teal hover:bg-brand-teal/5 transition-colors"
+              className="group flex items-center p-4 bg-gray-50 border border-gray-200 rounded-lg hover:shadow-md hover:bg-gray-100 transition-all duration-200"
             >
-              <Settings className="w-5 h-5 text-brand-teal mr-3" />
-              <div className="text-left">
-                <p className="font-medium text-brand-dark">Account Settings</p>
-                <p className="text-sm text-brand-gray">Manage preferences</p>
+              <div className="bg-gray-600 p-2 rounded-lg mr-3">
+                <Settings className="w-4 h-4 text-white" />
               </div>
-              <ArrowRight className="w-4 h-4 text-brand-gray ml-auto" />
+              <div className="flex-1">
+                <p className="font-medium text-brand-dark text-sm">Account Settings</p>
+                <p className="text-xs text-brand-gray">Manage preferences</p>
+              </div>
+              <ArrowRight className="w-4 h-4 text-brand-gray group-hover:text-gray-600 group-hover:translate-x-1 transition-all duration-200" />
             </Link>
           </div>
         </div>
 
         {/* Favorites Section */}
         {favoriteProducts.length > 0 && (
-          <div className="mb-8">
+          <div className="bg-red-50/30 rounded-lg p-6 mb-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-brand-dark">My Favorites</h2>
               <Link
                 href="/favorites"
-                className="text-brand-teal hover:text-brand-dark font-medium text-sm flex items-center gap-1"
+                className="text-gray-700 hover:text-gray-900 transition-colors duration-200 font-medium text-sm flex items-center gap-2"
               >
                 View All
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {favoriteProducts.slice(0, 6).map((product) => (
-                <SimpleProductCard key={product.id} product={product} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {favoriteProducts.slice(0, 8).map((product) => (
+                <MiniProductCard key={product.id} product={product} />
               ))}
             </div>
           </div>
@@ -279,13 +273,18 @@ export default function UserDashboardPage() {
 
         {/* Recently Viewed Section */}
         {recentlyViewed.length > 0 && (
-          <div className="mb-8">
+          <div className="bg-brand-teal/5 rounded-lg p-6 mb-8">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-brand-dark">Recently Viewed</h2>
+              <div>
+                <h2 className="text-2xl font-bold text-brand-dark">Recently Viewed</h2>
+                <p className="text-brand-gray mt-1 text-sm">
+                  Products you've viewed recently with timestamps
+                </p>
+              </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recentlyViewed.slice(0, 6).map((product) => (
-                <SimpleProductCard key={product.id} product={product} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {recentlyViewed.slice(0, 8).map((product) => (
+                <MiniRecentlyViewedCard key={product.id} product={product} />
               ))}
             </div>
           </div>
@@ -293,29 +292,29 @@ export default function UserDashboardPage() {
 
         {/* Recommendations Section */}
         {recommendedProducts.length > 0 && (
-          <div className="mb-8">
+          <div className="bg-green-50/40 rounded-lg p-6 mb-8">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-brand-dark">
                   {isPersonalized ? 'Recommended for You' : 'Top Rated Products'}
                 </h2>
                 {isPersonalized && (
-                  <p className="text-sm text-brand-gray mt-1">
+                  <p className="text-brand-gray mt-1 text-sm">
                     Based on your favorites and preferences
                   </p>
                 )}
               </div>
               <Link
                 href="/products"
-                className="text-brand-teal hover:text-brand-dark font-medium text-sm flex items-center gap-1"
+                className="text-gray-700 hover:text-gray-900 transition-colors duration-200 font-medium text-sm flex items-center gap-2"
               >
                 View All
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recommendedProducts.map((product) => (
-                <SimpleProductCard key={product.id} product={product} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {recommendedProducts.slice(0, 8).map((product) => (
+                <MiniProductCard key={product.id} product={product} />
               ))}
             </div>
           </div>
@@ -323,17 +322,19 @@ export default function UserDashboardPage() {
 
         {/* Empty State */}
         {favoriteProducts.length === 0 && (
-          <div className="bg-white rounded-xl shadow-lg p-8 text-center">
-            <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-brand-dark mb-2">No Favorites Yet</h3>
-            <p className="text-brand-gray mb-6 max-w-md mx-auto">
+          <div className="bg-white rounded-2xl shadow-lg p-12 text-center border border-gray-100">
+            <div className="bg-red-100 p-6 rounded-full w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+              <Heart className="w-12 h-12 text-red-500" />
+            </div>
+            <h3 className="text-2xl font-bold text-brand-dark mb-4">No Favorites Yet</h3>
+            <p className="text-brand-gray mb-8 max-w-md mx-auto text-lg">
               Start building your collection of Buy It For Life products by adding your favorites.
             </p>
             <Link
               href="/products"
-              className="bg-brand-teal text-white px-6 py-3 rounded-lg hover:opacity-90 transition-opacity font-medium inline-flex items-center gap-2"
+              className="text-gray-700 hover:text-gray-900 transition-colors duration-200 font-semibold inline-flex items-center gap-3 text-lg"
             >
-              <Search className="w-4 h-4" />
+              <Search className="w-5 h-5" />
               Explore Products
             </Link>
           </div>

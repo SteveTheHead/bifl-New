@@ -125,6 +125,7 @@ async function getPersonalizedRecommendations(supabase: any, userEmail: string) 
         brand_id,
         category_id,
         created_at,
+        affiliate_link,
         brands(name)
       `)
       .eq('status', 'published')
@@ -162,6 +163,7 @@ async function getPersonalizedRecommendations(supabase: any, userEmail: string) 
           brand_id,
           category_id,
           created_at,
+          affiliate_link,
           brands(name)
         `)
         .eq('status', 'published')
@@ -217,6 +219,7 @@ async function getTopRatedProducts(supabase: any) {
         brand_id,
         category_id,
         created_at,
+        affiliate_link,
         brands(name)
       `)
       .eq('status', 'published')

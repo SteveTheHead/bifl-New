@@ -12,14 +12,25 @@ export async function login(formData: FormData) {
     password: formData.get('password') as string,
   }
 
+  const returnUrl = formData.get('returnUrl') as string
+
   const { error } = await supabase.auth.signInWithPassword(data)
 
   if (error) {
-    redirect('/auth/signin?error=Invalid login credentials')
+    const errorRedirect = returnUrl
+      ? `/auth/signin?error=Invalid login credentials&returnUrl=${encodeURIComponent(returnUrl)}`
+      : '/auth/signin?error=Invalid login credentials'
+    redirect(errorRedirect)
   }
 
   revalidatePath('/', 'layout')
-  redirect('/user-dashboard')
+
+  // Redirect to returnUrl if provided, otherwise to dashboard
+  if (returnUrl && returnUrl.startsWith('/')) {
+    redirect(returnUrl)
+  } else {
+    redirect('/user-dashboard')
+  }
 }
 
 export async function signup(formData: FormData) {

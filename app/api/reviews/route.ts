@@ -1,26 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@/utils/supabase/server'
 
 export async function POST(request: NextRequest) {
   try {
+    const supabase = await createClient()
+
+    // Check authentication
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+    }
+
     const body = await request.json()
     console.log('API: Received review data:', body)
 
-    // Use service role key to bypass RLS for development
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
-        }
-      }
-    )
+    // Add user_id to the review data
+    const reviewData = {
+      ...body,
+      user_id: user.id
+    }
 
     const { error, data } = await supabase
       .from('reviews')
-      .insert(body)
+      .insert(reviewData)
       .select()
 
     console.log('API: Insert result:', { data, error })

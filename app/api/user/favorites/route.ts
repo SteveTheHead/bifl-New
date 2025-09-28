@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
         brand_id,
         category_id,
         created_at,
+        affiliate_link,
         brands(name)
       `)
       .in('id', productIds)

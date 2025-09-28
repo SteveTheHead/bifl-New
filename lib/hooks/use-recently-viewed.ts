@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from '@/components/auth/auth-client'
 
 interface RecentlyViewedProduct {
   id: string
@@ -10,44 +9,62 @@ interface RecentlyViewedProduct {
   featured_image_url?: string
   bifl_total_score?: number
   brand_name?: string
+  affiliate_link?: string
   viewed_at: string
 }
 
 export function useRecentlyViewed() {
-  const { data: session } = useSession()
   const [recentlyViewed, setRecentlyViewed] = useState<RecentlyViewedProduct[]>([])
   const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<any>(null)
 
+  // Check authentication using our Supabase auth system
   useEffect(() => {
-    if (session?.user?.email) {
-      fetchRecentlyViewed()
-    } else {
-      setRecentlyViewed([])
-      setLoading(false)
-    }
-  }, [session?.user?.email])
+    const checkUser = async () => {
+      try {
+        const response = await fetch('/api/user/auth')
+        const data = await response.json()
+        setUser(data.user)
 
-  const fetchRecentlyViewed = async () => {
-    if (!session?.user?.email) return
+        if (data.user?.email) {
+          fetchRecentlyViewed(data.user.email)
+        } else {
+          setRecentlyViewed([])
+          setLoading(false)
+        }
+      } catch (error) {
+        console.error('Error checking auth:', error)
+        setUser(null)
+        setRecentlyViewed([])
+        setLoading(false)
+      }
+    }
+    checkUser()
+  }, [])
+
+  const fetchRecentlyViewed = async (userEmail: string) => {
+    if (!userEmail) return
 
     try {
-      const response = await fetch(`/api/user/recently-viewed?userEmail=${encodeURIComponent(session.user.email)}`)
+      const response = await fetch(`/api/user/recently-viewed?userEmail=${encodeURIComponent(userEmail)}`)
 
       if (response.ok) {
         const data = await response.json()
         setRecentlyViewed(data.products || [])
       } else {
-        console.error('Failed to fetch recently viewed products')
+        // Gracefully handle when table doesn't exist yet
+        setRecentlyViewed([])
       }
     } catch (error) {
-      console.error('Error fetching recently viewed products:', error)
+      // Gracefully handle errors - recently viewed is not critical functionality
+      setRecentlyViewed([])
     } finally {
       setLoading(false)
     }
   }
 
   const addToRecentlyViewed = async (productId: string) => {
-    if (!session?.user?.email) return false
+    if (!user?.email) return false
 
     try {
       const response = await fetch('/api/user/recently-viewed', {
@@ -56,21 +73,21 @@ export function useRecentlyViewed() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          userEmail: session.user.email,
+          userEmail: user.email,
           productId: productId
         })
       })
 
       if (response.ok) {
         // Refresh the recently viewed list
-        await fetchRecentlyViewed()
+        await fetchRecentlyViewed(user.email)
         return true
       } else {
-        console.error('Failed to add to recently viewed')
+        // Gracefully handle when table doesn't exist yet - don't spam console
         return false
       }
     } catch (error) {
-      console.error('Error adding to recently viewed:', error)
+      // Gracefully handle errors - recently viewed is not critical functionality
       return false
     }
   }
@@ -79,6 +96,6 @@ export function useRecentlyViewed() {
     recentlyViewed,
     loading,
     addToRecentlyViewed,
-    refreshRecentlyViewed: fetchRecentlyViewed
+    refreshRecentlyViewed: () => user?.email ? fetchRecentlyViewed(user.email) : Promise.resolve()
   }
 }

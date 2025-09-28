@@ -3,7 +3,8 @@
 import Image from 'next/image'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { SiAmazon, SiReddit, SiGoogle } from 'react-icons/si'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRecentlyViewed } from '@/lib/hooks/use-recently-viewed'
 import { SimilarProductsCarousel } from './similar-products-carousel'
 import { ReviewForm } from '../reviews/review-form'
 import { ReviewsList } from '../reviews/reviews-list'
@@ -70,6 +71,16 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
   // Gallery state
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [reviewRefreshTrigger, setReviewRefreshTrigger] = useState(0)
+
+  // Recently viewed tracking
+  const { addToRecentlyViewed } = useRecentlyViewed()
+
+  // Track this product view
+  useEffect(() => {
+    if (product?.id) {
+      addToRecentlyViewed(product.id)
+    }
+  }, [product?.id, addToRecentlyViewed])
 
   // Create gallery images array from actual gallery data
   const galleryImages = (() => {

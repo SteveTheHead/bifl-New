@@ -4,7 +4,7 @@ import { login } from '../actions'
 export default async function SignInPage({
   searchParams
 }: {
-  searchParams: Promise<{ message?: string; error?: string }>
+  searchParams: Promise<{ message?: string; error?: string; returnUrl?: string }>
 }) {
   const params = await searchParams
   return (
@@ -35,6 +35,9 @@ export default async function SignInPage({
         )}
 
         <form className="mt-8 space-y-6" action={login}>
+          {params.returnUrl && (
+            <input type="hidden" name="returnUrl" value={params.returnUrl} />
+          )}
           <div className="space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-brand-dark">

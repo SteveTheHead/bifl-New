@@ -2,8 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { Plus, X } from 'lucide-react'
-import { useSession } from '@/components/auth/auth-client'
-import { createClient } from '@/lib/supabase/client'
 
 // Simple list component for pros/cons
 function SimpleList({ items, setItems, placeholder }: { items: string[]; setItems: (items: string[]) => void; placeholder: string }) {
@@ -87,7 +85,8 @@ interface ReviewFormProps {
 }
 
 export function ReviewForm({ productId, onReviewSubmitted }: ReviewFormProps) {
-  const { data: session } = useSession()
+  const [user, setUser] = useState<any>(null)
+  const [authLoading, setAuthLoading] = useState(true)
   const [isClient, setIsClient] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -111,6 +110,23 @@ export function ReviewForm({ productId, onReviewSubmitted }: ReviewFormProps) {
     setIsClient(true)
   }, [])
 
+  // Check authentication using our Supabase auth system
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const response = await fetch('/api/user/auth')
+        const data = await response.json()
+        setUser(data.user)
+      } catch (error) {
+        console.error('Error checking auth:', error)
+        setUser(null)
+      } finally {
+        setAuthLoading(false)
+      }
+    }
+    checkUser()
+  }, [])
+
   // Don't render anything until client-side
   if (!isClient) {
     return (
@@ -123,24 +139,14 @@ export function ReviewForm({ productId, onReviewSubmitted }: ReviewFormProps) {
     )
   }
 
-  // Mock user for development/testing - only on client
-  const mockUser = process.env.NODE_ENV === 'development' ? {
-    user: {
-      email: 'testuser@bifl.dev',
-      name: 'Test User'
-    }
-  } : null
-
-  const currentSession = session || mockUser
-
   // Debug logging
-  console.log('ReviewForm render:', { session, mockUser, currentSession, productId, isClient })
+  console.log('ReviewForm render:', { user, productId, isClient })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Form submission started:', { currentSession, productId })
+    console.log('Form submission started:', { user, productId })
 
-    if (!currentSession?.user) {
+    if (!user) {
       console.log('No user session found')
       setError('You must be signed in to submit a review')
       return
@@ -179,8 +185,8 @@ export function ReviewForm({ productId, onReviewSubmitted }: ReviewFormProps) {
 
       const reviewData = {
         product_id: productId,
-        user_email: currentSession.user.email,
-        user_name: currentSession.user.name || 'Test User',
+        user_email: user.email,
+        user_name: user.user_metadata?.name || user.email,
         overall_rating: convertRatingForDB(Math.max(durabilityRating, repairabilityRating, warrantyRating, personalExperienceRating)) || 3,
         durability_rating: convertRatingForDB(durabilityRating),
         repairability_rating: convertRatingForDB(repairabilityRating),
@@ -338,28 +344,37 @@ export function ReviewForm({ productId, onReviewSubmitted }: ReviewFormProps) {
     setList(newList)
   }
 
-  if (!currentSession?.user) {
+  // Show loading state while checking authentication
+  if (authLoading) {
+    return (
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="animate-pulse">
+          <div className="h-6 bg-gray-200 rounded w-48 mb-4"></div>
+          <div className="h-4 bg-gray-200 rounded w-72"></div>
+        </div>
+      </div>
+    )
+  }
+
+  // Show sign-in prompt if not authenticated
+  if (!user) {
+    const getSignInUrl = () => {
+      if (typeof window !== 'undefined') {
+        return `/auth/signin?returnUrl=${encodeURIComponent(window.location.pathname)}`
+      }
+      return '/auth/signin'
+    }
+
     return (
       <div className="bg-white rounded-lg border border-gray-200 p-6 text-center">
         <p className="text-brand-gray mb-4">Sign in to write a review</p>
-        {process.env.NODE_ENV === 'development' ? (
-          <div className="space-y-2">
-            <p className="text-sm text-blue-600">Development Mode: Authentication disabled for testing</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="inline-block bg-brand-teal text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-opacity"
-            >
-              Refresh to Use Test User
-            </button>
-          </div>
-        ) : (
-          <a
-            href="/sign-in"
-            className="inline-block bg-brand-teal text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-opacity"
-          >
-            Sign In
-          </a>
-        )}
+        <a
+          href={getSignInUrl()}
+          className="inline-block text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+          style={{ backgroundColor: '#4A9D93' }}
+        >
+          Sign In
+        </a>
       </div>
     )
   }

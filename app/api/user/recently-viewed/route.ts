@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/utils/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 
 // GET - Fetch recently viewed products for a user
@@ -13,10 +13,7 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createClient()
 
-    // Check if user_recently_viewed table exists, create if not
-    await supabase.rpc('create_recently_viewed_table_if_not_exists').catch(() => {
-      // Ignore error if function doesn't exist
-    })
+    // Note: user_recently_viewed table should be created manually if it doesn't exist
 
     // Get recently viewed products
     const { data: recentlyViewed, error } = await supabase
@@ -38,6 +35,7 @@ export async function GET(request: NextRequest) {
           brand_id,
           category_id,
           created_at,
+          affiliate_link,
           brands(name)
         )
       `)
@@ -78,8 +76,7 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createClient()
 
-    // Create table if it doesn't exist
-    await createRecentlyViewedTable(supabase)
+    // Note: If user_recently_viewed table doesn't exist, it should be created manually
 
     // Check if this product is already in recently viewed for this user
     const { data: existing } = await supabase
@@ -140,27 +137,16 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function createRecentlyViewedTable(supabase: any) {
-  try {
-    const { error } = await supabase.rpc('exec_sql', {
-      sql: `
-        CREATE TABLE IF NOT EXISTS user_recently_viewed (
-          id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-          user_email TEXT NOT NULL,
-          product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-          viewed_at TIMESTAMPTZ DEFAULT now(),
-          UNIQUE(user_email, product_id)
-        );
+// Note: user_recently_viewed table should be created manually with this SQL:
+/*
+CREATE TABLE IF NOT EXISTS user_recently_viewed (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_email TEXT NOT NULL,
+  product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  viewed_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(user_email, product_id)
+);
 
-        CREATE INDEX IF NOT EXISTS idx_user_recently_viewed_user_email ON user_recently_viewed(user_email);
-        CREATE INDEX IF NOT EXISTS idx_user_recently_viewed_viewed_at ON user_recently_viewed(viewed_at);
-      `
-    })
-
-    if (error) {
-      console.error('Error creating recently viewed table:', error)
-    }
-  } catch (error) {
-    console.error('Error in createRecentlyViewedTable:', error)
-  }
-}
+CREATE INDEX IF NOT EXISTS idx_user_recently_viewed_user_email ON user_recently_viewed(user_email);
+CREATE INDEX IF NOT EXISTS idx_user_recently_viewed_viewed_at ON user_recently_viewed(viewed_at);
+*/
