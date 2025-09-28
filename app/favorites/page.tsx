@@ -1,13 +1,12 @@
 'use client'
 
-import { useSession } from '@/components/auth/auth-client'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Heart, Star, Trash2, ShoppingBag } from 'lucide-react'
 import { useFavorites } from '@/lib/hooks/use-favorites'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/utils/supabase/client'
 
 interface FavoriteProduct {
   id: string
@@ -21,17 +20,34 @@ interface FavoriteProduct {
 }
 
 export default function FavoritesPage() {
-  const { data: session, isPending } = useSession()
   const router = useRouter()
   const { favorites, loading: favoritesLoading, removeFromFavorites } = useFavorites()
   const [products, setProducts] = useState<FavoriteProduct[]>([])
   const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<any>(null)
+  const [authLoading, setAuthLoading] = useState(true)
 
+  // Check authentication using our Supabase auth system
   useEffect(() => {
-    if (!isPending && !session?.user) {
-      router.push('/auth/signin')
+    const checkUser = async () => {
+      try {
+        const response = await fetch('/api/user/auth')
+        const data = await response.json()
+        setUser(data.user)
+
+        if (!data.user) {
+          router.push('/auth/signin')
+        }
+      } catch (error) {
+        console.error('Error checking auth:', error)
+        setUser(null)
+        router.push('/auth/signin')
+      } finally {
+        setAuthLoading(false)
+      }
     }
-  }, [session, isPending, router])
+    checkUser()
+  }, [router])
 
   useEffect(() => {
     if (!favoritesLoading && favorites.length > 0) {
@@ -88,7 +104,7 @@ export default function FavoritesPage() {
     }
   }
 
-  if (isPending || loading) {
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-brand-cream flex items-center justify-center">
         <div className="w-8 h-8 animate-spin rounded-full border-2 border-brand-teal border-t-transparent"></div>
@@ -96,7 +112,7 @@ export default function FavoritesPage() {
     )
   }
 
-  if (!session?.user) {
+  if (!user) {
     return null
   }
 

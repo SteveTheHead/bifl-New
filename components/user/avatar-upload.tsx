@@ -27,12 +27,19 @@ export function AvatarUpload({ currentAvatarUrl, userName, onAvatarUpdate }: Ava
   }
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('🔥 File selected')
     const file = event.target.files?.[0]
-    if (!file) return
+    if (!file) {
+      console.log('❌ No file selected')
+      return
+    }
+
+    console.log('📁 File details:', { name: file.name, type: file.type, size: file.size })
 
     // Validate file type
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
     if (!allowedTypes.includes(file.type)) {
+      console.log('❌ Invalid file type:', file.type)
       setError('Please upload a JPEG, PNG, or WebP image.')
       return
     }
@@ -40,13 +47,17 @@ export function AvatarUpload({ currentAvatarUrl, userName, onAvatarUpdate }: Ava
     // Validate file size (5MB max)
     const maxSize = 5 * 1024 * 1024
     if (file.size > maxSize) {
+      console.log('❌ File too large:', file.size)
       setError('File too large. Please upload an image smaller than 5MB.')
       return
     }
 
+    console.log('✅ File validation passed')
+
     // Create preview
     const reader = new FileReader()
     reader.onload = (e) => {
+      console.log('✅ Preview created')
       setPreview(e.target?.result as string)
       setError('')
     }
@@ -54,8 +65,13 @@ export function AvatarUpload({ currentAvatarUrl, userName, onAvatarUpdate }: Ava
   }
 
   const handleUpload = async () => {
-    if (!fileInputRef.current?.files?.[0]) return
+    console.log('🚀 Upload initiated')
+    if (!fileInputRef.current?.files?.[0]) {
+      console.log('❌ No file to upload')
+      return
+    }
 
+    console.log('✅ File found, starting upload...')
     setIsUploading(true)
     setError('')
     setSuccess('')
@@ -63,13 +79,17 @@ export function AvatarUpload({ currentAvatarUrl, userName, onAvatarUpdate }: Ava
     try {
       const formData = new FormData()
       formData.append('avatar', fileInputRef.current.files[0])
+      console.log('📦 FormData created')
 
+      console.log('🌐 Making fetch request to /api/user/avatar')
       const response = await fetch('/api/user/avatar', {
         method: 'POST',
         body: formData
       })
 
+      console.log('📡 Response received:', response.status)
       const data = await response.json()
+      console.log('📄 Response data:', data)
 
       if (!response.ok) {
         throw new Error(data.error || 'Upload failed')
@@ -78,6 +98,7 @@ export function AvatarUpload({ currentAvatarUrl, userName, onAvatarUpdate }: Ava
       setSuccess('Avatar updated successfully!')
       setPreview(null)
       onAvatarUpdate?.(data.avatar_url)
+      console.log('✅ Avatar updated successfully!')
 
       // Clear file input
       if (fileInputRef.current) {
@@ -89,6 +110,7 @@ export function AvatarUpload({ currentAvatarUrl, userName, onAvatarUpdate }: Ava
         setSuccess('')
       }, 3000)
     } catch (err) {
+      console.error('❌ Upload error:', err)
       setError(err instanceof Error ? err.message : 'Upload failed')
     } finally {
       setIsUploading(false)

@@ -3,14 +3,15 @@
 import Link from 'next/link'
 import { useState, useRef, useEffect } from 'react'
 import { Menu, X, Search, User, LogOut } from 'lucide-react'
-import { useSession, signOut } from '@/components/auth/auth-client'
+import { logout } from '@/app/auth/actions'
 import { AISearch } from '../search/ai-search'
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [isClient, setIsClient] = useState(false)
-  const { data: session, isPending } = useSession()
+  const [user, setUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
   const userMenuRef = useRef<HTMLDivElement>(null)
 
   // Fix hydration mismatch
@@ -18,9 +19,30 @@ export function Navbar() {
     setIsClient(true)
   }, [])
 
+  // Check authentication using our Supabase auth system
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const response = await fetch('/api/user/auth')
+        const data = await response.json()
+        setUser(data.user)
+      } catch (error) {
+        console.error('Error checking auth:', error)
+        setUser(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+    checkUser()
+  }, [])
+
   const handleSignOut = async () => {
-    await signOut()
-    setShowUserMenu(false)
+    try {
+      setShowUserMenu(false)
+      await logout()
+    } catch (error) {
+      console.error('Sign out error:', error)
+    }
   }
 
   useEffect(() => {
@@ -78,11 +100,11 @@ export function Navbar() {
               <div className="p-2 text-brand-gray">
                 <div className="w-5 h-5 bg-gray-200 rounded animate-pulse"></div>
               </div>
-            ) : isPending ? (
+            ) : loading ? (
               <div className="p-2 text-brand-gray">
                 <div className="w-5 h-5 animate-spin rounded-full border-2 border-brand-gray border-t-transparent"></div>
               </div>
-            ) : !session?.user ? (
+            ) : !user ? (
               <Link
                 href="/auth/signin"
                 className="flex items-center space-x-2 p-2 text-brand-gray hover:text-brand-dark transition-colors"
@@ -97,17 +119,17 @@ export function Navbar() {
                   className="flex items-center space-x-2 p-2 text-brand-gray hover:text-brand-dark"
                 >
                   <User className="w-5 h-5" />
-                  <span className="text-sm font-medium">{session.user.name || session.user.email}</span>
+                  <span className="text-sm font-medium">{user.user_metadata?.name || user.email}</span>
                 </button>
 
                 {showUserMenu && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                     <Link
-                      href="/profile"
+                      href="/user-dashboard"
                       className="block px-4 py-2 text-sm text-brand-gray hover:bg-gray-50 hover:text-brand-dark"
                       onClick={() => setShowUserMenu(false)}
                     >
-                      Profile
+                      Dashboard
                     </Link>
                     <Link
                       href="/favorites"
@@ -115,6 +137,13 @@ export function Navbar() {
                       onClick={() => setShowUserMenu(false)}
                     >
                       Favorites
+                    </Link>
+                    <Link
+                      href="/user-dashboard/settings"
+                      className="block px-4 py-2 text-sm text-brand-gray hover:bg-gray-50 hover:text-brand-dark"
+                      onClick={() => setShowUserMenu(false)}
+                    >
+                      Settings
                     </Link>
                     <button
                       onClick={handleSignOut}
@@ -170,21 +199,21 @@ export function Navbar() {
               About
             </Link>
             <div className="pt-4 border-t border-gray-200">
-              {isPending ? (
+              {loading ? (
                 <div className="flex items-center justify-center py-3">
                   <div className="w-5 h-5 animate-spin rounded-full border-2 border-brand-gray border-t-transparent"></div>
                 </div>
-              ) : session?.user ? (
+              ) : user ? (
                 <>
                   <div className="text-brand-dark font-medium mb-3 px-1">
-                    Welcome, {session.user.name || session.user.email}
+                    Welcome, {user.user_metadata?.name || user.email}
                   </div>
                   <Link
-                    href="/profile"
+                    href="/user-dashboard"
                     className="block text-brand-gray hover:text-brand-dark font-medium mb-3"
                     onClick={() => setIsOpen(false)}
                   >
-                    Profile
+                    Dashboard
                   </Link>
                   <Link
                     href="/favorites"
@@ -192,6 +221,13 @@ export function Navbar() {
                     onClick={() => setIsOpen(false)}
                   >
                     Favorites
+                  </Link>
+                  <Link
+                    href="/user-dashboard/settings"
+                    className="block text-brand-gray hover:text-brand-dark font-medium mb-3"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Settings
                   </Link>
                   <button
                     onClick={() => {

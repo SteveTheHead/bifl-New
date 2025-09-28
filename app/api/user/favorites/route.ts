@@ -1,15 +1,21 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/utils/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {
+    const supabase = await createClient()
+
+    // Check authentication
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+    }
+
     const { productIds } = await request.json()
 
     if (!productIds || !Array.isArray(productIds)) {
       return NextResponse.json({ error: 'Invalid product IDs' }, { status: 400 })
     }
-
-    const supabase = await createClient()
 
     // Get products by IDs
     const { data: products, error } = await supabase

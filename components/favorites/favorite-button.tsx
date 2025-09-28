@@ -1,9 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Heart } from 'lucide-react'
 import { useFavorites } from '@/lib/hooks/use-favorites'
-import { useSession } from '@/components/auth/auth-client'
 
 interface FavoriteButtonProps {
   productId: string
@@ -18,16 +17,31 @@ export function FavoriteButton({
   showText = false,
   className = ''
 }: FavoriteButtonProps) {
-  const { data: session } = useSession()
   const { isFavorite, toggleFavorite } = useFavorites()
   const [isLoading, setIsLoading] = useState(false)
+  const [user, setUser] = useState<any>(null)
+
+  // Check authentication using our Supabase auth system
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const response = await fetch('/api/user/auth')
+        const data = await response.json()
+        setUser(data.user)
+      } catch (error) {
+        console.error('Error checking auth:', error)
+        setUser(null)
+      }
+    }
+    checkUser()
+  }, [])
 
   const handleToggle = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
 
-    if (!session?.user) {
-      // Redirect to sign in or show sign in modal
+    if (!user) {
+      // Redirect to sign in
       window.location.href = '/auth/signin'
       return
     }

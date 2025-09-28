@@ -46,9 +46,10 @@ export default function UserDashboardPage() {
   })
   const [favoriteProducts, setFavoriteProducts] = useState<Product[]>([])
   const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([])
+  const [isPersonalized, setIsPersonalized] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  // Check authentication with our simple auth system
+  // Check authentication with Supabase
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -58,10 +59,10 @@ export default function UserDashboardPage() {
         if (data.user) {
           setSession({ user: data.user })
         } else {
-          redirect('/login')
+          redirect('/auth/signin')
         }
       } catch (error) {
-        redirect('/login')
+        redirect('/auth/signin')
       } finally {
         setIsPending(false)
       }
@@ -73,7 +74,7 @@ export default function UserDashboardPage() {
   // Redirect if not authenticated
   useEffect(() => {
     if (!isPending && !session?.user) {
-      redirect('/login')
+      redirect('/auth/signin')
     }
   }, [session, isPending])
 
@@ -107,11 +108,12 @@ export default function UserDashboardPage() {
             setFavoriteProducts([])
           }
 
-          // Fetch recommended products (top rated for now)
+          // Fetch recommended products (now personalized!)
           const recommendedResponse = await fetch('/api/products/recommended')
           if (recommendedResponse.ok) {
             const data = await recommendedResponse.json()
             setRecommendedProducts(data.products?.slice(0, 6) || [])
+            setIsPersonalized(data.personalized || false)
           }
 
         } catch (error) {
@@ -260,7 +262,7 @@ export default function UserDashboardPage() {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-brand-dark">My Favorites</h2>
               <Link
-                href="/user-dashboard/favorites"
+                href="/favorites"
                 className="text-brand-teal hover:text-brand-dark font-medium text-sm flex items-center gap-1"
               >
                 View All
@@ -280,13 +282,6 @@ export default function UserDashboardPage() {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-brand-dark">Recently Viewed</h2>
-              <Link
-                href="/user-dashboard/recently-viewed"
-                className="text-brand-teal hover:text-brand-dark font-medium text-sm flex items-center gap-1"
-              >
-                View All
-                <ArrowRight className="w-4 h-4" />
-              </Link>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {recentlyViewed.slice(0, 6).map((product) => (
@@ -300,9 +295,18 @@ export default function UserDashboardPage() {
         {recommendedProducts.length > 0 && (
           <div className="mb-8">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-brand-dark">Recommended for You</h2>
+              <div>
+                <h2 className="text-2xl font-bold text-brand-dark">
+                  {isPersonalized ? 'Recommended for You' : 'Top Rated Products'}
+                </h2>
+                {isPersonalized && (
+                  <p className="text-sm text-brand-gray mt-1">
+                    Based on your favorites and preferences
+                  </p>
+                )}
+              </div>
               <Link
-                href="/products?sort=score-desc"
+                href="/products"
                 className="text-brand-teal hover:text-brand-dark font-medium text-sm flex items-center gap-1"
               >
                 View All

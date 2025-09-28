@@ -3,122 +3,51 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Eye, EyeOff, User, Mail, Calendar } from 'lucide-react'
+import { ArrowLeft, User } from 'lucide-react'
 import { AvatarUpload } from '@/components/user/avatar-upload'
+
+interface User {
+  id: string
+  email: string
+  user_metadata?: {
+    name?: string
+    avatar_url?: string
+  }
+}
 
 export default function AccountSettingsPage() {
   const router = useRouter()
-  const [session, setSession] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
-  const [showNewPassword, setShowNewPassword] = useState(false)
-
-  // Form states
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
-  const [currentPassword, setCurrentPassword] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
 
-  // Check authentication
   useEffect(() => {
-    const checkAuth = async () => {
+    const loadUser = async () => {
       try {
-        // Try demo avatar system first
-        try {
-          const demoResponse = await fetch('/api/user/demo-avatar')
-          const demoData = await demoResponse.json()
-
-          if (demoData.user) {
-            setSession({ user: demoData.user })
-            setEmail(demoData.user.email || 'demo@bifl.dev')
-            setName(demoData.user.user_metadata?.name || 'Demo User')
-            return // Successfully loaded demo user, exit early
-          }
-        } catch (demoError) {
-          console.log('Demo auth failed, trying Supabase auth')
-        }
-
-        // Fallback to real Supabase auth
         const response = await fetch('/api/user/auth')
         const data = await response.json()
 
         if (data.user) {
-          setSession({ user: data.user })
+          setUser(data.user)
           setEmail(data.user.email || '')
           setName(data.user.user_metadata?.name || '')
         } else {
-          router.push('/login')
+          // No authenticated user, redirect to sign in
+          router.push('/auth/signin')
+          return
         }
       } catch (error) {
-        router.push('/login')
+        console.error('Error loading user:', error)
+        router.push('/auth/signin')
       } finally {
         setLoading(false)
       }
     }
 
-    checkAuth()
-  }, [router])
-
-  const handleUpdateProfile = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setSaving(true)
-    setMessage('')
-
-    try {
-      // Here you would implement profile update logic
-      // For now, just show a success message
-      setMessage('Profile updated successfully!')
-      setTimeout(() => setMessage(''), 3000)
-    } catch (error) {
-      setMessage('Failed to update profile')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const handleChangePassword = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setSaving(true)
-    setMessage('')
-
-    if (newPassword !== confirmPassword) {
-      setMessage('New passwords do not match')
-      setSaving(false)
-      return
-    }
-
-    if (newPassword.length < 6) {
-      setMessage('Password must be at least 6 characters')
-      setSaving(false)
-      return
-    }
-
-    try {
-      // Here you would implement password change logic
-      setMessage('Password updated successfully!')
-      setCurrentPassword('')
-      setNewPassword('')
-      setConfirmPassword('')
-      setTimeout(() => setMessage(''), 3000)
-    } catch (error) {
-      setMessage('Failed to update password')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const handleSignOut = async () => {
-    try {
-      // Clear any session data
-      document.cookie = 'supabase-auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT'
-      router.push('/')
-    } catch (error) {
-      console.error('Sign out error:', error)
-    }
-  }
+    loadUser()
+  }, [])
 
   if (loading) {
     return (
@@ -129,6 +58,10 @@ export default function AccountSettingsPage() {
         </div>
       </div>
     )
+  }
+
+  if (!user) {
+    return null // Will redirect
   }
 
   return (
@@ -165,200 +98,52 @@ export default function AccountSettingsPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Profile Information */}
-          <div className="lg:col-span-2">
-            {/* Avatar Section */}
-            <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-              <div className="flex items-center mb-6">
-                <User className="w-6 h-6 text-brand-teal mr-3" />
-                <h2 className="text-xl font-bold text-brand-dark">Profile Picture</h2>
-              </div>
+        {/* Avatar Section */}
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+          <div className="flex items-center mb-6">
+            <User className="w-6 h-6 text-brand-teal mr-3" />
+            <h2 className="text-xl font-bold text-brand-dark">Profile Picture</h2>
+          </div>
 
-              <AvatarUpload
-                currentAvatarUrl={session?.user?.user_metadata?.avatar_url}
-                userName={session?.user?.user_metadata?.name || session?.user?.email}
-                onAvatarUpdate={(avatarUrl) => {
-                  setSession(prev => prev ? {
-                    ...prev,
-                    user: {
-                      ...prev.user,
-                      user_metadata: {
-                        ...prev.user.user_metadata,
-                        avatar_url: avatarUrl
-                      }
-                    }
-                  } : null)
-                }}
+          <AvatarUpload
+            currentAvatarUrl={user?.user_metadata?.avatar_url}
+            userName={user?.user_metadata?.name || user?.email}
+          />
+        </div>
+
+        {/* Profile Information */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="flex items-center mb-6">
+            <User className="w-6 h-6 text-brand-teal mr-3" />
+            <h2 className="text-xl font-bold text-brand-dark">Profile Information</h2>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-brand-dark mb-2">
+                Full Name
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-brand-teal focus:border-brand-teal"
+                placeholder="Enter your full name"
               />
             </div>
 
-            {/* Profile Information */}
-            <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-              <div className="flex items-center mb-6">
-                <User className="w-6 h-6 text-brand-teal mr-3" />
-                <h2 className="text-xl font-bold text-brand-dark">Profile Information</h2>
-              </div>
-
-              <form onSubmit={handleUpdateProfile} className="space-y-6">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-brand-dark mb-2">
-                    Full Name
-                  </label>
-                  <input
-                    id="name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-brand-teal focus:border-brand-teal"
-                    placeholder="Enter your full name"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-brand-dark mb-2">
-                    Email Address
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    value={email}
-                    disabled
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm bg-gray-50 text-gray-500"
-                    placeholder="Enter your email"
-                  />
-                  <p className="text-xs text-brand-gray mt-1">Email cannot be changed at this time</p>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="w-full bg-brand-teal text-white py-3 px-4 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 font-medium"
-                >
-                  {saving ? 'Updating...' : 'Update Profile'}
-                </button>
-              </form>
-            </div>
-
-            {/* Change Password */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <div className="flex items-center mb-6">
-                <Eye className="w-6 h-6 text-brand-teal mr-3" />
-                <h2 className="text-xl font-bold text-brand-dark">Change Password</h2>
-              </div>
-
-              <form onSubmit={handleChangePassword} className="space-y-6">
-                <div className="relative">
-                  <label htmlFor="currentPassword" className="block text-sm font-medium text-brand-dark mb-2">
-                    Current Password
-                  </label>
-                  <input
-                    id="currentPassword"
-                    type={showCurrentPassword ? 'text' : 'password'}
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-brand-teal focus:border-brand-teal"
-                    placeholder="Enter current password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                    className="absolute inset-y-0 right-0 top-7 pr-3 flex items-center"
-                  >
-                    {showCurrentPassword ? (
-                      <EyeOff className="h-5 w-5 text-brand-gray" />
-                    ) : (
-                      <Eye className="h-5 w-5 text-brand-gray" />
-                    )}
-                  </button>
-                </div>
-
-                <div className="relative">
-                  <label htmlFor="newPassword" className="block text-sm font-medium text-brand-dark mb-2">
-                    New Password
-                  </label>
-                  <input
-                    id="newPassword"
-                    type={showNewPassword ? 'text' : 'password'}
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-brand-teal focus:border-brand-teal"
-                    placeholder="Enter new password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute inset-y-0 right-0 top-7 pr-3 flex items-center"
-                  >
-                    {showNewPassword ? (
-                      <EyeOff className="h-5 w-5 text-brand-gray" />
-                    ) : (
-                      <Eye className="h-5 w-5 text-brand-gray" />
-                    )}
-                  </button>
-                </div>
-
-                <div>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-brand-dark mb-2">
-                    Confirm New Password
-                  </label>
-                  <input
-                    id="confirmPassword"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-brand-teal focus:border-brand-teal"
-                    placeholder="Confirm new password"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={saving || !currentPassword || !newPassword || !confirmPassword}
-                  className="w-full bg-brand-teal text-white py-3 px-4 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 font-medium"
-                >
-                  {saving ? 'Updating...' : 'Change Password'}
-                </button>
-              </form>
-            </div>
-          </div>
-
-          {/* Account Summary */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-              <h2 className="text-xl font-bold text-brand-dark mb-4">Account Summary</h2>
-
-              <div className="space-y-4">
-                <div className="flex items-center">
-                  <Mail className="w-5 h-5 text-brand-teal mr-3" />
-                  <div>
-                    <p className="font-medium text-brand-dark">Email</p>
-                    <p className="text-sm text-brand-gray">{email}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center">
-                  <Calendar className="w-5 h-5 text-brand-teal mr-3" />
-                  <div>
-                    <p className="font-medium text-brand-dark">Member Since</p>
-                    <p className="text-sm text-brand-gray">
-                      {session?.user?.created_at ? new Date(session.user.created_at).toLocaleDateString() : 'Recently'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Sign Out */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h2 className="text-xl font-bold text-brand-dark mb-4">Account Actions</h2>
-
-              <button
-                onClick={handleSignOut}
-                className="w-full bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700 transition-colors font-medium"
-              >
-                Sign Out
-              </button>
+            <div>
+              <label className="block text-sm font-medium text-brand-dark mb-2">
+                Email Address
+              </label>
+              <input
+                type="email"
+                value={email}
+                disabled
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm bg-gray-50 text-gray-500"
+                placeholder="Enter your email"
+              />
+              <p className="text-xs text-brand-gray mt-1">Email cannot be changed at this time</p>
             </div>
           </div>
         </div>

@@ -1,33 +1,35 @@
-import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { createClient } from '@/utils/supabase/server'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 
 export async function POST(request: NextRequest) {
+  console.log('🔥 Avatar upload POST request received')
   try {
     const supabase = await createClient()
-    const adminSupabase = createAdminClient()
+    console.log('✅ Supabase client created')
 
-    // Get authenticated user
+    // Create admin client for storage operations
+    const adminSupabase = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    )
+    console.log('✅ Admin client created')
+
+    // Get authenticated user - require real authentication
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-    // For demo purposes, if no Supabase user, use constant demo user ID
-    let userId = user?.id
     if (authError || !user) {
-      // Check for admin session as fallback
-      const cookieStore = await cookies()
-      const adminSession = cookieStore.get('admin-session')
-
-      if (adminSession?.value === 'admin-authenticated') {
-        userId = 'demo-admin-user'
-        console.log('Avatar upload request for admin user (demo):', userId)
-      } else {
-        // Use constant demo user ID for everyone
-        userId = 'demo-user'
-        console.log('Avatar upload request for demo user:', userId)
-      }
-    } else {
-      console.log('Avatar upload request for authenticated user:', user.id)
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
     }
+
+    console.log('Avatar upload request for authenticated user:', user.id)
 
     const formData = await request.formData()
     const file = formData.get('avatar') as File
@@ -55,7 +57,7 @@ export async function POST(request: NextRequest) {
 
     // Generate unique filename
     const fileExt = file.name.split('.').pop()
-    const fileName = `${userId}-${Date.now()}.${fileExt}`
+    const fileName = `${user.id}-${Date.now()}.${fileExt}`
     const filePath = `avatars/${fileName}`
 
     console.log('Uploading file to:', filePath)
@@ -86,41 +88,21 @@ export async function POST(request: NextRequest) {
     const avatarUrl = urlData.publicUrl
     console.log('Generated public URL:', avatarUrl)
 
-    // Try to update user metadata with avatar URL (only if we have a real Supabase user)
-    if (user) {
-      const { error: updateError } = await supabase.auth.updateUser({
-        data: {
-          avatar_url: avatarUrl
-        }
-      })
-
-      if (updateError) {
-        console.error('Update user metadata error:', updateError)
-        console.log('Warning: Avatar uploaded successfully but user metadata update failed')
-      } else {
-        console.log('User metadata updated successfully')
+    // Update user metadata with avatar URL
+    const { error: updateError } = await supabase.auth.updateUser({
+      data: {
+        avatar_url: avatarUrl
       }
-    } else {
-      console.log('Skipping user metadata update (demo user)')
+    })
+
+    if (updateError) {
+      console.error('Update user metadata error:', updateError)
+      return NextResponse.json({
+        error: 'Failed to update user metadata'
+      }, { status: 500 })
     }
 
-    // For demo users, also store in demo avatar system
-    if (!user) {
-      try {
-        // Forward the cookies to maintain the same session
-        const cookieHeader = request.headers.get('cookie') || ''
-        await fetch(`${request.nextUrl.origin}/api/user/demo-avatar`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'cookie': cookieHeader
-          },
-          body: JSON.stringify({ avatarUrl })
-        })
-      } catch (error) {
-        console.error('Failed to update demo avatar:', error)
-      }
-    }
+    console.log('User metadata updated successfully')
 
     return NextResponse.json({
       success: true,
@@ -140,36 +122,25 @@ export async function DELETE(request: NextRequest) {
   try {
     const supabase = await createClient()
 
-    // Get authenticated user
+    // Get authenticated user - require real authentication
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-    // For demo purposes, allow deletion even without Supabase auth
     if (authError || !user) {
-      const cookieStore = await cookies()
-      const adminSession = cookieStore.get('admin-session')
-
-      if (!adminSession || adminSession.value !== 'admin-authenticated') {
-        // For demo, proceed anyway
-        console.log('Avatar removal request for demo user')
-      }
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
     }
 
-    // Remove avatar URL from user metadata (only if we have a real user)
-    if (user) {
-      const { error: updateError } = await supabase.auth.updateUser({
-        data: {
-          avatar_url: null
-        }
-      })
-
-      if (updateError) {
-        console.error('Update user error:', updateError)
-        return NextResponse.json({
-          error: 'Failed to remove avatar'
-        }, { status: 500 })
+    // Remove avatar URL from user metadata
+    const { error: updateError } = await supabase.auth.updateUser({
+      data: {
+        avatar_url: null
       }
-    } else {
-      console.log('Skipping user metadata removal (demo user)')
+    })
+
+    if (updateError) {
+      console.error('Update user error:', updateError)
+      return NextResponse.json({
+        error: 'Failed to remove avatar'
+      }, { status: 500 })
     }
 
     // Note: We're not deleting the file from storage to prevent broken links

@@ -1,7 +1,7 @@
 import Link from 'next/link'
-import { login } from '../actions'
+import { signup } from '../actions'
 
-export default async function SignInPage({
+export default async function SignUpPage({
   searchParams
 }: {
   searchParams: Promise<{ message?: string; error?: string }>
@@ -15,10 +15,10 @@ export default async function SignInPage({
             <span className="text-3xl font-bold text-brand-dark">BIFL</span>
           </Link>
           <h2 className="mt-6 text-center text-3xl font-bold text-brand-dark">
-            Sign In
+            Sign Up
           </h2>
           <p className="mt-2 text-center text-sm text-brand-gray">
-            Enter your credentials to access your dashboard
+            Create your account to access premium features
           </p>
         </div>
 
@@ -34,8 +34,22 @@ export default async function SignInPage({
           </div>
         )}
 
-        <form className="mt-8 space-y-6" action={login}>
+        <form className="mt-8 space-y-6" action={signup}>
           <div className="space-y-4">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-brand-dark">
+                Full Name
+              </label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                required
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-brand-teal focus:border-brand-teal"
+                placeholder="Enter your full name"
+              />
+            </div>
+
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-brand-dark">
                 Email Address
@@ -59,8 +73,9 @@ export default async function SignInPage({
                 name="password"
                 type="password"
                 required
+                minLength={6}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-brand-teal focus:border-brand-teal"
-                placeholder="Enter your password"
+                placeholder="Choose a strong password (min 6 characters)"
               />
             </div>
           </div>
@@ -71,16 +86,16 @@ export default async function SignInPage({
               className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-white font-medium rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-teal"
               style={{ backgroundColor: '#4A9D93' }}
             >
-              Sign In
+              Sign Up
             </button>
           </div>
 
           <div className="text-center">
             <Link
-              href="/auth/signup"
+              href="/auth/signin"
               className="text-sm text-brand-teal hover:text-brand-dark"
             >
-              Don't have an account? Sign up
+              Already have an account? Sign in
             </Link>
           </div>
 
