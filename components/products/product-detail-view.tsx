@@ -9,6 +9,9 @@ import { ReviewForm } from '../reviews/review-form'
 import { ReviewsList } from '../reviews/reviews-list'
 import { FavoriteButtonWithText } from '../favorites/favorite-button'
 import BadgeDisplay from '@/components/BadgeDisplay'
+import { ProductProsCons } from './product-pros-cons'
+import { AddToCompareButton } from '@/components/compare/add-to-compare-button'
+import { ProductComparisonTable } from './product-comparison-table'
 
 // Get gradient pill styling based on BIFL score
 function getScoreBadgeStyle(score: number) {
@@ -433,11 +436,25 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                   </a>
                 )}
 
-                {/* Favorite Button */}
-                <FavoriteButtonWithText
-                  productId={product.id}
-                  className="w-full justify-center py-3 px-4"
-                />
+                {/* Action Buttons */}
+                <div className="flex gap-3">
+                  <FavoriteButtonWithText
+                    productId={product.id}
+                    className="justify-center py-1 px-2 text-xs"
+                  />
+                  <AddToCompareButton
+                    product={{
+                      id: product.id,
+                      name: product.name,
+                      price: parseFloat(product.price) || 0,
+                      images: product.images || [],
+                      average_score: product.bifl_total_score,
+                      purchase_url: product.purchase_url
+                    }}
+                    size="sm"
+                    variant="secondary"
+                  />
+                </div>
               </div>
             </div>
 
@@ -608,6 +625,9 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
           )}
         </section>
 
+        {/* Community Pros & Cons */}
+        <ProductProsCons productId={product.id} />
+
         {/* Reviews Section */}
         <section className="mt-16 space-y-8">
           <ReviewForm
@@ -620,6 +640,23 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
             refreshTrigger={reviewRefreshTrigger}
           />
         </section>
+
+        {/* Product Comparison Table */}
+        <ProductComparisonTable
+          currentProduct={{
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            featured_image_url: product.featured_image_url,
+            bifl_total_score: product.bifl_total_score,
+            durability_score: product.durability_score,
+            repairability_score: product.repairability_score,
+            warranty_score: product.warranty_score,
+            sustainability_score: product.sustainability_score,
+            social_score: product.social_score,
+            category: product.category
+          }}
+        />
 
         {/* Similar Products Carousel */}
         <SimilarProductsCarousel

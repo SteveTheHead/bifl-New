@@ -61,7 +61,7 @@ function calculateBadges(product: any): string[] {
   const socialScore = product.social_score || 0
   const repairabilityScore = product.repairability_score || 0
   const sustainabilityScore = product.sustainability_score || 0
-  const buildQualityScore = product.build_quality_score || 0
+  const buildQualityScore = product.durability_score || 0
   const durabilityScore = product.durability_score || 0
 
   // Gold Standard: 9.0+ average across all scores with high individual scores

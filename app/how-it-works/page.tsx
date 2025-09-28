@@ -22,7 +22,7 @@ export default function HowItWorks() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
             {/* Step 1 */}
-            <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-all duration-300" style={{ '--hover-shadow': '0 20px 25px -5px rgba(74, 157, 147, 0.5), 0 10px 10px -5px rgba(74, 157, 147, 0.4)' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--hover-shadow)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = ''}>
               <CardContent className="p-8 text-center">
                 <div style={{ width: '48px', height: '48px', backgroundColor: '#4A9D93', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px auto' }}>
                   <svg width="24" height="24" viewBox="0 0 24 24" style={{ fill: '#FFFFFF' }}>
@@ -38,7 +38,7 @@ export default function HowItWorks() {
             </Card>
 
             {/* Step 2 */}
-            <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-all duration-300" style={{ '--hover-shadow': '0 20px 25px -5px rgba(74, 157, 147, 0.5), 0 10px 10px -5px rgba(74, 157, 147, 0.4)' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--hover-shadow)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = ''}>
               <CardContent className="p-8 text-center">
                 <div style={{ width: '48px', height: '48px', backgroundColor: '#4A9D93', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px auto' }}>
                   <svg width="24" height="24" viewBox="0 0 24 24" style={{ fill: '#FFFFFF' }}>
@@ -55,7 +55,7 @@ export default function HowItWorks() {
             </Card>
 
             {/* Step 3 */}
-            <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-all duration-300" style={{ '--hover-shadow': '0 20px 25px -5px rgba(74, 157, 147, 0.5), 0 10px 10px -5px rgba(74, 157, 147, 0.4)' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--hover-shadow)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = ''}>
               <CardContent className="p-8 text-center">
                 <div style={{ width: '48px', height: '48px', backgroundColor: '#4A9D93', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px auto' }}>
                   <svg width="24" height="24" viewBox="0 0 24 24" style={{ fill: '#FFFFFF' }}>
@@ -88,7 +88,7 @@ export default function HowItWorks() {
             </Card>
 
             {/* Step 4 */}
-            <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-all duration-300" style={{ '--hover-shadow': '0 20px 25px -5px rgba(74, 157, 147, 0.5), 0 10px 10px -5px rgba(74, 157, 147, 0.4)' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--hover-shadow)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = ''}>
               <CardContent className="p-8 text-center">
                 <div style={{ width: '48px', height: '48px', backgroundColor: '#4A9D93', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px auto' }}>
                   <svg width="24" height="24" viewBox="0 0 24 24" style={{ fill: '#FFFFFF' }}>
@@ -209,7 +209,7 @@ export default function HowItWorks() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {/* Gold Standard */}
-            <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-all duration-300" style={{ '--hover-shadow': '0 20px 25px -5px rgba(74, 157, 147, 0.5), 0 10px 10px -5px rgba(74, 157, 147, 0.4)' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--hover-shadow)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = ''}>
               <CardContent className="p-6 text-center">
                 <div className="w-32 h-32 mx-auto mb-0">
                   <img src="/badges/gold-standard.svg" alt="Gold Standard" className="w-full h-full" />
@@ -223,7 +223,7 @@ export default function HowItWorks() {
             </Card>
 
             {/* Lifetime Warranty */}
-            <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-all duration-300" style={{ '--hover-shadow': '0 20px 25px -5px rgba(74, 157, 147, 0.5), 0 10px 10px -5px rgba(74, 157, 147, 0.4)' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--hover-shadow)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = ''}>
               <CardContent className="p-6 text-center">
                 <div className="w-32 h-32 mx-auto mb-0">
                   <img src="/badges/lifetime-warranty.svg" alt="Lifetime Warranty" className="w-full h-full" />
@@ -237,7 +237,7 @@ export default function HowItWorks() {
             </Card>
 
             {/* Crowd Favorite */}
-            <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-all duration-300" style={{ '--hover-shadow': '0 20px 25px -5px rgba(74, 157, 147, 0.5), 0 10px 10px -5px rgba(74, 157, 147, 0.4)' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--hover-shadow)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = ''}>
               <CardContent className="p-6 text-center">
                 <div className="w-32 h-32 mx-auto mb-0">
                   <img src="/badges/crowd-favorite.svg" alt="Crowd Favorite" className="w-full h-full" />
@@ -251,7 +251,7 @@ export default function HowItWorks() {
             </Card>
 
             {/* BIFL Approved */}
-            <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-all duration-300" style={{ '--hover-shadow': '0 20px 25px -5px rgba(74, 157, 147, 0.5), 0 10px 10px -5px rgba(74, 157, 147, 0.4)' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--hover-shadow)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = ''}>
               <CardContent className="p-6 text-center">
                 <div className="w-32 h-32 mx-auto mb-0">
                   <img src="/badges/bifl-approved.svg" alt="BIFL Approved" className="w-full h-full" />
@@ -265,7 +265,7 @@ export default function HowItWorks() {
             </Card>
 
             {/* Repair Friendly */}
-            <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-all duration-300" style={{ '--hover-shadow': '0 20px 25px -5px rgba(74, 157, 147, 0.5), 0 10px 10px -5px rgba(74, 157, 147, 0.4)' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--hover-shadow)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = ''}>
               <CardContent className="p-6 text-center">
                 <div className="w-32 h-32 mx-auto mb-0">
                   <img src="/badges/repair-friendly.svg" alt="Repair Friendly" className="w-full h-full" />
@@ -279,7 +279,7 @@ export default function HowItWorks() {
             </Card>
 
             {/* Eco Hero */}
-            <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-all duration-300" style={{ '--hover-shadow': '0 20px 25px -5px rgba(74, 157, 147, 0.5), 0 10px 10px -5px rgba(74, 157, 147, 0.4)' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--hover-shadow)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = ''}>
               <CardContent className="p-6 text-center">
                 <div className="w-32 h-32 mx-auto mb-0">
                   <img src="/badges/eco-hero.svg" alt="Eco Hero" className="w-full h-full" />

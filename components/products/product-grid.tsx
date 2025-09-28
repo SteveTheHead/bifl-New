@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { ProductFilters } from './product-filters'
 import BadgeDisplay from '@/components/BadgeDisplay'
+import { AddToCompareButton } from '@/components/compare/add-to-compare-button'
 
 // Badge calculation function (matching BadgeDisplay logic)
 function calculateBadges(product: any): string[] {
@@ -16,7 +17,7 @@ function calculateBadges(product: any): string[] {
   const socialScore = product.social_score || 0
   const repairabilityScore = product.repairability_score || 0
   const sustainabilityScore = product.sustainability_score || 0
-  const buildQualityScore = product.build_quality_score || 0
+  const buildQualityScore = product.durability_score || 0
   const durabilityScore = product.durability_score || 0
 
   // Gold Standard: 9.0+ average across all scores with high individual scores
@@ -112,13 +113,29 @@ function SimpleProductCard({ product }: { product: any }) {
           </div>
         </div>
       </div>
-      <Link
-        href={`/products/${product.id}`}
-        className="block text-white font-semibold py-2 px-6 rounded-lg hover:bg-opacity-90 transition-colors cursor-pointer"
-        style={{ backgroundColor: '#4A9D93' }}
-      >
-        View Product
-      </Link>
+      <div className="flex flex-col gap-2">
+        <Link
+          href={`/products/${product.id}`}
+          className="w-full text-white font-semibold py-2 px-6 rounded-lg hover:bg-opacity-90 transition-colors cursor-pointer text-center"
+          style={{ backgroundColor: '#4A9D93' }}
+        >
+          View Product
+        </Link>
+        <div className="flex justify-center">
+          <AddToCompareButton
+            product={{
+              id: product.id,
+              name: product.name,
+              price: parseFloat(product.price) || 0,
+              images: product.featured_image_url ? [product.featured_image_url] : [],
+              average_score: product.bifl_total_score,
+              purchase_url: product.purchase_url
+            }}
+            size="sm"
+            variant="secondary"
+          />
+        </div>
+      </div>
     </div>
   )
 }

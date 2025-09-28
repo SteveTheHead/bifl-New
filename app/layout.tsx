@@ -2,6 +2,9 @@ import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
 import { ThemeProvider } from "../components/provider";
 import { ConditionalNavbar } from "@/components/layout/conditional-navbar";
+import { CompareProvider } from "@/contexts/compare-context";
+import { FloatingCompareBar } from "@/components/compare/floating-compare-bar";
+import { CompareModal } from "@/components/compare/compare-modal";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 export const metadata: Metadata = {
@@ -42,10 +45,14 @@ export default function RootLayout({
           forcedTheme="light"
           disableTransitionOnChange
         >
-          <ConditionalNavbar />
-          {children}
-          <Toaster />
-          <Analytics />
+          <CompareProvider>
+            <ConditionalNavbar />
+            {children}
+            <FloatingCompareBar />
+            <CompareModal />
+            <Toaster />
+            <Analytics />
+          </CompareProvider>
         </ThemeProvider>
       </body>
     </html>
