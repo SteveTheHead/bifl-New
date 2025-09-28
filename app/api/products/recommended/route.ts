@@ -4,6 +4,18 @@ import { NextResponse } from 'next/server'
 export async function GET() {
   try {
     const supabase = await createClient()
+
+    // Get top-rated products for recommendations
+    const { data: products, error } = await supabase
+      .from('products')
+      .select(`
+        id,
+        name,
+        price,
+        featured_image_url,
+        bifl_total_score,
+        durability_score,
+        repairability_score,
         warranty_score,
         sustainability_score,
         social_score,
