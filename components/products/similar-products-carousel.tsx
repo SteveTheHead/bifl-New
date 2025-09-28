@@ -33,51 +33,68 @@ export function SimilarProductsCarousel({ currentProductId, categoryId }: Simila
     async function fetchSimilarProducts() {
       try {
         setLoading(true)
-        const supabase = createClient()
 
-        // Get similar products based on category and exclude current product
-        let query = supabase
-          .from('products_with_taxonomy')
-          .select('*')
-          .eq('status', 'published')
-          .neq('id', currentProductId) // Exclude current product
+        // Use the new improved related products API endpoint
+        const response = await fetch(`/api/products/${currentProductId}/related`)
 
-        // If we have a category, prioritize products from the same category
-        if (categoryId) {
-          query = query.eq('category_id', categoryId)
+        if (!response.ok) {
+          throw new Error('Failed to fetch related products')
         }
 
-        const { data, error } = await query
-          .order('bifl_total_score', { ascending: false })
-          .limit(8)
+        const data = await response.json()
 
-        if (error) {
-          console.error('Error fetching similar products:', error)
-          setProducts([])
-          return
-        }
+        // The API returns only 2 products for detailed comparison,
+        // but we want more for the carousel, so we'll supplement with additional products
+        let relatedProducts = data.products || []
 
-        let similarProducts = data || []
+        // If we have fewer than 6 products, get additional ones using the old method
+        if (relatedProducts.length < 6) {
+          const supabase = createClient()
 
-        // If we don't have enough products from the same category, get more from any category
-        if (similarProducts.length < 8 && similarProducts.length > 0) {
-          const remainingLimit = 8 - similarProducts.length
-          const excludeIds = [currentProductId, ...similarProducts.map(p => p.id)]
+          // Get the IDs we already have to avoid duplicates
+          const existingIds = relatedProducts.map(p => p.id)
+          const excludeIds = [currentProductId, ...existingIds]
 
-          const { data: additionalData, error: additionalError } = await supabase
+          // Get additional products from the same category or similar categories
+          let query = supabase
             .from('products_with_taxonomy')
             .select('*')
             .eq('status', 'published')
             .not('id', 'in', `(${excludeIds.join(',')})`)
-            .order('bifl_total_score', { ascending: false })
-            .limit(remainingLimit)
 
-          if (!additionalError && additionalData) {
-            similarProducts = [...similarProducts, ...additionalData]
+          // If we have a category, prioritize products from the same category
+          if (categoryId) {
+            query = query.eq('category_id', categoryId)
+          }
+
+          const { data: additionalData, error } = await query
+            .order('bifl_total_score', { ascending: false })
+            .limit(6 - relatedProducts.length)
+
+          if (!error && additionalData) {
+            relatedProducts = [...relatedProducts, ...additionalData]
+          }
+
+          // If still not enough and we were filtering by category, get from any category
+          if (relatedProducts.length < 6 && categoryId) {
+            const stillNeedCount = 6 - relatedProducts.length
+            const allExcludeIds = [currentProductId, ...relatedProducts.map(p => p.id)]
+
+            const { data: anyCategory, error: anyCategoryError } = await supabase
+              .from('products_with_taxonomy')
+              .select('*')
+              .eq('status', 'published')
+              .not('id', 'in', `(${allExcludeIds.join(',')})`)
+              .order('bifl_total_score', { ascending: false })
+              .limit(stillNeedCount)
+
+            if (!anyCategoryError && anyCategory) {
+              relatedProducts = [...relatedProducts, ...anyCategory]
+            }
           }
         }
 
-        setProducts(similarProducts)
+        setProducts(relatedProducts)
       } catch (error) {
         console.error('Error fetching similar products:', error)
         setProducts([])
