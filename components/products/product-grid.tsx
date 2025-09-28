@@ -187,7 +187,8 @@ export function ProductGrid({ initialProducts, categories, initialSearch = '' }:
         filtered = filtered.filter(product =>
           product.name?.toLowerCase().includes(searchLower) ||
           product.brand_name?.toLowerCase().includes(searchLower) ||
-          product.description?.toLowerCase().includes(searchLower)
+          product.description?.toLowerCase().includes(searchLower) ||
+          product.use_case?.toLowerCase().includes(searchLower)
         )
       } else {
         // Multi-word search - prioritize products containing ALL words, then ANY words
@@ -195,6 +196,7 @@ export function ProductGrid({ initialProducts, categories, initialSearch = '' }:
           const name = product.name?.toLowerCase() || ''
           const brand = product.brand_name?.toLowerCase() || ''
           const description = product.description?.toLowerCase() || ''
+          const useCase = product.use_case?.toLowerCase() || ''
 
           // Calculate relevance score
           let score = 0
@@ -206,6 +208,9 @@ export function ProductGrid({ initialProducts, categories, initialSearch = '' }:
               matchCount++
             } else if (brand.includes(word)) {
               score += 2 // Brand match is second most important
+              matchCount++
+            } else if (useCase.includes(word)) {
+              score += 2.5 // Use case match is high priority
               matchCount++
             } else if (description.includes(word)) {
               score += 1 // Description match is least important

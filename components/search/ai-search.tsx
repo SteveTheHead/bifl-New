@@ -255,17 +255,17 @@ export function AISearch() {
             .ilike('category_name', `%${searchQuery}%`)
             .limit(3),
 
-          // 4. Description/excerpt matches
+          // 4. Description/excerpt/use case matches
           buildQuery(supabase
             .from('products_with_taxonomy')
             .select('*'))
-            .or(`excerpt.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
+            .or(`excerpt.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,use_case.ilike.%${searchQuery}%`)
             .limit(3)
         ])
       } else {
         // Multi-word search - look for products containing individual words
         const wordConditions = words.map(word =>
-          `name.ilike.%${word}%,brand_name.ilike.%${word}%,category_name.ilike.%${word}%,excerpt.ilike.%${word}%,description.ilike.%${word}%`
+          `name.ilike.%${word}%,brand_name.ilike.%${word}%,category_name.ilike.%${word}%,excerpt.ilike.%${word}%,description.ilike.%${word}%,use_case.ilike.%${word}%`
         ).join(',')
 
         // Single query that finds products containing ANY of the words
@@ -280,7 +280,7 @@ export function AISearch() {
 
       console.log('📋 Search results by strategy:')
       searchResults.forEach((result, index) => {
-        const strategy = ['Name matches', 'Brand matches', 'Category matches', 'Description matches'][index]
+        const strategy = ['Name matches', 'Brand matches', 'Category matches', 'Description/Use case matches'][index]
         console.log(`  ${strategy}:`, result.data?.length || 0, 'results')
         if (result.error) console.error(`  Error in ${strategy}:`, result.error)
         if (result.data?.length) {
@@ -322,12 +322,16 @@ export function AISearch() {
             const category = (product.category_name || '').toLowerCase()
             const excerpt = (product.excerpt || '').toLowerCase()
             const description = (product.description || '').toLowerCase()
+            const useCase = (product.use_case || '').toLowerCase()
 
             if (name.includes(wordLower)) {
               score += 3 // Name match most important
               matchCount++
             } else if (brand.includes(wordLower)) {
               score += 2 // Brand match second
+              matchCount++
+            } else if (useCase.includes(wordLower)) {
+              score += 2.5 // Use case match high priority
               matchCount++
             } else if (category.includes(wordLower)) {
               score += 1.5 // Category match third
@@ -374,7 +378,8 @@ export function AISearch() {
             return searchTerms.some(term =>
               fuzzyMatch(term, product.name || '') ||
               fuzzyMatch(term, product.brand_name || '') ||
-              fuzzyMatch(term, product.category_name || '')
+              fuzzyMatch(term, product.category_name || '') ||
+              fuzzyMatch(term, product.use_case || '')
             )
           }) || []
 
@@ -492,7 +497,7 @@ export function AISearch() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsOpen(true)}
-          placeholder="Search for durable products... (e.g., 'kitchen knives', 'leather boots')"
+          placeholder="Search for durable products... (e.g., 'kitchen knives', 'hiking boots', 'professional use')"
           className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-brand-teal"
         />
         {query && (

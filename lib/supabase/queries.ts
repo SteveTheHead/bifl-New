@@ -118,18 +118,18 @@ export async function searchProducts(
     .select('*')
     .eq('status', 'published')
 
-  // Search term - improved to handle multi-word searches
+  // Search term - improved to handle multi-word searches and include use cases
   if (searchTerm) {
     const words = searchTerm.trim().split(/\s+/)
 
     if (words.length === 1) {
       // Single word search
       const word = words[0]
-      query = query.or(`name.ilike.%${word}%,description.ilike.%${word}%,brand_name.ilike.%${word}%`)
+      query = query.or(`name.ilike.%${word}%,description.ilike.%${word}%,brand_name.ilike.%${word}%,use_case.ilike.%${word}%`)
     } else {
       // Multi-word search - find products containing ANY of the words
       const orConditions = words.map(word =>
-        `name.ilike.%${word}%,description.ilike.%${word}%,brand_name.ilike.%${word}%`
+        `name.ilike.%${word}%,description.ilike.%${word}%,brand_name.ilike.%${word}%,use_case.ilike.%${word}%`
       ).join(',')
       query = query.or(orConditions)
     }
@@ -409,7 +409,8 @@ export async function getAllProductsForAdmin() {
       featured_image_url,
       is_featured,
       status,
-      created_at
+      created_at,
+      use_case
     `)
     .order('created_at', { ascending: false })
 

@@ -152,28 +152,28 @@ export function Navbar() {
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                     <Link
                       href="/user-dashboard"
-                      className="block px-4 py-2 text-sm text-brand-gray hover:bg-gray-50 hover:text-brand-dark"
+                      className="block px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
                       onClick={() => setShowUserMenu(false)}
                     >
                       Dashboard
                     </Link>
                     <Link
                       href="/favorites"
-                      className="block px-4 py-2 text-sm text-brand-gray hover:bg-gray-50 hover:text-brand-dark"
+                      className="block px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
                       onClick={() => setShowUserMenu(false)}
                     >
                       Favorites
                     </Link>
                     <Link
                       href="/user-dashboard/settings"
-                      className="block px-4 py-2 text-sm text-brand-gray hover:bg-gray-50 hover:text-brand-dark"
+                      className="block px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
                       onClick={() => setShowUserMenu(false)}
                     >
                       Settings
                     </Link>
                     <button
                       onClick={handleSignOut}
-                      className="w-full text-left px-4 py-2 text-sm text-brand-gray hover:bg-gray-50 hover:text-brand-dark flex items-center space-x-2"
+                      className="w-full text-left px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground flex items-center space-x-2"
                     >
                       <LogOut className="w-4 h-4" />
                       <span>Sign Out</span>
