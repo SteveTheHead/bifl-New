@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
         name,
         price,
         featured_image_url,
+        affiliate_link,
         bifl_total_score,
         durability_score,
         repairability_score,
@@ -66,7 +67,7 @@ export async function GET(request: NextRequest) {
           name: product.name,
           price: product.price,
           images: product.featured_image_url ? [product.featured_image_url] : [],
-          purchase_url: null, // No purchase URL in database
+          affiliate_link: product.affiliate_link,
           average_score: product.bifl_total_score || averageScore,
           review_count: reviewCount,
           durability_score: product.durability_score,

@@ -11,7 +11,7 @@ interface CompareProduct {
   name: string
   price: number
   images: string[]
-  purchase_url?: string
+  affiliate_link?: string
   average_score?: number
   review_count?: number
   durability_score?: number
@@ -505,9 +505,9 @@ export function CompareModal() {
                                 >
                                   View Details
                                 </Link>
-                                {product.purchase_url && (
+                                {product.affiliate_link && (
                                   <a
-                                    href={product.purchase_url}
+                                    href={product.affiliate_link}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="bg-green-600 text-black text-xs font-medium py-2 px-2 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-1 w-1/2"

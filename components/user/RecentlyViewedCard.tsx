@@ -110,7 +110,7 @@ export function RecentlyViewedCard({ product }: RecentlyViewedCardProps) {
               price: parseFloat(product.price) || 0,
               images: product.featured_image_url ? [product.featured_image_url] : [],
               average_score: product.bifl_total_score,
-              purchase_url: product.purchase_url
+              affiliate_link: product.affiliate_link
             }}
             size="sm"
             variant="secondary"

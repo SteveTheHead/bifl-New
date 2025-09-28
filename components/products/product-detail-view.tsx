@@ -460,7 +460,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                       price: parseFloat(product.price) || 0,
                       images: product.images || [],
                       average_score: product.bifl_total_score,
-                      purchase_url: product.purchase_url
+                      affiliate_link: product.affiliate_link
                     }}
                     size="sm"
                     variant="secondary"

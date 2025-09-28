@@ -10,7 +10,7 @@ interface Product {
   price: number
   images: string[]
   average_score?: number
-  purchase_url?: string
+  affiliate_link?: string
 }
 
 interface AddToCompareButtonProps {

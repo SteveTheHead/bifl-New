@@ -116,10 +116,23 @@ export async function searchProducts(
   let query = supabase
     .from('products_with_taxonomy')
     .select('*')
+    .eq('status', 'published')
 
-  // Search term
+  // Search term - improved to handle multi-word searches
   if (searchTerm) {
-    query = query.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,brand_name.ilike.%${searchTerm}%`)
+    const words = searchTerm.trim().split(/\s+/)
+
+    if (words.length === 1) {
+      // Single word search
+      const word = words[0]
+      query = query.or(`name.ilike.%${word}%,description.ilike.%${word}%,brand_name.ilike.%${word}%`)
+    } else {
+      // Multi-word search - find products containing ANY of the words
+      const orConditions = words.map(word =>
+        `name.ilike.%${word}%,description.ilike.%${word}%,brand_name.ilike.%${word}%`
+      ).join(',')
+      query = query.or(orConditions)
+    }
   }
 
   // Filters

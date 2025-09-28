@@ -135,7 +135,7 @@ function SimpleProductCard({ product }: { product: any }) {
               price: parseFloat(product.price) || 0,
               images: product.featured_image_url ? [product.featured_image_url] : [],
               average_score: product.bifl_total_score,
-              purchase_url: product.purchase_url
+              affiliate_link: product.affiliate_link
             }}
             size="sm"
             variant="secondary"
@@ -176,14 +176,61 @@ export function ProductGrid({ initialProducts, categories, initialSearch = '' }:
   const filteredProducts = useMemo(() => {
     let filtered = [...initialProducts]
 
-    // Search filter
+    // Search filter - improved to handle multi-word searches
     if (filters.search) {
-      const searchLower = filters.search.toLowerCase()
-      filtered = filtered.filter(product =>
-        product.name?.toLowerCase().includes(searchLower) ||
-        product.brand_name?.toLowerCase().includes(searchLower) ||
-        product.description?.toLowerCase().includes(searchLower)
-      )
+      const searchTerm = filters.search.trim()
+      const words = searchTerm.toLowerCase().split(/\s+/)
+
+      if (words.length === 1) {
+        // Single word search
+        const searchLower = words[0]
+        filtered = filtered.filter(product =>
+          product.name?.toLowerCase().includes(searchLower) ||
+          product.brand_name?.toLowerCase().includes(searchLower) ||
+          product.description?.toLowerCase().includes(searchLower)
+        )
+      } else {
+        // Multi-word search - prioritize products containing ALL words, then ANY words
+        filtered = filtered.filter(product => {
+          const name = product.name?.toLowerCase() || ''
+          const brand = product.brand_name?.toLowerCase() || ''
+          const description = product.description?.toLowerCase() || ''
+
+          // Calculate relevance score
+          let score = 0
+          let matchCount = 0
+
+          words.forEach(word => {
+            if (name.includes(word)) {
+              score += 3 // Name match is most important
+              matchCount++
+            } else if (brand.includes(word)) {
+              score += 2 // Brand match is second most important
+              matchCount++
+            } else if (description.includes(word)) {
+              score += 1 // Description match is least important
+              matchCount++
+            }
+          })
+
+          // Bonus for products containing ALL words
+          if (matchCount === words.length) {
+            score += 10 // Much larger bonus for ALL words
+          }
+
+          // For multi-word searches, require minimum relevance threshold
+          const minScoreRequired = words.length >= 2 ? 2 : 1
+
+          // Store score for sorting later
+          product._searchScore = score
+
+          // Return products with sufficient relevance score
+          return score >= minScoreRequired
+        })
+
+        // Sort by relevance score (higher is better)
+        filtered.sort((a, b) => (b._searchScore || 0) - (a._searchScore || 0))
+      }
     }
 
     // Category filter
