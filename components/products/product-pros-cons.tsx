@@ -1,63 +1,125 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { Check, X } from 'lucide-react'
 
+interface Product {
+  durability_score?: number | null
+  durability_notes?: string | null
+  repairability_score?: number | null
+  repairability_notes?: string | null
+  warranty_score?: number | null
+  warranty_notes?: string | null
+  social_score?: number | null
+  social_notes?: string | null
+  bifl_total_score?: number | null
+  pros_cons?: {
+    pros?: string[]
+    cons?: string[]
+  } | null
+}
+
 interface ProductProsConsProps {
-  productId: string
+  product: Product
 }
 
-interface ProsCons {
-  pros: string[]
-  cons: string[]
-  reviewCount: number
-}
+export function ProductProsCons({ product }: ProductProsConsProps) {
+  // Check if product has custom pros/cons in database
+  if (product.pros_cons?.pros || product.pros_cons?.cons) {
+    const { pros = [], cons = [] } = product.pros_cons
 
-export function ProductProsCons({ productId }: ProductProsConsProps) {
-  const [prosConsData, setProsConsData] = useState<ProsCons | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    async function fetchProsConsData() {
-      try {
-        const response = await fetch(`/api/reviews/${productId}/pros-cons`)
-        if (response.ok) {
-          const data = await response.json()
-          setProsConsData(data)
-        }
-      } catch (error) {
-        console.error('Failed to fetch pros/cons data:', error)
-      } finally {
-        setLoading(false)
-      }
+    if (pros.length === 0 && cons.length === 0) {
+      return null
     }
 
-    fetchProsConsData()
-  }, [productId])
-
-  if (loading) {
-    return (
-      <section className="mt-16 bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-        <h2 className="text-2xl font-bold mb-6 text-center">Community Insights</h2>
-        <div className="animate-pulse">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            <div className="bg-gray-200 h-48 rounded-xl"></div>
-            <div className="bg-gray-200 h-48 rounded-xl"></div>
-          </div>
-        </div>
-      </section>
-    )
+    return renderProsConsSection(pros, cons, 'Pros and Cons')
   }
 
-  if (!prosConsData || prosConsData.reviewCount === 0 || (prosConsData.pros.length === 0 && prosConsData.cons.length === 0)) {
+  // Generate pros/cons from product scores and notes
+  const pros: string[] = []
+  const cons: string[] = []
+
+  // Durability
+  if (product.durability_score && product.durability_score >= 8) {
+    pros.push('Exceptional durability and build quality')
+  } else if (product.durability_score && product.durability_score <= 5) {
+    cons.push('Durability concerns reported')
+  }
+
+  // Repairability
+  if (product.repairability_score && product.repairability_score >= 8) {
+    pros.push('Highly repairable with available parts')
+  } else if (product.repairability_score && product.repairability_score <= 5) {
+    cons.push('Limited repairability options')
+  }
+
+  // Warranty
+  if (product.warranty_score && product.warranty_score >= 8) {
+    pros.push('Excellent warranty coverage')
+  } else if (product.warranty_score && product.warranty_score <= 5) {
+    cons.push('Limited warranty protection')
+  }
+
+  // Social/Sustainability
+  if (product.social_score && product.social_score >= 8) {
+    pros.push('Strong social and environmental responsibility')
+  } else if (product.social_score && product.social_score <= 5) {
+    cons.push('Social or sustainability concerns')
+  }
+
+  // Overall BIFL score
+  if (product.bifl_total_score && product.bifl_total_score >= 9) {
+    pros.push('Top-rated BIFL product - exceptional value')
+  }
+
+  // Parse notes for additional insights
+  if (product.durability_notes) {
+    extractInsights(product.durability_notes, pros, cons, 'durability')
+  }
+  if (product.repairability_notes) {
+    extractInsights(product.repairability_notes, pros, cons, 'repairability')
+  }
+
+  if (pros.length === 0 && cons.length === 0) {
     return null
   }
 
-  const { pros, cons, reviewCount } = prosConsData
+  return renderProsConsSection(pros, cons, 'Pros and Cons')
+}
 
+// Helper function to extract insights from notes
+function extractInsights(notes: string, pros: string[], cons: string[], category: string) {
+  const lowerNotes = notes.toLowerCase()
+
+  // Positive indicators
+  if (lowerNotes.includes('lifetime') || lowerNotes.includes('decades')) {
+    if (!pros.some(p => p.includes('Long-lasting'))) {
+      pros.push('Long-lasting construction')
+    }
+  }
+  if (lowerNotes.includes('easy to repair') || lowerNotes.includes('user-serviceable')) {
+    if (!pros.some(p => p.includes('repair'))) {
+      pros.push('Easy to maintain and repair')
+    }
+  }
+
+  // Negative indicators
+  if (lowerNotes.includes('expensive') && category === 'durability') {
+    if (!cons.some(c => c.includes('price'))) {
+      cons.push('Higher price point')
+    }
+  }
+  if (lowerNotes.includes('difficult to') || lowerNotes.includes('hard to')) {
+    if (!cons.some(c => c.includes('maintenance'))) {
+      cons.push('Requires specific maintenance')
+    }
+  }
+}
+
+// Render function
+function renderProsConsSection(pros: string[], cons: string[], title: string) {
   return (
     <section className="mt-16 bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-      <h2 className="text-2xl font-bold mb-6 text-center">Community Insights</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center">{title}</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
         {/* Pros Column */}
@@ -109,11 +171,8 @@ export function ProductProsCons({ productId }: ProductProsConsProps) {
 
       {/* Summary */}
       <div className="mt-6 text-center">
-        <p className="text-sm text-gray-600">
-          Based on insights from <span className="font-semibold text-brand-dark">{reviewCount}</span> detailed {reviewCount === 1 ? 'review' : 'reviews'}
-        </p>
-        <p className="text-xs text-gray-500 mt-2">
-          Pros and cons are aggregated from verified user reviews to help you make informed decisions
+        <p className="text-xs text-gray-500">
+          Based on our comprehensive product research and scoring methodology
         </p>
       </div>
     </section>

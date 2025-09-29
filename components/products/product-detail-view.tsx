@@ -14,6 +14,7 @@ import { ProductProsCons } from './product-pros-cons'
 import { AddToCompareButton } from '@/components/compare/add-to-compare-button'
 import { ProductComparisonTable } from './product-comparison-table'
 import { ProductFAQ } from './product-faq'
+import { ProductCareMaintenance } from './product-care-maintenance'
 
 // Get gradient pill styling based on BIFL score
 function getScoreBadgeStyle(score: number) {
@@ -91,6 +92,7 @@ interface Product {
   warranty_notes?: string | null
   warranty_years?: number | null
   social_notes?: string | null
+  care_and_maintenance?: any | null
   affiliate_link?: string | null
   images?: string[]
   category?: string | null
@@ -589,6 +591,9 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
           </div>
         </div>
 
+        {/* Expert Pros & Cons */}
+        <ProductProsCons product={product} />
+
         {/* Image Gallery */}
         <section className="mt-16 bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
           <h2 className="text-2xl font-bold mb-6 text-center">Image Gallery</h2>
@@ -673,11 +678,11 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
           )}
         </section>
 
-        {/* FAQ Section - Hidden until we get better FAQ content */}
-        {/* <ProductFAQ productId={product.id} /> */}
+        {/* FAQ Section */}
+        <ProductFAQ productId={product.id} />
 
-        {/* Community Pros & Cons */}
-        <ProductProsCons productId={product.id} />
+        {/* Care & Maintenance */}
+        <ProductCareMaintenance careData={product.care_and_maintenance} />
 
         {/* Reviews Section */}
         <section className="mt-16 space-y-8">

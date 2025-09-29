@@ -105,9 +105,13 @@ export function ProductFAQ({ productId }: ProductFAQProps) {
     .slice(0, 5)
 
   return (
-    <section className="mt-16 bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+    <section
+      className="mt-16 bg-white p-8 rounded-2xl shadow-sm border border-gray-100"
+      itemScope
+      itemType="https://schema.org/FAQPage"
+    >
       <div className="flex items-center mb-6">
-        <HelpCircle className="w-6 h-6 mr-3 text-brand-teal" />
+        <HelpCircle className="w-6 h-6 mr-3 text-brand-teal" aria-hidden="true" />
         <h2 className="text-2xl font-bold">Frequently Asked Questions</h2>
       </div>
 
@@ -116,9 +120,12 @@ export function ProductFAQ({ productId }: ProductFAQProps) {
           const isExpanded = expandedItems.has(faq.id)
 
           return (
-            <div
+            <article
               key={faq.id}
               className="border border-gray-200 rounded-lg overflow-hidden transition-all duration-200 hover:border-brand-teal/30"
+              itemScope
+              itemProp="mainEntity"
+              itemType="https://schema.org/Question"
             >
               <button
                 onClick={() => toggleExpanded(faq.id)}
@@ -126,10 +133,13 @@ export function ProductFAQ({ productId }: ProductFAQProps) {
                 aria-expanded={isExpanded}
                 aria-controls={`faq-answer-${faq.id}`}
               >
-                <span className="font-semibold text-brand-dark group-hover:text-brand-teal transition-colors">
+                <span
+                  className="font-semibold text-brand-dark group-hover:text-brand-teal transition-colors"
+                  itemProp="name"
+                >
                   {faq.question}
                 </span>
-                <div className="ml-4 flex-shrink-0">
+                <div className="ml-4 flex-shrink-0" aria-hidden="true">
                   {isExpanded ? (
                     <ChevronUp className="w-5 h-5 text-brand-gray group-hover:text-brand-teal transition-colors" />
                   ) : (
@@ -143,9 +153,15 @@ export function ProductFAQ({ productId }: ProductFAQProps) {
                 className={`overflow-hidden transition-all duration-300 ease-in-out ${
                   isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                 }`}
+                itemScope
+                itemProp="acceptedAnswer"
+                itemType="https://schema.org/Answer"
               >
                 <div className="px-6 py-4 bg-white border-t border-gray-100">
-                  <div className="prose prose-sm max-w-none text-brand-gray leading-relaxed">
+                  <div
+                    className="prose prose-sm max-w-none text-brand-gray leading-relaxed"
+                    itemProp="text"
+                  >
                     {faq.answer.split('\n').map((paragraph, index) => (
                       <p key={index} className={index > 0 ? 'mt-3' : ''}>
                         {paragraph}
@@ -154,7 +170,7 @@ export function ProductFAQ({ productId }: ProductFAQProps) {
                   </div>
                 </div>
               </div>
-            </div>
+            </article>
           )
         })}
       </div>

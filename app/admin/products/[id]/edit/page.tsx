@@ -5,6 +5,8 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Save, X, Plus, Trash2 } from 'lucide-react'
+import { FAQEditor } from '@/components/admin/faq-editor'
+import { ProsConsEditor } from '@/components/admin/proscons-editor'
 
 interface Category {
   id: string
@@ -1162,6 +1164,12 @@ export default function EditProductPage() {
               </select>
             </div>
           </div>
+
+          {/* Pros & Cons Editor */}
+          <ProsConsEditor productId={productId} />
+
+          {/* FAQ Editor */}
+          <FAQEditor productId={productId} />
 
           {/* Actions */}
           <div className="flex items-center justify-between">
