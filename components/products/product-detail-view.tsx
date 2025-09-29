@@ -13,6 +13,7 @@ import BadgeDisplay from '@/components/BadgeDisplay'
 import { ProductProsCons } from './product-pros-cons'
 import { AddToCompareButton } from '@/components/compare/add-to-compare-button'
 import { ProductComparisonTable } from './product-comparison-table'
+import { ProductFAQ } from './product-faq'
 
 // Get gradient pill styling based on BIFL score
 function getScoreBadgeStyle(score: number) {
@@ -635,6 +636,9 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
             </div>
           )}
         </section>
+
+        {/* FAQ Section - Hidden until we get better FAQ content */}
+        {/* <ProductFAQ productId={product.id} /> */}
 
         {/* Community Pros & Cons */}
         <ProductProsCons productId={product.id} />

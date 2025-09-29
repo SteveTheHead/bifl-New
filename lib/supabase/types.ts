@@ -567,6 +567,38 @@ export interface Database {
           expiry_date?: string | null
         }
       }
+      product_faqs: {
+        Row: {
+          id: string
+          product_id: string
+          question: string
+          answer: string
+          display_order: number
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          product_id: string
+          question: string
+          answer: string
+          display_order?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          product_id?: string
+          question?: string
+          answer?: string
+          display_order?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       products_with_taxonomy: {

@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { Database } from './types'
+import { isAdminRequest } from '@/lib/auth/admin'
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -38,14 +39,36 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Protect user dashboard and admin routes
+  // Handle admin routes separately using our admin authentication
+  if (request.nextUrl.pathname.startsWith('/admin') &&
+      request.nextUrl.pathname !== '/admin/signin' &&
+      !request.nextUrl.pathname.startsWith('/admin-setup')) {
+
+    console.log('Middleware: Admin route check for:', request.nextUrl.pathname)
+    const isAdmin = isAdminRequest(request)
+    console.log('Middleware: isAdminRequest result:', isAdmin)
+
+    if (!isAdmin) {
+      console.log('Middleware: Redirecting to admin signin - no valid admin session')
+      // Redirect to admin signin
+      const url = request.nextUrl.clone()
+      url.pathname = '/admin/signin'
+      return NextResponse.redirect(url)
+    } else {
+      console.log('Middleware: Admin access granted')
+    }
+  }
+
+  // Protect user dashboard routes with Supabase auth
   if (
     !user &&
     !request.nextUrl.pathname.startsWith('/auth') &&
     !request.nextUrl.pathname.startsWith('/api') &&
     request.nextUrl.pathname !== '/' &&
     !request.nextUrl.pathname.startsWith('/products') &&
-    (request.nextUrl.pathname.startsWith('/user-dashboard') || request.nextUrl.pathname.startsWith('/admin'))
+    !request.nextUrl.pathname.startsWith('/admin-setup') &&
+    !request.nextUrl.pathname.startsWith('/admin') &&
+    request.nextUrl.pathname.startsWith('/user-dashboard')
   ) {
     // no user, redirect to auth page for protected routes
     const url = request.nextUrl.clone()

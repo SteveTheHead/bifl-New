@@ -10,7 +10,10 @@ import {
   Edit,
   Trash2,
   Tag,
-  ArrowUpDown
+  ArrowUpDown,
+  BookOpen,
+  RefreshCw,
+  Eye
 } from 'lucide-react'
 
 interface Category {
@@ -28,6 +31,7 @@ export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
+  const [regeneratingGuides, setRegeneratingGuides] = useState<Set<string>>(new Set())
 
   const isAdmin = session?.user?.email?.endsWith('@bifl.com') ||
                  session?.user?.email === 'admin@example.com' ||
@@ -75,6 +79,31 @@ export default function AdminCategoriesPage() {
     } catch (error) {
       console.error('Failed to delete category:', error)
       alert('Failed to delete category')
+    }
+  }
+
+  const regenerateBuyingGuide = async (categorySlug: string, categoryId: string) => {
+    setRegeneratingGuides(prev => new Set(prev).add(categoryId))
+
+    try {
+      const response = await fetch(`/api/categories/${categorySlug}/buying-guide`, {
+        method: 'POST'
+      })
+
+      if (response.ok) {
+        alert('Buying guide regenerated successfully!')
+      } else {
+        alert('Failed to regenerate buying guide')
+      }
+    } catch (error) {
+      console.error('Failed to regenerate buying guide:', error)
+      alert('Failed to regenerate buying guide')
+    } finally {
+      setRegeneratingGuides(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(categoryId)
+        return newSet
+      })
     }
   }
 
@@ -183,6 +212,9 @@ export default function AdminCategoriesPage() {
                       Featured
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-medium text-brand-gray uppercase tracking-wider">
+                      Buying Guide
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-brand-gray uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
@@ -212,6 +244,26 @@ export default function AdminCategoriesPage() {
                         }`}>
                           {category.is_featured ? 'Yes' : 'No'}
                         </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex items-center space-x-2">
+                          <Link
+                            href={`/categories/${category.slug}`}
+                            target="_blank"
+                            className="flex items-center space-x-1 px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"
+                          >
+                            <Eye className="w-3 h-3" />
+                            <span>View</span>
+                          </Link>
+                          <button
+                            onClick={() => regenerateBuyingGuide(category.slug, category.id)}
+                            disabled={regeneratingGuides.has(category.id)}
+                            className="flex items-center space-x-1 px-2 py-1 bg-purple-600 text-white rounded text-xs hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <RefreshCw className={`w-3 h-3 ${regeneratingGuides.has(category.id) ? 'animate-spin' : ''}`} />
+                            <span>{regeneratingGuides.has(category.id) ? 'Generating...' : 'Regenerate'}</span>
+                          </button>
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-2">
