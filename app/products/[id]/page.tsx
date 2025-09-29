@@ -3,9 +3,9 @@ import { notFound } from 'next/navigation'
 import { ProductDetailView } from '@/components/products/product-detail-view'
 
 interface ProductPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
