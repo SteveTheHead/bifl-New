@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { withTypedSupabase } from '@/lib/supabase-utils'
 
 export async function GET() {
   try {
@@ -18,14 +19,14 @@ export async function GET() {
       supabase.from('reviews').select('*', { count: 'exact', head: true })
     ])
 
-    // Get average BIFL score
-    const { data: avgScoreData } = await supabase
+    // Get average BIFL score (using type assertion for temporary fix)
+    const { data: avgScoreData } = await (supabase as any)
       .from('products')
       .select('bifl_total_score')
       .not('bifl_total_score', 'is', null)
 
     const avgBiflScore = avgScoreData?.length
-      ? avgScoreData.reduce((sum, item) => sum + (item.bifl_total_score || 0), 0) / avgScoreData.length
+      ? avgScoreData.reduce((sum: number, item: any) => sum + (item.bifl_total_score || 0), 0) / avgScoreData.length
       : 0
 
     // Get new products this week

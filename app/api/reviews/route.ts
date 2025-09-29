@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
+import { sb } from '@/lib/supabase-utils'
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,10 +21,7 @@ export async function POST(request: NextRequest) {
       user_id: user.id
     }
 
-    const { error, data } = await supabase
-      .from('reviews')
-      .insert(reviewData)
-      .select()
+    const { error, data } = await sb.insert(supabase, 'reviews', [reviewData])
 
     console.log('API: Insert result:', { data, error })
 

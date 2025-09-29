@@ -30,12 +30,12 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   const { count: productCount } = await supabase
     .from('products')
     .select('*', { count: 'exact', head: true })
-    .eq('category_id', category.id)
+    .eq('category_id', (category as any).id)
     .eq('status', 'published')
 
-  const categoryName = category.name
+  const categoryName = (category as any).name
   const title = `Best ${categoryName} 2024 - BIFL Buying Guide & Reviews`
-  const description = category.description ||
+  const description = (category as any).description ||
     `Discover the ${productCount || 'best'} highest-rated ${categoryName.toLowerCase()} products built to last a lifetime. Expert reviews, AI-generated buying guides, and detailed BIFL ratings. Find durable, repairable ${categoryName.toLowerCase()} with strong warranties.`
 
   return {
@@ -116,7 +116,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
       brands(name, slug),
       categories(name, slug)
     `)
-    .eq('category_id', category.id)
+    .eq('category_id', (category as any).id)
     .eq('status', 'published')
 
   // Apply filters
@@ -154,7 +154,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   }
 
   // Transform products data
-  let transformedProducts = (products || []).map(product => ({
+  let transformedProducts = (products || []).map((product: any) => ({
     ...product,
     brand_name: product.brands?.name,
     brand_slug: product.brands?.slug,
@@ -173,15 +173,15 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   const { data: availableBrands } = await supabase
     .from('products')
     .select('brand_id, brands(name, slug)')
-    .eq('category_id', category.id)
+    .eq('category_id', (category as any).id)
     .eq('status', 'published')
     .not('brand_id', 'is', null)
 
   const uniqueBrands = Array.from(
     new Map(
       (availableBrands || [])
-        .filter(p => p.brands)
-        .map(p => [p.brands.slug, p.brands])
+        .filter((p: any) => p.brands)
+        .map((p: any) => [p.brands.slug, p.brands])
     ).values()
   )
 

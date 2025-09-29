@@ -35,7 +35,7 @@ function getScoreLabel(score: number) {
 }
 
 // Render HTML content safely with custom styling
-function renderHTMLContent(htmlContent: string | null): JSX.Element | null {
+function renderHTMLContent(htmlContent: string | null): React.JSX.Element | null {
   if (!htmlContent) return null
 
   // Basic sanitization and styling enhancement
@@ -332,7 +332,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                     )}
                   </div>
                 ) : product.description || product.excerpt ? (
-                  renderHTMLContent(product.description || product.excerpt)
+                  renderHTMLContent((product.description || product.excerpt) ?? null)
                 ) : (
                   <p>No research summary available for this product.</p>
                 )}
@@ -494,10 +494,10 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                     product={{
                       id: product.id,
                       name: product.name,
-                      price: parseFloat(product.price) || 0,
+                      price: parseFloat(product.price?.toString() || '0') || 0,
                       images: product.images || [],
-                      average_score: product.bifl_total_score,
-                      affiliate_link: product.affiliate_link
+                      average_score: product.bifl_total_score ?? undefined,
+                      affiliate_link: product.affiliate_link ?? undefined
                     }}
                     size="sm"
                     variant="secondary"
@@ -697,22 +697,21 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
           currentProduct={{
             id: product.id,
             name: product.name,
-            price: product.price,
-            featured_image_url: product.featured_image_url,
-            bifl_total_score: product.bifl_total_score,
-            durability_score: product.durability_score,
-            repairability_score: product.repairability_score,
-            warranty_score: product.warranty_score,
-            sustainability_score: product.sustainability_score,
-            social_score: product.social_score,
-            category: product.category
+            price: product.price?.toString() || '',
+            featured_image_url: product.featured_image_url ?? undefined,
+            bifl_total_score: product.bifl_total_score ?? undefined,
+            durability_score: product.durability_score ?? undefined,
+            repairability_score: product.repairability_score ?? undefined,
+            warranty_score: product.warranty_score ?? undefined,
+            sustainability_score: product.sustainability_score ?? undefined,
+            social_score: product.social_score ?? undefined
           }}
         />
 
         {/* Similar Products Carousel */}
         <SimilarProductsCarousel
           currentProductId={product.id}
-          categoryId={product.category_id}
+          categoryId={product.category_id ?? undefined}
         />
 
         {/* Newsletter Signup */}

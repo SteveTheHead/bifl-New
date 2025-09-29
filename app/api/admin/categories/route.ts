@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { sb } from '@/lib/supabase-utils'
 
 export async function GET() {
   try {
@@ -27,17 +28,17 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const supabase = await createClient()
 
-    const { data: category, error } = await supabase
-      .from('categories')
-      .insert([{
+    const { data: category, error } = await sb.insert(
+      supabase,
+      'categories',
+      [{
         name: body.name,
         slug: body.slug,
         description: body.description,
         display_order: body.display_order || 0,
         is_featured: body.is_featured || false
-      }])
-      .select()
-      .single()
+      }]
+    ).then(result => ({ ...result, data: result.data?.[0] || null }))
 
     if (error) throw error
 

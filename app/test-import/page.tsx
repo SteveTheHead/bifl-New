@@ -40,7 +40,7 @@ export default async function TestImportPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {brands?.map((brand) => (
+                {brands?.map((brand: any) => (
                   <div key={brand.id} className="flex justify-between">
                     <span>{brand.name}</span>
                     <span className="text-sm text-muted-foreground">
@@ -64,7 +64,7 @@ export default async function TestImportPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {products?.map((product) => (
+                {products?.map((product: any) => (
                   <div key={product.id} className="space-y-1">
                     <div className="font-medium">{product.name}</div>
                     <div className="text-sm text-muted-foreground">

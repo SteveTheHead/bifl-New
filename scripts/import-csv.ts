@@ -14,7 +14,7 @@ if (!supabaseUrl || !supabaseKey) {
   process.exit(1)
 }
 
-const supabase = createClient<Database>(supabaseUrl, supabaseKey)
+const supabase = createClient<Database>(supabaseUrl, supabaseKey) as any
 
 interface CSVRow {
   brand: string
@@ -109,7 +109,7 @@ async function findOrCreateBrand(brandName: string): Promise<string> {
     .single()
 
   if (!brand) {
-    const { data: newBrand, error } = await supabase
+    const { data: newBrand, error } = await (supabase as any)
       .from('brands')
       .insert({
         name: brandName,
@@ -130,13 +130,13 @@ async function findOrCreateBrand(brandName: string): Promise<string> {
         .select('id')
         .or(`slug.eq.${slug},name.eq.${brandName}`)
         .single()
-      return existingBrand?.id || ''
+      return (existingBrand as any)?.id || ''
     }
 
     brand = newBrand
   }
 
-  return brand.id
+  return (brand as any).id
 }
 
 async function findOrCreateCategory(categoryName: string): Promise<string> {

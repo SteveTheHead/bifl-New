@@ -66,7 +66,7 @@ export default async function CategoriesPage() {
   }
 
   // Get product counts for each category
-  const categoryIds = categories?.map(c => c.id) || []
+  const categoryIds = categories?.map((c: any) => c.id) || []
   let productCounts = null
 
   if (categoryIds.length > 0) {
@@ -79,13 +79,13 @@ export default async function CategoriesPage() {
   }
 
   // Count products per category
-  const countsByCategory = productCounts?.reduce((acc, product) => {
+  const countsByCategory = productCounts?.reduce((acc: any, product: any) => {
     acc[product.category_id] = (acc[product.category_id] || 0) + 1
     return acc
   }, {} as Record<string, number>) || {}
 
   // Transform categories to include product counts
-  const categoriesWithCounts = (categories || []).map(category => ({
+  const categoriesWithCounts = (categories || []).map((category: any) => ({
     ...category,
     productCount: countsByCategory[category.id] || 0
   }))

@@ -10,7 +10,7 @@ export async function GET(
     const supabase = await createClient()
 
     // First get the current product with all details for intelligent matching
-    const { data: currentProduct, error: currentError } = await supabase
+    const { data: currentProduct, error: currentError } = await (supabase as any)
       .from('products_with_taxonomy')
       .select('*')
       .eq('id', id)
@@ -21,27 +21,27 @@ export async function GET(
     }
 
     // Extract keywords from the current product for intelligent matching
-    const productName = currentProduct.name || ''
-    const brandName = currentProduct.brand_name || ''
-    const categoryName = currentProduct.category_name || ''
+    const productName = (currentProduct as any).name || ''
+    const brandName = (currentProduct as any).brand_name || ''
+    const categoryName = (currentProduct as any).category_name || ''
     // const description = currentProduct.description || '' // Unused variable
 
     // Create search keywords from product name, removing common words
     const commonWords = ['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', '&']
     const nameWords = productName.toLowerCase()
       .split(/\s+/)
-      .filter(word => word.length > 2 && !commonWords.includes(word))
+      .filter((word: string) => word.length > 2 && !commonWords.includes(word))
 
     const brandWords = brandName.toLowerCase()
       .split(/\s+/)
-      .filter(word => word.length > 2 && !commonWords.includes(word))
+      .filter((word: string) => word.length > 2 && !commonWords.includes(word))
 
     const categoryWords = categoryName.toLowerCase()
       .split(/\s+/)
-      .filter(word => word.length > 2 && !commonWords.includes(word))
+      .filter((word: string) => word.length > 2 && !commonWords.includes(word))
 
     // Get all potential related products (excluding current product)
-    const { data: allProducts, error } = await supabase
+    const { data: allProducts, error } = await (supabase as any)
       .from('products_with_taxonomy')
       .select(`
         id,
@@ -68,7 +68,7 @@ export async function GET(
     }
 
     // Calculate relevance scores for each product using the same logic as search
-    const productsWithScores = allProducts.map(product => {
+    const productsWithScores = allProducts.map((product: any) => {
       const productNameLower = (product.name || '').toLowerCase()
       const productBrandLower = (product.brand_name || '').toLowerCase()
       const productCategoryLower = (product.category_name || '').toLowerCase()
@@ -77,7 +77,7 @@ export async function GET(
       let relevanceScore = 0
 
       // Score based on name word matches
-      nameWords.forEach(word => {
+      nameWords.forEach((word: string) => {
         if (productNameLower.includes(word)) {
           relevanceScore += 5 // High score for name matches
         } else if (productDescriptionLower.includes(word)) {
@@ -86,26 +86,26 @@ export async function GET(
       })
 
       // Score based on brand matches
-      brandWords.forEach(word => {
+      brandWords.forEach((word: string) => {
         if (productBrandLower.includes(word)) {
           relevanceScore += 4 // High score for brand matches
         }
       })
 
       // Score based on category matches
-      categoryWords.forEach(word => {
+      categoryWords.forEach((word: string) => {
         if (productCategoryLower.includes(word)) {
           relevanceScore += 3 // Good score for category matches
         }
       })
 
       // Bonus for exact same category
-      if (product.category_id === currentProduct.category_id) {
+      if (product.category_id === (currentProduct as any).category_id) {
         relevanceScore += 3
       }
 
       // Bonus for same brand
-      if (product.brand_name === currentProduct.brand_name) {
+      if (product.brand_name === (currentProduct as any).brand_name) {
         relevanceScore += 4
       }
 
@@ -135,8 +135,8 @@ export async function GET(
 
     // Sort by relevance score (highest first), then by BIFL score as tiebreaker
     const sortedProducts = productsWithScores
-      .filter(product => product.relevanceScore > 0) // Only include products with some relevance
-      .sort((a, b) => {
+      .filter((product: any) => product.relevanceScore > 0) // Only include products with some relevance
+      .sort((a: any, b: any) => {
         if (b.relevanceScore !== a.relevanceScore) {
           return b.relevanceScore - a.relevanceScore
         }
@@ -149,18 +149,18 @@ export async function GET(
 
     if (finalProducts.length < 2) {
       const categoryFallback = allProducts
-        .filter(product =>
-          product.category_id === currentProduct.category_id &&
-          !finalProducts.some(fp => fp.id === product.id)
+        .filter((product: any) =>
+          product.category_id === (currentProduct as any).category_id &&
+          !finalProducts.some((fp: any) => fp.id === product.id)
         )
-        .sort((a, b) => (b.bifl_total_score || 0) - (a.bifl_total_score || 0))
+        .sort((a: any, b: any) => (b.bifl_total_score || 0) - (a.bifl_total_score || 0))
         .slice(0, 2 - finalProducts.length)
 
       finalProducts = [...finalProducts, ...categoryFallback]
     }
 
     // Remove the relevanceScore from the response
-    const cleanProducts = finalProducts.map(({ relevanceScore: _relevanceScore, ...product }) => product)
+    const cleanProducts = finalProducts.map(({ relevanceScore: _relevanceScore, ...product }: any) => product)
 
     return NextResponse.json({
       products: cleanProducts.slice(0, 2)

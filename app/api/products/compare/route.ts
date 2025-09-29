@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient()
 
     // First, get products basic info
-    const { data: products, error } = await supabase
+    const { data: products, error } = await (supabase as any)
       .from('products')
       .select(`
         id,
@@ -44,8 +44,8 @@ export async function GET(request: NextRequest) {
 
     // Now get review counts for each product separately
     const productsWithScores = await Promise.all(
-      products.map(async (product) => {
-        const { data: reviews, error: reviewError } = await supabase
+      products.map(async (product: any) => {
+        const { data: reviews, error: reviewError } = await (supabase as any)
           .from('reviews')
           .select('overall_score')
           .eq('product_id', product.id)
@@ -55,10 +55,10 @@ export async function GET(request: NextRequest) {
         let averageScore = null
 
         if (!reviewError && reviews) {
-          const scores = reviews.map(r => r.overall_score).filter(s => s !== null && s !== undefined)
+          const scores = reviews.map((r: any) => r.overall_score).filter((s: any) => s !== null && s !== undefined)
           reviewCount = scores.length
           if (scores.length > 0) {
-            averageScore = Math.round((scores.reduce((sum, score) => sum + score, 0) / scores.length) * 10) / 10
+            averageScore = Math.round((scores.reduce((sum: number, score: any) => sum + score, 0) / scores.length) * 10) / 10
           }
         }
 

@@ -49,14 +49,6 @@ export default function FavoritesPage() {
     checkUser()
   }, [router])
 
-  useEffect(() => {
-    if (!favoritesLoading && favorites.length > 0) {
-      fetchFavoriteProducts()
-    } else if (!favoritesLoading) {
-      setLoading(false)
-    }
-  }, [favorites, favoritesLoading, fetchFavoriteProducts])
-
   const fetchFavoriteProducts = useCallback(async () => {
     if (favorites.length === 0) {
       setProducts([])
@@ -85,6 +77,14 @@ export default function FavoritesPage() {
       setLoading(false)
     }
   }, [favorites])
+
+  useEffect(() => {
+    if (!favoritesLoading && favorites.length > 0) {
+      fetchFavoriteProducts()
+    } else if (!favoritesLoading) {
+      setLoading(false)
+    }
+  }, [favorites, favoritesLoading, fetchFavoriteProducts])
 
   const handleRemoveFavorite = async (productId: string) => {
     await removeFromFavorites(productId)

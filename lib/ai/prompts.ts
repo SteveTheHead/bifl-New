@@ -15,7 +15,7 @@ interface Product {
 interface Category {
   id: string
   name: string
-  description?: string
+  description?: string | null
 }
 
 // System prompts for different AI tasks
@@ -119,13 +119,13 @@ ${formatProductForAI(product)}
 
 export function formatCategoryData(category: Category, products: Product[]): string {
   const topProducts = products
-    .filter(p => p.category_id === category.id)
+    .filter(p => (p as any).category_id === category.id)
     .sort((a, b) => (b.bifl_total_score || 0) - (a.bifl_total_score || 0))
     .slice(0, 10)
 
   return `Category: ${category.name}
 Description: ${category.description || 'No description'}
-Product Count: ${products.filter(p => p.category_id === category.id).length}
+Product Count: ${products.filter(p => (p as any).category_id === category.id).length}
 
 Top Products in Category:
 ${topProducts.map(product => formatProductForAI(product)).join('\n\n')}`

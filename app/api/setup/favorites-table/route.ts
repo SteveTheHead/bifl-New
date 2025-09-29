@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { NextResponse } from 'next/server'
+import { sb } from '@/lib/supabase-utils'
 
 export async function POST() {
   try {
@@ -9,7 +10,7 @@ export async function POST() {
     // In production, you'd want to use migrations instead
 
     // Create the user_favorites table
-    const { error } = await supabase.rpc('exec_sql', {
+    const { error } = await sb.rpc(supabase, 'exec_sql', {
       sql: `
         CREATE TABLE IF NOT EXISTS user_favorites (
           id UUID DEFAULT gen_random_uuid() PRIMARY KEY,

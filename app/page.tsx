@@ -257,7 +257,7 @@ export default async function HomePage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredProducts?.map((product) => {
+            {featuredProducts?.map((product: any) => {
               const totalScore = product.bifl_total_score || 0
 
               return (

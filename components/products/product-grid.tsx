@@ -156,10 +156,10 @@ function SimpleProductCard({ product }: { product: Product }) {
             product={{
               id: product.id,
               name: product.name,
-              price: parseFloat(product.price) || 0,
+              price: parseFloat(product.price?.toString() || '0') || 0,
               images: product.featured_image_url ? [product.featured_image_url] : [],
-              average_score: product.bifl_total_score,
-              affiliate_link: product.affiliate_link
+              average_score: product.bifl_total_score ?? undefined,
+              affiliate_link: product.affiliate_link ?? undefined
             }}
             size="sm"
             variant="secondary"
@@ -211,16 +211,16 @@ export function ProductGrid({ initialProducts, categories, initialSearch = '' }:
         filtered = filtered.filter(product =>
           product.name?.toLowerCase().includes(searchLower) ||
           product.brand_name?.toLowerCase().includes(searchLower) ||
-          product.description?.toLowerCase().includes(searchLower) ||
-          product.use_case?.toLowerCase().includes(searchLower)
+          (product as any).description?.toLowerCase().includes(searchLower) ||
+          (product as any).use_case?.toLowerCase().includes(searchLower)
         )
       } else {
         // Multi-word search - prioritize products containing ALL words, then ANY words
         filtered = filtered.filter(product => {
           const name = product.name?.toLowerCase() || ''
           const brand = product.brand_name?.toLowerCase() || ''
-          const description = product.description?.toLowerCase() || ''
-          const useCase = product.use_case?.toLowerCase() || ''
+          const description = (product as any).description?.toLowerCase() || ''
+          const useCase = (product as any).use_case?.toLowerCase() || ''
 
           // Calculate relevance score
           let score = 0
@@ -248,31 +248,34 @@ export function ProductGrid({ initialProducts, categories, initialSearch = '' }:
           }
 
           // For multi-word searches, require minimum relevance threshold
-          const minScoreRequired = words.length >= 2 ? 2 : 1
+          let minScoreRequired = 1
+          if (words.length >= 2) {
+            minScoreRequired = 2
+          }
 
           // Store score for sorting later
-          product._searchScore = score
+          (product as any)._searchScore = score
 
           // Return products with sufficient relevance score
           return score >= minScoreRequired
         })
 
         // Sort by relevance score (higher is better)
-        filtered.sort((a, b) => (b._searchScore || 0) - (a._searchScore || 0))
+        filtered.sort((a, b) => ((b as any)._searchScore || 0) - ((a as any)._searchScore || 0))
       }
     }
 
     // Category filter
     if (filters.categories.length > 0) {
       filtered = filtered.filter(product => {
-        return filters.categories.includes(product.category_id)
+        return filters.categories.includes((product as any).category_id)
       })
     }
 
     // Brand filter
     if (filters.brands.length > 0) {
       filtered = filtered.filter(product =>
-        filters.brands.includes(product.wordpress_meta?.brand_name)
+        filters.brands.includes((product as any).wordpress_meta?.brand_name)
       )
     }
 
@@ -304,13 +307,13 @@ export function ProductGrid({ initialProducts, categories, initialSearch = '' }:
     // Country filter
     if (filters.countries.length > 0) {
       filtered = filtered.filter(product =>
-        filters.countries.includes(product.country_of_origin)
+        filters.countries.includes((product as any).country_of_origin)
       )
     }
 
     // Price range filter
     filtered = filtered.filter(product => {
-      const price = parseFloat(product.price)
+      const price = parseFloat(product.price?.toString() || '0')
       if (isNaN(price)) return true // Include products without prices
       return price >= filters.priceRange[0] && price <= filters.priceRange[1]
     })
@@ -327,7 +330,7 @@ export function ProductGrid({ initialProducts, categories, initialSearch = '' }:
         case 'name-desc':
           return (b.name || '').localeCompare(a.name || '')
         case 'newest':
-          return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
+          return new Date((b as any).created_at || 0).getTime() - new Date((a as any).created_at || 0).getTime()
         default:
           return 0
       }

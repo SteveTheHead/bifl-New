@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { sb } from '@/lib/supabase-utils'
 
 // GET - Fetch recently viewed products for a user
 export async function GET(request: NextRequest) {
@@ -16,9 +17,10 @@ export async function GET(request: NextRequest) {
     // Note: user_recently_viewed table should be created manually if it doesn't exist
 
     // Get recently viewed products
-    const { data: recentlyViewed, error } = await supabase
-      .from('user_recently_viewed')
-      .select(`
+    const { data: recentlyViewed, error } = await sb.select(
+      supabase,
+      'user_recently_viewed',
+      `
         product_id,
         viewed_at,
         products:product_id (
@@ -38,7 +40,8 @@ export async function GET(request: NextRequest) {
           affiliate_link,
           brands(name)
         )
-      `)
+      `
+    )
       .eq('user_email', userEmail)
       .order('viewed_at', { ascending: false })
       .limit(10)
@@ -49,7 +52,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Format the response
-    const products = recentlyViewed?.map(item => ({
+    const products = recentlyViewed?.map((item: any) => ({
       ...item.products,
       brand_name: item.products?.brands?.name || null,
       viewed_at: item.viewed_at
@@ -79,8 +82,7 @@ export async function POST(request: NextRequest) {
     // Note: If user_recently_viewed table doesn't exist, it should be created manually
 
     // Check if this product is already in recently viewed for this user
-    const { data: existing } = await supabase
-      .from('user_recently_viewed')
+    const { data: existing } = await sb.from(supabase, 'user_recently_viewed')
       .select('id')
       .eq('user_email', userEmail)
       .eq('product_id', productId)
@@ -88,9 +90,7 @@ export async function POST(request: NextRequest) {
 
     if (existing) {
       // Update the viewed_at timestamp
-      const { error } = await supabase
-        .from('user_recently_viewed')
-        .update({ viewed_at: new Date().toISOString() })
+      const { error } = await sb.update(supabase, 'user_recently_viewed', { viewed_at: new Date().toISOString() })
         .eq('user_email', userEmail)
         .eq('product_id', productId)
 
@@ -100,13 +100,11 @@ export async function POST(request: NextRequest) {
       }
     } else {
       // Insert new record
-      const { error } = await supabase
-        .from('user_recently_viewed')
-        .insert({
-          user_email: userEmail,
-          product_id: productId,
-          viewed_at: new Date().toISOString()
-        })
+      const { error } = await sb.insert(supabase, 'user_recently_viewed', [{
+        user_email: userEmail,
+        product_id: productId,
+        viewed_at: new Date().toISOString()
+      }])
 
       if (error) {
         console.error('Error adding to recently viewed:', error)
@@ -114,16 +112,14 @@ export async function POST(request: NextRequest) {
       }
 
       // Clean up old entries (keep only last 20 for each user)
-      const { data: allViews } = await supabase
-        .from('user_recently_viewed')
+      const { data: allViews } = await sb.from(supabase, 'user_recently_viewed')
         .select('id')
         .eq('user_email', userEmail)
         .order('viewed_at', { ascending: false })
 
       if (allViews && allViews.length > 20) {
-        const idsToDelete = allViews.slice(20).map(item => item.id)
-        await supabase
-          .from('user_recently_viewed')
+        const idsToDelete = allViews.slice(20).map((item: any) => item.id)
+        await sb.from(supabase, 'user_recently_viewed')
           .delete()
           .in('id', idsToDelete)
       }

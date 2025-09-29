@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@/utils/supabase/client'
+import { createClient } from '@/lib/supabase/client'
+import { sb } from '@/lib/supabase-utils'
 
 
 export function useFavorites() {
@@ -56,7 +57,7 @@ export function useFavorites() {
       }
 
       if (data) {
-        setFavorites(new Set(data.map(fav => fav.product_id)))
+        setFavorites(new Set((data as any[]).map((fav: any) => fav.product_id)))
       }
     } catch (error) {
       console.error('Error in fetchFavorites:', error)
@@ -71,12 +72,10 @@ export function useFavorites() {
     try {
       const supabase = createClient()
 
-      const { error } = await supabase
-        .from('user_favorites')
-        .insert({
-          user_email: user.email,
-          product_id: productId
-        })
+      const { error } = await sb.insert(supabase, 'user_favorites', [{
+        user_email: user.email,
+        product_id: productId
+      }])
 
       if (error) {
         console.error('Error adding to favorites:', error)

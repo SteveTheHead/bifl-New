@@ -62,7 +62,7 @@ export function MiniProductCard({ product }: MiniProductCardProps) {
                   style={{ backgroundColor: '#4A9D93' }}
                   onClick={(e) => {
                     e.stopPropagation()
-                    window.open(product.affiliate_link, '_blank', 'noopener,noreferrer')
+                    if (product.affiliate_link) window.open(product.affiliate_link, '_blank', 'noopener,noreferrer')
                   }}
                 >
                   Buy Now

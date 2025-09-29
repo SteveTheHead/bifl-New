@@ -5,6 +5,7 @@ import { ThumbsUp, Flag, CheckCircle, ChevronDown, ChevronUp } from 'lucide-reac
 import { createClient } from '@/lib/supabase/client'
 import { useSession } from '@/components/auth/auth-client'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { sb } from '@/lib/supabase-utils'
 
 
 // Pill score display component (matching site-wide styling with dynamic gradient)
@@ -76,10 +77,6 @@ export function ReviewsList({ productId, refreshTrigger }: ReviewsListProps) {
   const { data: session } = useSession()
   const supabase = createClient()
 
-  useEffect(() => {
-    fetchReviews()
-  }, [productId, refreshTrigger, fetchReviews])
-
   const fetchReviews = useCallback(async () => {
     try {
       setLoading(true)
@@ -107,11 +104,15 @@ export function ReviewsList({ productId, refreshTrigger }: ReviewsListProps) {
     }
   }, [productId])
 
+  useEffect(() => {
+    fetchReviews()
+  }, [fetchReviews])
+
   const handleHelpful = async (reviewId: string) => {
     if (!session?.user) return
 
     try {
-      const { error } = await supabase.rpc('increment_helpful_count', {
+      const { error } = await sb.rpc(supabase, 'increment_helpful_count', {
         review_id: reviewId
       })
 
@@ -131,7 +132,7 @@ export function ReviewsList({ productId, refreshTrigger }: ReviewsListProps) {
     if (!session?.user) return
 
     try {
-      const { error } = await supabase.rpc('increment_report_count', {
+      const { error } = await sb.rpc(supabase, 'increment_report_count', {
         review_id: reviewId
       })
 

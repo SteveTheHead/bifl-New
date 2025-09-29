@@ -26,9 +26,9 @@ export async function GET(
     const allPros: string[] = []
     const allCons: string[] = []
 
-    reviews.forEach(review => {
+    reviews.forEach((review: any) => {
       if (review.pros && Array.isArray(review.pros)) {
-        review.pros.forEach(pro => {
+        review.pros.forEach((pro: any) => {
           if (pro && typeof pro === 'string' && pro.trim()) {
             allPros.push(pro.trim())
           }
@@ -36,7 +36,7 @@ export async function GET(
       }
 
       if (review.cons && Array.isArray(review.cons)) {
-        review.cons.forEach(con => {
+        review.cons.forEach((con: any) => {
           if (con && typeof con === 'string' && con.trim()) {
             allCons.push(con.trim())
           }

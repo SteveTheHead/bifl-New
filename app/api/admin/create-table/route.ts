@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
+import { sb } from '@/lib/supabase-utils'
 
 export async function POST(_request: NextRequest) {
   try {
@@ -26,7 +27,7 @@ export async function POST(_request: NextRequest) {
     console.log('Attempting to create admin_users table...')
 
     // Try to execute the SQL directly
-    const { data, error } = await supabase.rpc('exec_sql', { sql: createTableQuery })
+    const { data, error } = await sb.rpc(supabase, 'exec_sql', { sql: createTableQuery })
 
     if (error) {
       console.error('RPC exec_sql failed:', error)

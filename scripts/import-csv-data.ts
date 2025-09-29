@@ -168,9 +168,9 @@ async function processProduct(row: CSVRow) {
       .single()
 
     if (existingBrand) {
-      brandId = existingBrand.id
+      brandId = (existingBrand as any).id
     } else {
-      const { data: newBrand } = await supabase
+      const { data: newBrand } = await (supabase as any)
         .from('brands')
         .insert({
           name: row.brand,
@@ -198,9 +198,9 @@ async function processProduct(row: CSVRow) {
         .single()
 
       if (existingCategory) {
-        categoryId = existingCategory.id
+        categoryId = (existingCategory as any).id
       } else {
-        const { data: newCategory } = await supabase
+        const { data: newCategory } = await (supabase as any)
           .from('categories')
           .insert({
             name: categoryText,
@@ -227,13 +227,13 @@ async function processProduct(row: CSVRow) {
 
       if (priceRanges) {
         for (const range of priceRanges) {
-          if (range.min_price && range.max_price) {
-            if (price >= range.min_price && price <= range.max_price) {
-              priceRangeId = range.id
+          if ((range as any).min_price && (range as any).max_price) {
+            if (price >= (range as any).min_price && price <= (range as any).max_price) {
+              priceRangeId = (range as any).id
               break
             }
-          } else if (range.min_price && price >= range.min_price) {
-            priceRangeId = range.id
+          } else if ((range as any).min_price && price >= (range as any).min_price) {
+            priceRangeId = (range as any).id
             break
           }
         }
@@ -290,7 +290,7 @@ async function processProduct(row: CSVRow) {
       average_rating: parseScore(row.star_rating)
     }
 
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('products')
       .insert(productData)
 

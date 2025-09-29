@@ -52,7 +52,7 @@ export function SimilarProductsCarousel({ currentProductId, categoryId }: Simila
           const supabase = createClient()
 
           // Get the IDs we already have to avoid duplicates
-          const existingIds = relatedProducts.map(p => p.id)
+          const existingIds = relatedProducts.map((p: any) => p.id)
           const excludeIds = [currentProductId, ...existingIds]
 
           // Get additional products from the same category or similar categories
@@ -78,7 +78,7 @@ export function SimilarProductsCarousel({ currentProductId, categoryId }: Simila
           // If still not enough and we were filtering by category, get from any category
           if (relatedProducts.length < 6 && categoryId) {
             const stillNeedCount = 6 - relatedProducts.length
-            const allExcludeIds = [currentProductId, ...relatedProducts.map(p => p.id)]
+            const allExcludeIds = [currentProductId, ...relatedProducts.map((p: any) => p.id)]
 
             const { data: anyCategory, error: anyCategoryError } = await supabase
               .from('products_with_taxonomy')

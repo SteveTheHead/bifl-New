@@ -122,10 +122,10 @@ export function RecentlyViewedCard({ product }: RecentlyViewedCardProps) {
             product={{
               id: product.id,
               name: product.name,
-              price: parseFloat(product.price) || 0,
+              price: product.price || 0,
               images: product.featured_image_url ? [product.featured_image_url] : [],
-              average_score: product.bifl_total_score,
-              affiliate_link: product.affiliate_link
+              average_score: product.bifl_total_score || undefined,
+              affiliate_link: (product as any).affiliate_link
             }}
             size="sm"
             variant="secondary"

@@ -45,7 +45,7 @@ export async function POST() {
 
     return NextResponse.json({
       error: 'Failed to create test user',
-      details: error.message
+      details: (error as any)?.message || error
     }, { status: 500 })
   }
 }

@@ -10,8 +10,8 @@ export async function GET(
     const { slug } = await params
     const supabase = await createClient()
 
-    // Get category details
-    const { data: category, error: categoryError } = await supabase
+    // Get category details (using type assertion for temporary fix)
+    const { data: category, error: categoryError } = await (supabase as any)
       .from('categories')
       .select('*')
       .eq('slug', slug)
@@ -22,7 +22,7 @@ export async function GET(
     }
 
     // Get products in this category with related data
-    const { data: products, error: productsError } = await supabase
+    const { data: products, error: productsError } = await (supabase as any)
       .from('products')
       .select(`
         *,
@@ -31,7 +31,7 @@ export async function GET(
         materials(name),
         price_ranges(name, min_price, max_price)
       `)
-      .eq('category_id', category.id)
+      .eq('category_id', (category as any).id)
       .eq('status', 'published')
       .order('bifl_total_score', { ascending: false })
       .limit(20)
@@ -42,7 +42,7 @@ export async function GET(
     }
 
     // Transform products data for AI
-    const transformedProducts = (products || []).map(product => ({
+    const transformedProducts = (products || []).map((product: any) => ({
       ...product,
       brand_name: product.brands?.name,
       brand_slug: product.brands?.slug,

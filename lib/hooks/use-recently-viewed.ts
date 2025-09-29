@@ -40,7 +40,7 @@ export function useRecentlyViewed() {
       }
     }
     checkUser()
-  }, [fetchRecentlyViewed])
+  }, [])
 
   const fetchRecentlyViewed = useCallback(async (userEmail: string) => {
     if (!userEmail) return

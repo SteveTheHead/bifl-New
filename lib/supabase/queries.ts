@@ -1,5 +1,6 @@
 import { createClient, createAdminClient } from './server'
 import { Database } from './types'
+import { sb } from '../supabase-utils'
 
 // Product queries
 export async function getProducts(limit = 20, offset = 0) {
@@ -199,7 +200,7 @@ export async function getBrands() {
   return data
 }
 
-export async function getCategories() {
+export async function getCategories(): Promise<Database['public']['Tables']['categories']['Row'][]> {
   const supabase = await createClient()
 
   const { data, error } = await supabase
@@ -215,7 +216,7 @@ export async function getCategories() {
   }
 
   // Filter out any categories that are just numbers or invalid
-  const validCategories = data?.filter(category => {
+  const validCategories = (data as any[])?.filter((category: any) => {
     return category.name &&
            category.name.trim() !== '' &&
            isNaN(Number(category.name.trim()))
@@ -334,7 +335,7 @@ export async function getSimilarProducts(productId: string, categoryId?: string,
       .select('*')
       .eq('status', 'published')
       .neq('id', productId)
-      .not('id', 'in', `(${data.map(p => p.id).join(',')})`)
+      .not('id', 'in', `(${(data as any[]).map((p: any) => p.id).join(',')})`)
       .order('bifl_total_score', { ascending: false })
       .limit(remainingLimit)
 
@@ -350,11 +351,7 @@ export async function getSimilarProducts(productId: string, categoryId?: string,
 export async function addReview(review: Database['public']['Tables']['reviews']['Insert']) {
   const supabase = await createClient()
 
-  const { data, error } = await supabase
-    .from('reviews')
-    .insert(review)
-    .select()
-    .single()
+  const { data, error } = await sb.insert(supabase, 'reviews', [review])
 
   if (error) {
     console.error('Error adding review:', error)
@@ -386,9 +383,7 @@ export async function toggleProductFeatured(productId: string, isFeatured: boole
   console.log('Found product:', existingProduct)
 
   // Update using admin client with full permissions
-  const { data, error, count } = await adminClient
-    .from('products')
-    .update({ is_featured: isFeatured })
+  const { data, error, count } = await sb.update(adminClient, 'products', { is_featured: isFeatured })
     .eq('id', productId)
     .select()
 

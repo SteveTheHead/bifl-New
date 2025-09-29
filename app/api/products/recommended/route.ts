@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { NextResponse } from 'next/server'
 import { Database } from '@/utils/supabase/types'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { sb } from '@/lib/supabase-utils'
 
 type SupabaseClientType = SupabaseClient<Database>
 type Review = Database['public']['Tables']['reviews']['Row']
@@ -16,7 +17,7 @@ export async function GET() {
 
     let recommendedProducts = []
 
-    if (user && !authError) {
+    if (user && !authError && user.email) {
       // Get user's personalized recommendations
       recommendedProducts = await getPersonalizedRecommendations(supabase, user.email)
     }
@@ -40,22 +41,24 @@ export async function GET() {
 async function getPersonalizedRecommendations(supabase: SupabaseClientType, userEmail: string) {
   try {
     // 1. Get user's favorite products to analyze their preferences
-    const { data: favorites, error: favError } = await supabase
-      .from('user_favorites')
-      .select(`
+    const { data: favorites, error: favError } = await sb.select(
+      supabase,
+      'user_favorites',
+      `
         product_id,
         products!inner(
           category_id,
           brand_id,
           bifl_total_score
         )
-      `)
-      .eq('user_email', userEmail)
+      `
+    ).eq('user_email', userEmail)
 
     // 2. Get user's reviews to analyze deeper preferences
-    const { data: userReviews, error: reviewError } = await supabase
-      .from('reviews')
-      .select(`
+    const { data: userReviews, error: reviewError } = await sb.select(
+      supabase,
+      'reviews',
+      `
         product_id,
         overall_rating,
         durability_rating,
@@ -70,7 +73,8 @@ async function getPersonalizedRecommendations(supabase: SupabaseClientType, user
           brand_id,
           bifl_total_score
         )
-      `)
+      `
+    )
       .eq('user_email', userEmail)
       .eq('status', 'approved')
 
@@ -82,18 +86,18 @@ async function getPersonalizedRecommendations(supabase: SupabaseClientType, user
 
     // 3. Analyze user preferences from favorites and reviews
     const allUserProducts = [
-      ...(favorites || []).map(f => ({
+      ...(favorites || []).map((f: any) => ({
         product_id: f.product_id,
-        category_id: f.products.category_id,
-        brand_id: f.products.brand_id,
-        bifl_total_score: f.products.bifl_total_score,
+        category_id: f.products?.category_id,
+        brand_id: f.products?.brand_id,
+        bifl_total_score: f.products?.bifl_total_score,
         source: 'favorite'
       })),
-      ...(userReviews || []).map(r => ({
+      ...(userReviews || []).map((r: any) => ({
         product_id: r.product_id,
-        category_id: r.products.category_id,
-        brand_id: r.products.brand_id,
-        bifl_total_score: r.products.bifl_total_score,
+        category_id: r.products?.category_id,
+        brand_id: r.products?.brand_id,
+        bifl_total_score: r.products?.bifl_total_score,
         overall_rating: r.overall_rating,
         durability_rating: r.durability_rating,
         repairability_rating: r.repairability_rating,
@@ -115,9 +119,10 @@ async function getPersonalizedRecommendations(supabase: SupabaseClientType, user
     const userPriorities = analyzeUserPriorities(userReviews || [])
 
     // 6. Build smart recommendation query based on user preferences
-    const baseQuery = supabase
-      .from('products')
-      .select(`
+    const baseQuery = sb.select(
+      supabase,
+      'products',
+      `
         id,
         name,
         price,
@@ -133,7 +138,8 @@ async function getPersonalizedRecommendations(supabase: SupabaseClientType, user
         created_at,
         affiliate_link,
         brands(name)
-      `)
+      `
+    )
       .eq('status', 'published')
       .not('bifl_total_score', 'is', null)
       .not('id', 'in', `(${userProductIds.join(',')})`) // Exclude already interacted products
@@ -153,9 +159,10 @@ async function getPersonalizedRecommendations(supabase: SupabaseClientType, user
 
     // 8. Add brand-based recommendations if needed
     if (recommendations.length < 6 && preferredBrands.length > 0) {
-      const { data: brandRecommendations, error: brandError } = await supabase
-        .from('products')
-        .select(`
+      const { data: brandRecommendations, error: brandError } = await sb.select(
+        supabase,
+        'products',
+        `
           id,
           name,
           price,
@@ -171,12 +178,13 @@ async function getPersonalizedRecommendations(supabase: SupabaseClientType, user
           created_at,
           affiliate_link,
           brands(name)
-        `)
+        `
+      )
         .eq('status', 'published')
         .not('bifl_total_score', 'is', null)
         .not('id', 'in', `(${userProductIds.join(',')})`)
         .in('brand_id', preferredBrands)
-        .not('id', 'in', `(${recommendations.map(p => p.id).join(',') || 'null'})`)
+        .not('id', 'in', `(${recommendations.map((p: any) => p.id).join(',') || 'null'})`)
         .order('bifl_total_score', { ascending: false })
         .limit(4)
 
@@ -186,15 +194,15 @@ async function getPersonalizedRecommendations(supabase: SupabaseClientType, user
     }
 
     // 9. Apply intelligent scoring based on user priorities
-    const scoredRecommendations = recommendations.map(product => ({
+    const scoredRecommendations = recommendations.map((product: any) => ({
       ...product,
       personalized_score: calculatePersonalizedScore(product, userPriorities)
     }))
 
     // 10. Sort by personalized score and format
     const sortedRecommendations = scoredRecommendations
-      .sort((a, b) => b.personalized_score - a.personalized_score)
-      .map(product => ({
+      .sort((a: any, b: any) => b.personalized_score - a.personalized_score)
+      .map((product: any) => ({
         ...product,
         brand_name: product.brands?.name || null
       }))
@@ -209,9 +217,10 @@ async function getPersonalizedRecommendations(supabase: SupabaseClientType, user
 
 async function getTopRatedProducts(supabase: SupabaseClientType) {
   try {
-    const { data: products, error } = await supabase
-      .from('products')
-      .select(`
+    const { data: products, error } = await sb.select(
+      supabase,
+      'products',
+      `
         id,
         name,
         price,
@@ -227,7 +236,8 @@ async function getTopRatedProducts(supabase: SupabaseClientType) {
         created_at,
         affiliate_link,
         brands(name)
-      `)
+      `
+    )
       .eq('status', 'published')
       .not('bifl_total_score', 'is', null)
       .order('bifl_total_score', { ascending: false })
@@ -239,7 +249,7 @@ async function getTopRatedProducts(supabase: SupabaseClientType) {
     }
 
     // Format products with brand name
-    return products?.map(product => ({
+    return products?.map((product: any) => ({
       ...product,
       brand_name: product.brands?.name || null
     })) || []
@@ -251,7 +261,7 @@ async function getTopRatedProducts(supabase: SupabaseClientType) {
 }
 
 // Analyze user's review patterns to understand their priorities
-function analyzeUserPriorities(userReviews: Review[]) {
+function analyzeUserPriorities(userReviews: any[]) {
   if (!userReviews || userReviews.length === 0) {
     return {
       durability: 1.0,
@@ -296,7 +306,7 @@ function analyzeUserPriorities(userReviews: Review[]) {
 }
 
 // Calculate personalized score for a product based on user priorities
-function calculatePersonalizedScore(product: Product, userPriorities: ReturnType<typeof analyzeUserPriorities>) {
+function calculatePersonalizedScore(product: any, userPriorities: ReturnType<typeof analyzeUserPriorities>) {
   const baseScore = product.bifl_total_score || 0
 
   // Apply user priority weights to different aspects

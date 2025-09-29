@@ -55,7 +55,7 @@ export default async function TestDatabasePage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {brands?.slice(0, 5).map((brand) => (
+                {brands?.slice(0, 5).map((brand: any) => (
                   <div key={brand.id} className="flex justify-between">
                     <span>{brand.name}</span>
                     <span className="text-sm text-muted-foreground">
@@ -81,7 +81,7 @@ export default async function TestDatabasePage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {priceRanges?.map((range) => (
+                {priceRanges?.map((range: any) => (
                   <div key={range.id} className="space-y-1">
                     <div className="font-medium">{range.name}</div>
                     <div className="text-sm text-muted-foreground">

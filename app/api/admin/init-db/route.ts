@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
+import { sb } from '@/lib/supabase-utils'
 
 export async function POST() {
   try {
     const supabase = await createClient()
 
     // Create admin_users table
-    const { error: tableError } = await supabase.rpc('create_admin_users_table')
+    const { error: tableError } = await sb.rpc(supabase, 'create_admin_users_table')
 
     if (tableError) {
       console.error('Error creating admin_users table:', tableError)
@@ -36,7 +37,7 @@ export async function POST() {
         `
 
         // Execute raw SQL
-        const { error: rawSqlError } = await supabase.rpc('exec_sql', { sql: createTableSQL })
+        const { error: rawSqlError } = await sb.rpc(supabase, 'exec_sql', { sql: createTableSQL })
 
         if (rawSqlError) {
           return NextResponse.json({

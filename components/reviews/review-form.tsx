@@ -137,7 +137,7 @@ export function ReviewForm({ productId, onReviewSubmitted }: ReviewFormProps) {
       const reviewData = {
         product_id: productId,
         user_email: user.email,
-        user_name: user.user_metadata?.name || user.email,
+        user_name: (user as any).user_metadata?.name || user.email,
         overall_rating: convertRatingForDB(Math.max(durabilityRating, repairabilityRating, warrantyRating, personalExperienceRating)) || 3,
         durability_rating: convertRatingForDB(durabilityRating),
         repairability_rating: convertRatingForDB(repairabilityRating),
@@ -206,7 +206,7 @@ export function ReviewForm({ productId, onReviewSubmitted }: ReviewFormProps) {
       console.error('Caught error:', err)
       console.error('Error type:', typeof err)
       console.error('Error constructor:', err?.constructor?.name)
-      console.error('Error message:', err?.message)
+      console.error('Error message:', (err as any)?.message)
       console.error('Error string:', String(err))
       console.error('Error JSON:', JSON.stringify(err, null, 2))
 

@@ -121,22 +121,22 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
       const searchLower = search.toLowerCase()
       filtered = filtered.filter(product =>
         product.name?.toLowerCase().includes(searchLower) ||
-        product.wordpress_meta?.brand_name?.toLowerCase().includes(searchLower) ||
-        product.description?.toLowerCase().includes(searchLower)
+        (product as any).wordpress_meta?.brand_name?.toLowerCase().includes(searchLower) ||
+        (product as any).description?.toLowerCase().includes(searchLower)
       )
     }
 
     // Apply category filter
     if (selectedCategories.length > 0) {
       filtered = filtered.filter(product =>
-        selectedCategories.includes(product.category_id)
+        selectedCategories.includes((product as any).category_id)
       )
     }
 
     // Apply brand filter
     if (selectedBrands.length > 0) {
       filtered = filtered.filter(product =>
-        selectedBrands.includes(product.wordpress_meta?.brand_name)
+        selectedBrands.includes((product as any).wordpress_meta?.brand_name)
       )
     }
 
@@ -168,7 +168,7 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
     // Apply country filter
     if (selectedCountries.length > 0) {
       filtered = filtered.filter(product =>
-        selectedCountries.includes(product.country_of_origin)
+        product.country_of_origin && selectedCountries.includes(product.country_of_origin)
       )
     }
 
@@ -177,7 +177,7 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
 
   const priceStats = useMemo(() => {
     if (filteredProductsForPriceCalc.length === 0) return { min: 0, max: 1000 }
-    const prices = filteredProductsForPriceCalc.map(p => parseFloat(p.price)).filter(p => !isNaN(p))
+    const prices = filteredProductsForPriceCalc.map(p => parseFloat(p.price?.toString() || '0')).filter(p => !isNaN(p))
     if (prices.length === 0) return { min: 0, max: 1000 }
     return {
       min: Math.floor(Math.min(...prices)),
@@ -297,13 +297,13 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
   // Calculate product counts for categories and brands
   const getCategoryCount = (categoryId: string) => {
     if (!products) return 0
-    return products.filter(product => product.category_id === categoryId).length
+    return products.filter(product => (product as any).category_id === categoryId).length
   }
 
   const getBrandCount = (brandName: string) => {
     if (!products) return 0
     return products.filter(product =>
-      product.wordpress_meta?.brand_name === brandName
+      (product as any).wordpress_meta?.brand_name === brandName
     ).length
   }
 
@@ -330,7 +330,7 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
   // Get unique brands from product metadata
   const allBrands = products ?
     [...new Set(products
-      .map(product => product.wordpress_meta?.brand_name)
+      .map(product => (product as any).wordpress_meta?.brand_name)
       .filter(brand => brand && brand.trim() !== '')
     )].sort() : []
 
@@ -587,7 +587,7 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
             <div className="mb-8">
               <h4 className="font-semibold mb-4 text-lg">Country of Origin</h4>
               <ul className="space-y-2 text-brand-gray max-h-48 overflow-y-auto">
-                {countries.map((country) => (
+                {countries.map((country) => country && (
                   <li key={country}>
                     <label className="flex items-center justify-between hover:text-brand-dark transition-colors cursor-pointer">
                       <div className="flex items-center gap-3">

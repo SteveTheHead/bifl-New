@@ -284,7 +284,7 @@ export default function UserDashboardPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {recentlyViewed.slice(0, 8).map((product) => (
-                <MiniRecentlyViewedCard key={product.id} product={product} />
+                <MiniRecentlyViewedCard key={product.id} product={product as any} />
               ))}
             </div>
           </div>

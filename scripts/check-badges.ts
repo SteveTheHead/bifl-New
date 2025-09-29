@@ -23,7 +23,7 @@ async function checkBadgeData() {
   }
 
   console.log(`Found ${products?.length || 0} products with badge certifications:`)
-  console.log('=' * 80)
+  console.log('='.repeat(80))
 
   products?.forEach(product => {
     console.log(`📦 ${product.name}`)
@@ -40,7 +40,7 @@ async function checkBadgeData() {
 
   if (!statsError && badgeStats) {
     console.log('\nBadge Distribution:')
-    console.log('=' * 40)
+    console.log('='.repeat(40))
     const distribution = badgeStats.reduce((acc: any, product) => {
       acc[product.bifl_certification] = (acc[product.bifl_certification] || 0) + 1
       return acc

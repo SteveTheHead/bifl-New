@@ -13,8 +13,8 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createClient()
 
-    // Find admin user in database
-    const { data: adminUser, error: fetchError } = await supabase
+    // Find admin user in database (using type assertion for temporary fix)
+    const { data: adminUser, error: fetchError } = await (supabase as any)
       .from('admin_users')
       .select('*')
       .eq('email', email.toLowerCase())
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify password
-    const isPasswordValid = await PasswordUtils.verify(password, adminUser.password_hash)
+    const isPasswordValid = await PasswordUtils.verify(password, (adminUser as any).password_hash)
 
     if (!isPasswordValid) {
       return NextResponse.json({
@@ -37,10 +37,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Update last login timestamp
-    const { error: updateError } = await supabase
+    const { error: updateError } = await (supabase as any)
       .from('admin_users')
       .update({ last_login: new Date().toISOString() })
-      .eq('id', adminUser.id)
+      .eq('id', (adminUser as any).id)
 
     if (updateError) {
       console.warn('Failed to update last login:', updateError)
@@ -48,10 +48,10 @@ export async function POST(request: NextRequest) {
 
     // Create admin session token (you can implement JWT or use simple session storage)
     const adminSession = {
-      id: adminUser.id,
-      email: adminUser.email,
-      name: adminUser.name,
-      role: adminUser.role,
+      id: (adminUser as any).id,
+      email: (adminUser as any).email,
+      name: (adminUser as any).name,
+      role: (adminUser as any).role,
       loginTime: Date.now()
     }
 
@@ -61,10 +61,10 @@ export async function POST(request: NextRequest) {
       success: true,
       message: 'Admin login successful',
       user: {
-        id: adminUser.id,
-        email: adminUser.email,
-        name: adminUser.name,
-        role: adminUser.role,
+        id: (adminUser as any).id,
+        email: (adminUser as any).email,
+        name: (adminUser as any).name,
+        role: (adminUser as any).role,
         isAdmin: true
       }
     })

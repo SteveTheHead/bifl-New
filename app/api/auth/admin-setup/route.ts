@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import { PasswordUtils } from '@/lib/auth/password'
+import { sb } from '@/lib/supabase-utils'
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,7 +28,7 @@ export async function POST(request: NextRequest) {
 
       if (tableCheckError && (tableCheckError.code === 'PGRST116' || tableCheckError.code === 'PGRST205')) {
         // Table doesn't exist, create it using the SQL editor approach
-        const { error: createError } = await supabase.rpc('create_admin_users_table_if_not_exists')
+        const { error: createError } = await sb.rpc(supabase, 'create_admin_users_table_if_not_exists')
 
         if (createError) {
           console.error('Error creating admin_users table via RPC:', createError)
@@ -35,7 +36,7 @@ export async function POST(request: NextRequest) {
           // Fallback: Try using simple SQL execution
           try {
             // Create admin_users table directly
-            await supabase.from('_admin_setup').insert([{
+            await sb.insert(supabase, '_admin_setup', [{
               setup_complete: true,
               created_at: new Date().toISOString()
             }])
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest) {
       console.error('Table check error:', tableError)
       return NextResponse.json({
         error: 'Database connectivity issue. Please try again later.',
-        details: tableError.message
+        details: tableError instanceof Error ? tableError.message : 'Unknown error'
       }, { status: 503 })
     }
 
@@ -71,23 +72,21 @@ export async function POST(request: NextRequest) {
     const passwordHash = await PasswordUtils.hash(password)
 
     // Create the admin user in our custom table
-    const { data: adminUser, error: insertError } = await supabase
-      .from('admin_users')
-      .insert([{
-        email: email.toLowerCase(),
-        password_hash: passwordHash,
-        name: 'Admin User',
-        role: 'admin',
-        is_active: true
-      }])
-      .select()
-      .single()
+    const { data: adminUsers, error: insertError } = await sb.insert(supabase, 'admin_users', [{
+      email: email.toLowerCase(),
+      password_hash: passwordHash,
+      name: 'Admin User',
+      role: 'admin',
+      is_active: true
+    }])
 
-    if (insertError) {
+    const adminUser = adminUsers?.[0]
+
+    if (insertError || !adminUser) {
       console.error('Error creating admin user:', insertError)
       return NextResponse.json({
         error: 'Failed to create admin account',
-        details: insertError.message
+        details: insertError?.message || 'User creation failed'
       }, { status: 500 })
     }
 
@@ -95,10 +94,10 @@ export async function POST(request: NextRequest) {
       success: true,
       message: 'Admin account created successfully',
       user: {
-        id: adminUser.id,
-        email: adminUser.email,
-        name: adminUser.name,
-        role: adminUser.role
+        id: (adminUser as any).id,
+        email: (adminUser as any).email,
+        name: (adminUser as any).name,
+        role: (adminUser as any).role
       }
     })
 

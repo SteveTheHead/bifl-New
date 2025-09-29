@@ -33,12 +33,12 @@ export async function generateMetadata({ params }: ProductPageProps) {
   }
 
   return {
-    title: `${product.name} | BIFL Products`,
-    description: product.excerpt || product.description,
+    title: `${(product as any).name} | BIFL Products`,
+    description: (product as any).excerpt || (product as any).description,
     openGraph: {
-      title: product.name,
-      description: product.excerpt || product.description,
-      images: product.featured_image_url ? [product.featured_image_url] : [],
+      title: (product as any).name,
+      description: (product as any).excerpt || (product as any).description,
+      images: (product as any).featured_image_url ? [(product as any).featured_image_url] : [],
     },
   }
 }

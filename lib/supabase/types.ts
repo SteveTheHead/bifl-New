@@ -599,6 +599,58 @@ export interface Database {
           updated_at?: string
         }
       }
+      admin_users: {
+        Row: {
+          id: string
+          email: string
+          password_hash: string
+          name: string
+          role: string
+          is_active: boolean
+          last_login: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          email: string
+          password_hash: string
+          name: string
+          role: string
+          is_active?: boolean
+          last_login?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          email?: string
+          password_hash?: string
+          name?: string
+          role?: string
+          is_active?: boolean
+          last_login?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      _admin_setup: {
+        Row: {
+          id: string
+          setup_complete: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          setup_complete: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          setup_complete?: boolean
+          created_at?: string
+        }
+      }
     }
     Views: {
       products_with_taxonomy: {
@@ -643,6 +695,46 @@ export interface Database {
           created_at: string | null
         }
       }
+      user_recently_viewed: {
+        Row: {
+          id: string
+          user_email: string
+          product_id: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          user_email: string
+          product_id: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          user_email?: string
+          product_id?: string
+          viewed_at?: string
+        }
+      }
+      user_favorites: {
+        Row: {
+          id: string
+          user_email: string
+          product_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_email: string
+          product_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_email?: string
+          product_id?: string
+          created_at?: string
+        }
+      }
     }
     Functions: {
       calculate_bifl_score: {
@@ -654,6 +746,32 @@ export interface Database {
           war_score: number
         }
         Returns: number
+      }
+      exec_sql: {
+        Args: {
+          sql: string
+        }
+        Returns: undefined
+      }
+      create_admin_users_table: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      create_admin_users_table_if_not_exists: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      increment_helpful_count: {
+        Args: {
+          review_id: string
+        }
+        Returns: undefined
+      }
+      increment_report_count: {
+        Args: {
+          review_id: string
+        }
+        Returns: undefined
       }
     }
     Enums: {

@@ -18,8 +18,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
-    const currentPrice = parseFloat(product.price || '0')
-    const productName = `${product.name} - ${product.brands?.name || 'Unknown Brand'}`
+    const currentPrice = parseFloat((product as any).price || '0')
+    const productName = `${(product as any).name} - ${(product as any).brands?.name || 'Unknown Brand'}`
 
     // Generate sample price history if none provided (for demonstration)
     const finalPriceHistory: PricePoint[] = priceHistory || generateSamplePriceHistory(currentPrice)
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       product: {
-        id: product.id,
+        id: (product as any).id,
         name: productName,
         currentPrice
       },
@@ -118,8 +118,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       productId,
-      name: product.name,
-      currentPrice: parseFloat(product.price || '0'),
+      name: (product as any).name,
+      currentPrice: parseFloat((product as any).price || '0'),
       analysisAvailable: true,
       message: 'Use POST request with price history for full analysis'
     })

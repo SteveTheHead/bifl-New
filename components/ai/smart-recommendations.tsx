@@ -181,7 +181,7 @@ export function SmartRecommendations({
             </div>
             <div>
               <span className="text-blue-600">Engagement:</span>
-              <span className="ml-2 font-semibold">{behaviorData.preferences.engagementLevel}/100</span>
+              <span className="ml-2 font-semibold">{(behaviorData.preferences.engagementLevel as any)}/100</span>
             </div>
           </div>
           {reasoning && (

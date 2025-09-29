@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useSession } from '@/components/auth/auth-client'
 import { useFavorites } from '@/lib/hooks/use-favorites'
+import { sb } from '@/lib/supabase-utils'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Sparkles, Star, TrendingUp, Clock, User } from 'lucide-react'
@@ -33,10 +34,6 @@ export function RecommendationEngine() {
   const [recommendations, setRecommendations] = useState<RecommendationSection[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    generateRecommendations()
-  }, [session, favorites, generateRecommendations])
-
   const generateRecommendations = useCallback(async () => {
     setLoading(true)
     try {
@@ -57,8 +54,7 @@ export function RecommendationEngine() {
       }
 
       // 2. Top-rated products (BIFL Legends)
-      const { data: topRated } = await supabase
-        .from('products_with_taxonomy')
+      const { data: topRated } = await sb.from(supabase, 'products_with_taxonomy')
         .select('*')
         .eq('status', 'published')
         .gte('bifl_total_score', 9.0)
@@ -86,8 +82,7 @@ export function RecommendationEngine() {
       }
 
       // 4. Recently added high-quality products
-      const { data: recentlyAdded } = await supabase
-        .from('products_with_taxonomy')
+      const { data: recentlyAdded } = await sb.from(supabase, 'products_with_taxonomy')
         .select('*')
         .eq('status', 'published')
         .gte('bifl_total_score', 7.5)
@@ -122,58 +117,54 @@ export function RecommendationEngine() {
     }
   }, [session, favorites])
 
+  useEffect(() => {
+    generateRecommendations()
+  }, [generateRecommendations])
+
   const getPersonalizedRecommendations = async (userFavorites: string[]): Promise<Product[]> => {
     try {
       const supabase = createClient()
 
       // Get user's favorite products to analyze preferences
-      const { data: favoriteProducts } = await supabase
-        .from('products_with_taxonomy')
+      const { data: favoriteProducts } = await sb.from(supabase, 'products_with_taxonomy')
         .select('*')
         .in('id', userFavorites)
 
       if (!favoriteProducts || favoriteProducts.length === 0) return []
 
       // Analyze user preferences
-      const categoryPreferences = new Map<string, number>()
-      const brandPreferences = new Map<string, number>()
-      let avgPriceRange = 0
-      let avgScorePreference = 0
+      const categoryPreferences = {} as any
+      const brandPreferences = {} as any
+      let avgPriceRange = 0 as any
+      let scoreSum = 0 as any
 
-      favoriteProducts.forEach(product => {
+      (favoriteProducts as any[]).forEach((product: any) => {
         if (product.category_name) {
-          categoryPreferences.set(
-            product.category_name,
-            (categoryPreferences.get(product.category_name) || 0) + 1
-          )
+          categoryPreferences[product.category_name] = (categoryPreferences[product.category_name] || 0) + 1
         }
         if (product.brand_name) {
-          brandPreferences.set(
-            product.brand_name,
-            (brandPreferences.get(product.brand_name) || 0) + 1
-          )
+          brandPreferences[product.brand_name] = (brandPreferences[product.brand_name] || 0) + 1
         }
         if (product.price) avgPriceRange += product.price
-        if (product.bifl_total_score) avgScorePreference += product.bifl_total_score
+        if (product.bifl_total_score) scoreSum += product.bifl_total_score
       })
 
       // avgPriceRange = avgPriceRange / favoriteProducts.length // Unused variable
-      avgScorePreference = avgScorePreference / favoriteProducts.length
+      const averageScore = scoreSum / (favoriteProducts as any[]).length
 
       // Get top preferred categories and brands
-      const topCategories = Array.from(categoryPreferences.entries())
-        .sort(([,a], [,b]) => b - a)
+      const topCategories = Object.entries(categoryPreferences)
+        .sort(([,a], [,b]) => (b as number) - (a as number))
         .slice(0, 3)
         .map(([category]) => category)
 
-      const topBrands = Array.from(brandPreferences.entries())
-        .sort(([,a], [,b]) => b - a)
+      const topBrands = Object.entries(brandPreferences)
+        .sort(([,a], [,b]) => (b as number) - (a as number))
         .slice(0, 3)
         .map(([brand]) => brand)
 
       // Find similar products
-      const { data: recommendations } = await supabase
-        .from('products_with_taxonomy')
+      const { data: recommendations } = await sb.from(supabase, 'products_with_taxonomy')
         .select('*')
         .eq('status', 'published')
         .not('id', 'in', `(${userFavorites.join(',')})`)
@@ -181,7 +172,7 @@ export function RecommendationEngine() {
           topCategories.map(cat => `category_name.eq.${cat}`).join(',') + ',' +
           topBrands.map(brand => `brand_name.eq.${brand}`).join(',')
         )
-        .gte('bifl_total_score', Math.max(avgScorePreference - 1, 6))
+        .gte('bifl_total_score', Math.max(averageScore - 1, 6))
         .order('bifl_total_score', { ascending: false })
         .limit(8)
 
@@ -198,8 +189,7 @@ export function RecommendationEngine() {
 
       // This would typically use view count or recent favorites data
       // For now, we'll use products with high scores and recent activity
-      const { data: trending } = await supabase
-        .from('products_with_taxonomy')
+      const { data: trending } = await sb.from(supabase, 'products_with_taxonomy')
         .select('*')
         .eq('status', 'published')
         .gte('bifl_total_score', 8.0)
@@ -218,29 +208,27 @@ export function RecommendationEngine() {
       const supabase = createClient()
 
       // Get top product from each major category
-      const { data: categories } = await supabase
-        .from('products_with_taxonomy')
+      const { data: categories } = await sb.from(supabase, 'products_with_taxonomy')
         .select('category_name')
         .eq('status', 'published')
         .not('category_name', 'is', null)
 
-      const categoryCount = new Map<string, number>()
-      categories?.forEach(item => {
+      const categoryCount = {} as any
+      (categories as any[])?.forEach((item: any) => {
         if (item.category_name) {
-          categoryCount.set(item.category_name, (categoryCount.get(item.category_name) || 0) + 1)
+          categoryCount[item.category_name] = (categoryCount[item.category_name] || 0) + 1
         }
       })
 
-      const topCategories = Array.from(categoryCount.entries())
-        .sort(([,a], [,b]) => b - a)
+      const topCategories = Object.entries(categoryCount)
+        .sort(([,a], [,b]) => (b as number) - (a as number))
         .slice(0, 6)
         .map(([category]) => category)
 
       const categoryRecs: Product[] = []
 
       for (const category of topCategories) {
-        const { data: products } = await supabase
-          .from('products_with_taxonomy')
+        const { data: products } = await sb.from(supabase, 'products_with_taxonomy')
           .select('*')
           .eq('status', 'published')
           .eq('category_name', category)
@@ -248,7 +236,7 @@ export function RecommendationEngine() {
           .limit(1)
 
         if (products && products[0]) {
-          categoryRecs.push(products[0])
+          categoryRecs.push(products[0] as any)
         }
       }
 

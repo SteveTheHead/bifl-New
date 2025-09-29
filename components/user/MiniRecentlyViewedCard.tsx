@@ -80,13 +80,13 @@ export function MiniRecentlyViewedCard({ product }: MiniRecentlyViewedCardProps)
               </div>
 
               {/* Buy Now Button - Top Right */}
-              {product.affiliate_link && (
+              {(product as any).affiliate_link && (
                 <button
                   className="text-white px-2 py-1 rounded text-xs font-medium hover:opacity-90 transition-opacity ml-2"
                   style={{ backgroundColor: '#4A9D93' }}
                   onClick={(e) => {
                     e.stopPropagation()
-                    window.open(product.affiliate_link, '_blank', 'noopener,noreferrer')
+                    window.open((product as any).affiliate_link, '_blank', 'noopener,noreferrer')
                   }}
                 >
                   Buy Now

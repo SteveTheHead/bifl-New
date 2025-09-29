@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Format products with brand name
-    const formattedProducts = products?.map(product => ({
+    const formattedProducts = products?.map((product: any) => ({
       ...product,
       brand_name: product.brands?.name || null
     })) || []

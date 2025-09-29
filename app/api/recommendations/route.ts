@@ -65,7 +65,7 @@ async function getProductBasedRecommendations(productId: string): Promise<Produc
   }
 
   const allProducts = await getProducts(0) // Get all products
-  const otherProducts = allProducts.filter(p => p.id !== productId)
+  const otherProducts = allProducts.filter((p: any) => p.id !== productId)
 
   // Use AI to find similar products
   const prompt = `Based on this BIFL product, recommend 5-8 similar products that would appeal to the same buyer:
@@ -97,7 +97,7 @@ Return only the product names exactly as they appear, one per line.`
       .filter(line => line.length > 0)
 
     const matchedProducts = recommendedNames
-      .map(name => otherProducts.find(p =>
+      .map(name => otherProducts.find((p: any) =>
         p.name?.toLowerCase().includes(name.toLowerCase()) ||
         name.toLowerCase().includes(p.name?.toLowerCase() || '')
       ))
@@ -107,21 +107,21 @@ Return only the product names exactly as they appear, one per line.`
     // If AI didn't find enough matches, supplement with category-based matches
     if (matchedProducts.length < 4) {
       const categoryMatches = otherProducts
-        .filter(p => p.category_id === sourceProduct.category_id)
-        .sort((a, b) => (b.bifl_total_score || 0) - (a.bifl_total_score || 0))
+        .filter((p: any) => p.category_id === (sourceProduct as any).category_id)
+        .sort((a: any, b: any) => (b.bifl_total_score || 0) - (a.bifl_total_score || 0))
         .slice(0, 6 - matchedProducts.length)
 
       matchedProducts.push(...categoryMatches)
     }
 
-    return matchedProducts.slice(0, 6)
+    return matchedProducts.slice(0, 6) as any
 
   } catch (error) {
     console.error('AI recommendation failed, using fallback:', error)
     // Fallback to category-based recommendations
     return otherProducts
-      .filter(p => p.category_id === sourceProduct.category_id)
-      .sort((a, b) => (b.bifl_total_score || 0) - (a.bifl_total_score || 0))
+      .filter((p: any) => p.category_id === (sourceProduct as any).category_id)
+      .sort((a: any, b: any) => (b.bifl_total_score || 0) - (a.bifl_total_score || 0))
       .slice(0, 6)
   }
 }
@@ -136,14 +136,14 @@ async function getPreferenceBasedRecommendations(
   let filteredProducts = allProducts
 
   if (preferences?.categories && preferences.categories.length > 0) {
-    filteredProducts = filteredProducts.filter(p =>
+    filteredProducts = filteredProducts.filter((p: any) =>
       preferences.categories!.includes(p.category_id || '')
     )
   }
 
   if (preferences?.priceRange) {
     const [minPrice, maxPrice] = preferences.priceRange
-    filteredProducts = filteredProducts.filter(p => {
+    filteredProducts = filteredProducts.filter((p: any) => {
       const price = parseFloat(p.price || '0')
       return price >= minPrice && price <= maxPrice
     })
@@ -178,19 +178,19 @@ Return only the product names exactly as they appear, one per line.`
       .filter(line => line.length > 0)
 
     const matchedProducts = recommendedNames
-      .map(name => filteredProducts.find(p =>
+      .map(name => filteredProducts.find((p: any) =>
         p.name?.toLowerCase().includes(name.toLowerCase()) ||
         name.toLowerCase().includes(p.name?.toLowerCase() || '')
       ))
       .filter(Boolean)
       .slice(0, 8)
 
-    return matchedProducts.length > 0 ? matchedProducts : getTrendingRecommendations()
+    return matchedProducts.length > 0 ? (matchedProducts as any) : getTrendingRecommendations()
 
   } catch (error) {
     console.error('AI preference recommendation failed:', error)
     return filteredProducts
-      .sort((a, b) => (b.bifl_total_score || 0) - (a.bifl_total_score || 0))
+      .sort((a: any, b: any) => (b.bifl_total_score || 0) - (a.bifl_total_score || 0))
       .slice(0, 8)
   }
 }
@@ -200,7 +200,7 @@ async function getTrendingRecommendations(): Promise<ProductWithTaxonomy[]> {
 
   // Simple trending algorithm: highest scored products
   return allProducts
-    .sort((a, b) => (b.bifl_total_score || 0) - (a.bifl_total_score || 0))
+    .sort((a: any, b: any) => (b.bifl_total_score || 0) - (a.bifl_total_score || 0))
     .slice(0, 8)
 }
 
@@ -216,8 +216,8 @@ async function getFallbackRecommendations(request: NextRequest): Promise<NextRes
 
     const allProducts = await getProducts(0)
     const similar = allProducts
-      .filter(p => p.id !== productId && p.category_id === sourceProduct.category_id)
-      .sort((a, b) => (b.bifl_total_score || 0) - (a.bifl_total_score || 0))
+      .filter((p: any) => p.id !== productId && p.category_id === (sourceProduct as any).category_id)
+      .sort((a: any, b: any) => (b.bifl_total_score || 0) - (a.bifl_total_score || 0))
       .slice(0, 6)
 
     return NextResponse.json({
