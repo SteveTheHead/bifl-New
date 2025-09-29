@@ -55,8 +55,7 @@ export default function AdminSignInPage() {
     setTimeout(() => {
       const formElement = document.querySelector('form')
       if (formElement) {
-        const event = { preventDefault: () => {}, target: formElement } as React.FormEvent<HTMLFormElement>
-        handleSignIn(event)
+        formElement.requestSubmit()
       }
     }, 100)
   }
