@@ -1,7 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
 
 export async function POST(request: NextRequest) {
   console.log('🔥 Avatar upload POST request received')
@@ -118,7 +117,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
+export async function DELETE() {
   try {
     const supabase = await createClient()
 

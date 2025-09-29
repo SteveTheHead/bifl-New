@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { aiService } from '@/lib/ai/service'
 import { SYSTEM_PROMPTS, formatProductForAI } from '@/lib/ai/prompts'
 import { getProducts, getProductById } from '@/lib/supabase/queries'
+import { Database } from '@/lib/supabase/types'
+
+type ProductWithTaxonomy = Database['public']['Views']['products_with_taxonomy']['Row']
 
 interface RecommendationRequest {
   productId?: string          // For "similar to this product" recommendations
@@ -28,7 +31,7 @@ export async function POST(request: NextRequest) {
     const body: RecommendationRequest = await request.json()
     const { productId, userPreferences, behaviorData } = body
 
-    let recommendations: any[]
+    let recommendations: ProductWithTaxonomy[]
 
     if (productId) {
       // Product-based recommendations
@@ -55,7 +58,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function getProductBasedRecommendations(productId: string): Promise<any[]> {
+async function getProductBasedRecommendations(productId: string): Promise<ProductWithTaxonomy[]> {
   const sourceProduct = await getProductById(productId)
   if (!sourceProduct) {
     throw new Error('Product not found')
@@ -126,7 +129,7 @@ Return only the product names exactly as they appear, one per line.`
 async function getPreferenceBasedRecommendations(
   preferences: RecommendationRequest['userPreferences'],
   behaviorData?: RecommendationRequest['behaviorData']
-): Promise<any[]> {
+): Promise<ProductWithTaxonomy[]> {
   const allProducts = await getProducts(0)
 
   // Filter products based on preferences
@@ -192,7 +195,7 @@ Return only the product names exactly as they appear, one per line.`
   }
 }
 
-async function getTrendingRecommendations(): Promise<any[]> {
+async function getTrendingRecommendations(): Promise<ProductWithTaxonomy[]> {
   const allProducts = await getProducts(0)
 
   // Simple trending algorithm: highest scored products

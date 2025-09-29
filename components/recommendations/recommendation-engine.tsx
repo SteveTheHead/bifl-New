@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useSession } from '@/components/auth/auth-client'
 import { useFavorites } from '@/lib/hooks/use-favorites'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Sparkles, Star, Heart, TrendingUp, Clock, User } from 'lucide-react'
+import { Sparkles, Star, TrendingUp, Clock, User } from 'lucide-react'
 
 interface Product {
   id: string
@@ -35,9 +35,9 @@ export function RecommendationEngine() {
 
   useEffect(() => {
     generateRecommendations()
-  }, [session, favorites])
+  }, [session, favorites, generateRecommendations])
 
-  const generateRecommendations = async () => {
+  const generateRecommendations = useCallback(async () => {
     setLoading(true)
     try {
       const supabase = createClient()
@@ -120,7 +120,7 @@ export function RecommendationEngine() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [session, favorites])
 
   const getPersonalizedRecommendations = async (userFavorites: string[]): Promise<Product[]> => {
     try {
@@ -157,7 +157,7 @@ export function RecommendationEngine() {
         if (product.bifl_total_score) avgScorePreference += product.bifl_total_score
       })
 
-      avgPriceRange = avgPriceRange / favoriteProducts.length
+      // avgPriceRange = avgPriceRange / favoriteProducts.length // Unused variable
       avgScorePreference = avgScorePreference / favoriteProducts.length
 
       // Get top preferred categories and brands

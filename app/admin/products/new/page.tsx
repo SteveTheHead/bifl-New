@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -18,7 +18,7 @@ interface Brand {
 
 export default function NewProductPage() {
   const router = useRouter()
-  const [session, setSession] = useState<any>(null)
+  const [session, setSession] = useState<{name?: string; email?: string; isAdmin?: boolean} | null>(null)
   const [loading, setLoading] = useState(true)
   const [categories, setCategories] = useState<Category[]>([])
   const [brands, setBrands] = useState<Brand[]>([])
@@ -65,17 +65,7 @@ export default function NewProductPage() {
     status: 'draft'
   })
 
-  useEffect(() => {
-    checkSession()
-  }, [])
-
-  useEffect(() => {
-    if (session) {
-      fetchCategoriesAndBrands()
-    }
-  }, [session])
-
-  const checkSession = async () => {
+  const checkSession = useCallback(async () => {
     try {
       const response = await fetch('/api/auth/simple-session')
       const data = await response.json()
@@ -90,7 +80,17 @@ export default function NewProductPage() {
       console.error('Session check error:', error)
       router.push('/auth/signin')
     }
-  }
+  }, [router])
+
+  useEffect(() => {
+    checkSession()
+  }, [checkSession])
+
+  useEffect(() => {
+    if (session) {
+      fetchCategoriesAndBrands()
+    }
+  }, [session])
 
   const fetchCategoriesAndBrands = async () => {
     try {
@@ -1014,7 +1014,7 @@ export default function NewProductPage() {
                 <option value="Eco Hero">Eco Hero (Sustainability score ≥ 8.0)</option>
               </select>
               <p className="text-xs text-brand-gray mt-1">
-                Select the appropriate badge based on the product's BIFL scores
+                Select the appropriate badge based on the product&apos;s BIFL scores
               </p>
             </div>
           </div>

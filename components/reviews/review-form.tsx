@@ -1,57 +1,8 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, X } from 'lucide-react'
 
-// Simple list component for pros/cons
-function SimpleList({ items, setItems, placeholder }: { items: string[]; setItems: (items: string[]) => void; placeholder: string }) {
-  const addItem = () => setItems([...items, ''])
-
-  const removeItem = (index: number) => {
-    const newItems = items.filter((_, i) => i !== index)
-    setItems(newItems.length === 0 ? [''] : newItems)
-  }
-
-  const updateItem = (index: number, value: string) => {
-    const newItems = [...items]
-    newItems[index] = value
-    setItems(newItems)
-  }
-
-  return (
-    <div className="space-y-1">
-      {items.map((item, index) => (
-        <div key={index} className="flex space-x-1">
-          <input
-            type="text"
-            value={item}
-            onChange={(e) => updateItem(index, e.target.value)}
-            className="flex-1 px-2 py-1.5 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-brand-teal focus:border-brand-teal"
-            placeholder={placeholder}
-          />
-          {items.length > 1 && (
-            <button
-              type="button"
-              onClick={() => removeItem(index)}
-              className="text-red-500 hover:text-red-700 px-1 flex-shrink-0"
-            >
-              <X className="w-3 h-3" />
-            </button>
-          )}
-        </div>
-      ))}
-      {items.length < 5 && (
-        <button
-          type="button"
-          onClick={addItem}
-          className="text-brand-teal hover:text-opacity-80 text-xs underline"
-        >
-          + Add
-        </button>
-      )}
-    </div>
-  )
-}
 
 // Get color and gradient based on score (exactly matching pill styling)
 function getScoreColor(score: number) {
@@ -85,7 +36,7 @@ interface ReviewFormProps {
 }
 
 export function ReviewForm({ productId, onReviewSubmitted }: ReviewFormProps) {
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<{ id: string; email?: string } | null>(null)
   const [authLoading, setAuthLoading] = useState(true)
   const [isClient, setIsClient] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
@@ -329,20 +280,21 @@ export function ReviewForm({ productId, onReviewSubmitted }: ReviewFormProps) {
   }
 
 
-  const addListItem = (list: string[], setList: (list: string[]) => void) => {
-    setList([...list, ''])
-  }
+  // Unused helper functions - commenting out
+  // const addListItem = (list: string[], setList: (list: string[]) => void) => {
+  //   setList([...list, ''])
+  // }
 
-  const removeListItem = (index: number, list: string[], setList: (list: string[]) => void) => {
-    const newList = list.filter((_, i) => i !== index)
-    setList(newList.length === 0 ? [''] : newList)
-  }
+  // const removeListItem = (index: number, list: string[], setList: (list: string[]) => void) => {
+  //   const newList = list.filter((_, i) => i !== index)
+  //   setList(newList.length === 0 ? [''] : newList)
+  // }
 
-  const updateListItem = (index: number, value: string, list: string[], setList: (list: string[]) => void) => {
-    const newList = [...list]
-    newList[index] = value
-    setList(newList)
-  }
+  // const updateListItem = (index: number, value: string, list: string[], setList: (list: string[]) => void) => {
+  //   const newList = [...list]
+  //   newList[index] = value
+  //   setList(newList)
+  // }
 
   // Show loading state while checking authentication
   if (authLoading) {

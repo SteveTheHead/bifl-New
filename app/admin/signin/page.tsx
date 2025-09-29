@@ -40,8 +40,8 @@ export default function AdminSignInPage() {
         window.location.replace('/admin')
       }, 1500)
 
-    } catch (error: any) {
-      setError(error.message)
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : 'An unknown error occurred')
     } finally {
       setLoading(false)
     }
@@ -53,7 +53,11 @@ export default function AdminSignInPage() {
 
     // Trigger the form submission after setting values
     setTimeout(() => {
-      handleSignIn(new Event('submit') as any)
+      const formElement = document.querySelector('form')
+      if (formElement) {
+        const event = { preventDefault: () => {}, target: formElement } as React.FormEvent<HTMLFormElement>
+        handleSignIn(event)
+      }
     }, 100)
   }
 

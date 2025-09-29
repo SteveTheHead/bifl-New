@@ -1,7 +1,13 @@
 import { createClient } from '@/utils/supabase/server'
 import { NextResponse } from 'next/server'
+import { Database } from '@/utils/supabase/types'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
-export async function GET(request: Request) {
+type SupabaseClientType = SupabaseClient<Database>
+type Review = Database['public']['Tables']['reviews']['Row']
+type Product = Database['public']['Tables']['products']['Row']
+
+export async function GET() {
   try {
     const supabase = await createClient()
 
@@ -31,7 +37,7 @@ export async function GET(request: Request) {
   }
 }
 
-async function getPersonalizedRecommendations(supabase: any, userEmail: string) {
+async function getPersonalizedRecommendations(supabase: SupabaseClientType, userEmail: string) {
   try {
     // 1. Get user's favorite products to analyze their preferences
     const { data: favorites, error: favError } = await supabase
@@ -109,7 +115,7 @@ async function getPersonalizedRecommendations(supabase: any, userEmail: string) 
     const userPriorities = analyzeUserPriorities(userReviews || [])
 
     // 6. Build smart recommendation query based on user preferences
-    let baseQuery = supabase
+    const baseQuery = supabase
       .from('products')
       .select(`
         id,
@@ -201,7 +207,7 @@ async function getPersonalizedRecommendations(supabase: any, userEmail: string) 
   }
 }
 
-async function getTopRatedProducts(supabase: any) {
+async function getTopRatedProducts(supabase: SupabaseClientType) {
   try {
     const { data: products, error } = await supabase
       .from('products')
@@ -245,7 +251,7 @@ async function getTopRatedProducts(supabase: any) {
 }
 
 // Analyze user's review patterns to understand their priorities
-function analyzeUserPriorities(userReviews: any[]) {
+function analyzeUserPriorities(userReviews: Review[]) {
   if (!userReviews || userReviews.length === 0) {
     return {
       durability: 1.0,
@@ -290,7 +296,7 @@ function analyzeUserPriorities(userReviews: any[]) {
 }
 
 // Calculate personalized score for a product based on user priorities
-function calculatePersonalizedScore(product: any, userPriorities: any) {
+function calculatePersonalizedScore(product: Product, userPriorities: ReturnType<typeof analyzeUserPriorities>) {
   const baseScore = product.bifl_total_score || 0
 
   // Apply user priority weights to different aspects

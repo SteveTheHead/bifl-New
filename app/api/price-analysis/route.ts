@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PriceAnalyzer, PricePoint } from '@/lib/ai/price-analysis'
+import { PriceAnalyzer, PricePoint, PriceAnalysis } from '@/lib/ai/price-analysis'
 import { getProductById } from '@/lib/supabase/queries'
 
 export async function POST(request: NextRequest) {
@@ -24,7 +24,15 @@ export async function POST(request: NextRequest) {
     // Generate sample price history if none provided (for demonstration)
     const finalPriceHistory: PricePoint[] = priceHistory || generateSamplePriceHistory(currentPrice)
 
-    let result: any = {}
+    const result: {
+      analysis?: PriceAnalysis;
+      prediction?: {
+        likelihood: number;
+        timeframe: string;
+        confidence: number;
+        reasoning: string;
+      };
+    } = {}
 
     if (analysisType === 'full' || analysisType === 'analysis') {
       // Full price analysis

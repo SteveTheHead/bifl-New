@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -76,24 +76,14 @@ function ScorePill({ rating }: { rating: number }) {
 
 export default function AdminReviews() {
   const router = useRouter()
-  const [session, setSession] = useState<any>(null)
+  const [session, setSession] = useState<{name?: string; email?: string; isAdmin?: boolean} | null>(null)
   const [loading, setLoading] = useState(true)
   const [reviews, setReviews] = useState<Review[]>([])
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending')
   const [selectedReview, setSelectedReview] = useState<Review | null>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
 
-  useEffect(() => {
-    checkSession()
-  }, [])
-
-  useEffect(() => {
-    if (session) {
-      fetchReviews()
-    }
-  }, [session, filter])
-
-  const checkSession = async () => {
+  const checkSession = useCallback(async () => {
     try {
       const response = await fetch('/api/auth/simple-session')
       const data = await response.json()
@@ -108,9 +98,9 @@ export default function AdminReviews() {
       console.error('Session check error:', error)
       router.push('/auth/signin')
     }
-  }
+  }, [router])
 
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
     try {
       const response = await fetch(`/api/admin/reviews?filter=${filter}`)
       const data = await response.json()
@@ -118,7 +108,17 @@ export default function AdminReviews() {
     } catch (error) {
       console.error('Failed to fetch reviews:', error)
     }
-  }
+  }, [filter])
+
+  useEffect(() => {
+    checkSession()
+  }, [checkSession])
+
+  useEffect(() => {
+    if (session) {
+      fetchReviews()
+    }
+  }, [session, fetchReviews])
 
   const handleReviewAction = async (reviewId: string, action: 'approve' | 'reject') => {
     setActionLoading(reviewId)
@@ -217,7 +217,7 @@ export default function AdminReviews() {
             ].map((tab) => (
               <button
                 key={tab.key}
-                onClick={() => setFilter(tab.key as any)}
+                onClick={() => setFilter(tab.key as 'all' | 'pending' | 'approved' | 'rejected')}
                 className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
                   filter === tab.key
                     ? 'border-brand-teal text-brand-teal'

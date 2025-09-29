@@ -3,7 +3,7 @@ interface LogContext {
   route?: string
   component?: string
   action?: string
-  [key: string]: any
+  [key: string]: unknown
 }
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error'
@@ -57,7 +57,7 @@ class Logger {
     }
   }
 
-  private sendToExternalService(level: LogLevel, message: string, context?: any) {
+  private sendToExternalService(_level: LogLevel, _message: string, _context?: unknown) {
     // Placeholder for external logging service integration
     // Examples: Sentry, LogRocket, DataDog, etc.
     //

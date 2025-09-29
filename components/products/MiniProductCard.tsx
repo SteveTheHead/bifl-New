@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 
 // Get gradient pill styling based on BIFL score
 function getScoreBadgeStyle(score: number) {
@@ -11,17 +12,19 @@ function getScoreBadgeStyle(score: number) {
   }
 }
 
-// Get score label for accessibility
-function getScoreLabel(score: number) {
-  if (score >= 9.0) return "Legend"
-  if (score >= 8.0) return "Excellent"
-  if (score >= 7.0) return "Good"
-  if (score >= 6.0) return "Fair"
-  return "Poor"
+
+interface MiniProduct {
+  id: string
+  name: string
+  brand_name?: string
+  featured_image_url?: string | null
+  price?: number | string | null
+  bifl_total_score?: number | null
+  affiliate_link?: string | null
 }
 
 interface MiniProductCardProps {
-  product: any
+  product: MiniProduct
 }
 
 export function MiniProductCard({ product }: MiniProductCardProps) {
@@ -33,10 +36,12 @@ export function MiniProductCard({ product }: MiniProductCardProps) {
         <div className="flex items-center space-x-3">
           {/* Mini Image */}
           <div className="flex-shrink-0">
-            <img
+            <Image
               className="w-12 h-12 object-cover rounded-md"
               src={product.featured_image_url || '/placeholder-product.png'}
               alt={product.name || 'Product'}
+              width={48}
+              height={48}
             />
           </div>
 

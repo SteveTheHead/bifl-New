@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
 // Temporary debug endpoint to check reviews
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     console.log('Debug Reviews API: Starting request')
 

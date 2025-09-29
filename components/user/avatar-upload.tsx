@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { Camera, Upload, X, User } from 'lucide-react'
+import Image from 'next/image'
+import { Camera, Upload, X } from 'lucide-react'
 
 interface AvatarUploadProps {
   currentAvatarUrl?: string | null
@@ -159,9 +160,11 @@ export function AvatarUpload({ currentAvatarUrl, userName, onAvatarUpdate }: Ava
       <div className="flex items-center space-x-4">
         <div className="relative">
           {displayImageUrl ? (
-            <img
+            <Image
               src={displayImageUrl}
               alt="Avatar"
+              width={80}
+              height={80}
               className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
             />
           ) : (
@@ -294,9 +297,11 @@ export function Avatar({ src, name, size = 'md', className = '' }: AvatarProps) 
 
   if (src) {
     return (
-      <img
+      <Image
         src={src}
         alt={name || 'User avatar'}
+        width={size === 'sm' ? 32 : size === 'md' ? 40 : size === 'lg' ? 48 : 64}
+        height={size === 'sm' ? 32 : size === 'md' ? 40 : size === 'lg' ? 48 : 64}
         className={baseClasses}
       />
     )

@@ -24,7 +24,7 @@ export async function GET(
     const productName = currentProduct.name || ''
     const brandName = currentProduct.brand_name || ''
     const categoryName = currentProduct.category_name || ''
-    const description = currentProduct.description || ''
+    // const description = currentProduct.description || '' // Unused variable
 
     // Create search keywords from product name, removing common words
     const commonWords = ['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', '&']
@@ -160,7 +160,7 @@ export async function GET(
     }
 
     // Remove the relevanceScore from the response
-    const cleanProducts = finalProducts.map(({ relevanceScore, ...product }) => product)
+    const cleanProducts = finalProducts.map(({ relevanceScore: _relevanceScore, ...product }) => product)
 
     return NextResponse.json({
       products: cleanProducts.slice(0, 2)

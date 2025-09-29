@@ -157,7 +157,7 @@ Format as JSON with keys: recommendation, reasoning, bestTimeToBuy, seasonalPatt
     trend: string
   ): PriceAnalysis {
     const priceVsAvg = (currentPrice - avgPrice) / avgPrice
-    const priceVsLow = (currentPrice - lowestPrice) / lowestPrice
+    // const _priceVsLow = (currentPrice - lowestPrice) / lowestPrice // Unused variable
 
     let recommendation: 'buy_now' | 'wait' | 'watch'
     let reasoning: string
@@ -181,7 +181,7 @@ Format as JSON with keys: recommendation, reasoning, bestTimeToBuy, seasonalPatt
       avgPrice,
       lowestPrice,
       highestPrice,
-      trend: trend as any,
+      trend: trend as 'rising' | 'falling' | 'stable',
       recommendation,
       reasoning,
       savings: recommendation === 'wait' ? Math.round(currentPrice - lowestPrice) : undefined

@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 
 // Get gradient pill styling based on BIFL score
 function getScoreBadgeStyle(score: number) {
@@ -29,8 +30,19 @@ function formatViewedAt(dateString: string) {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
+interface Product {
+  id: string
+  name: string
+  slug: string
+  brand_name?: string
+  featured_image_url?: string | null
+  bifl_total_score?: number | null
+  price?: number | null
+  viewed_at?: string
+}
+
 interface MiniRecentlyViewedCardProps {
-  product: any
+  product: Product
 }
 
 export function MiniRecentlyViewedCard({ product }: MiniRecentlyViewedCardProps) {
@@ -42,10 +54,12 @@ export function MiniRecentlyViewedCard({ product }: MiniRecentlyViewedCardProps)
         <div className="flex items-center space-x-3">
           {/* Mini Image */}
           <div className="flex-shrink-0 relative">
-            <img
+            <Image
               className="w-12 h-12 object-cover rounded-md"
               src={product.featured_image_url || '/placeholder-product.png'}
               alt={product.name || 'Product'}
+              width={48}
+              height={48}
             />
             {/* Tiny timestamp badge */}
             {product.viewed_at && (

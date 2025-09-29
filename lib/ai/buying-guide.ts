@@ -1,5 +1,17 @@
 import { AIService } from './service'
 
+interface Product {
+  name: string
+  brand_name?: string
+  price?: number
+  durability_score?: number
+  repairability_score?: number
+  warranty_years?: number
+  key_features?: string[]
+  pros?: string[]
+  cons?: string[]
+}
+
 export interface BuyingGuideSection {
   title: string
   content: string
@@ -28,7 +40,7 @@ export class BuyingGuideGenerator {
   async generateBuyingGuide(
     categoryName: string,
     categoryDescription: string | null,
-    products: any[]
+    products: Product[]
   ): Promise<BuyingGuide> {
     const prompt = this.createBuyingGuidePrompt(categoryName, categoryDescription, products)
 
@@ -44,7 +56,7 @@ export class BuyingGuideGenerator {
   private createBuyingGuidePrompt(
     categoryName: string,
     categoryDescription: string | null,
-    products: any[]
+    products: Product[]
   ): string {
     const productInfo = products.slice(0, 10).map(p => ({
       name: p.name,

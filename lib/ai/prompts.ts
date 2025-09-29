@@ -1,3 +1,23 @@
+// Type definitions for product and category data
+interface Product {
+  name: string
+  brand_name?: string
+  category_name?: string
+  price?: number
+  bifl_total_score?: number
+  primary_material?: string
+  warranty_years?: number
+  use_case?: string
+  description?: string
+  country_of_origin?: string
+}
+
+interface Category {
+  id: string
+  name: string
+  description?: string
+}
+
 // System prompts for different AI tasks
 export const SYSTEM_PROMPTS = {
   // Admin-side content generation
@@ -77,7 +97,7 @@ Provide actionable insights about when and where to buy for the best value.`
 }
 
 // Utility functions for formatting product data for AI
-export function formatProductForAI(product: any): string {
+export function formatProductForAI(product: Product): string {
   return `Product: ${product.name}
 Brand: ${product.brand_name || 'Unknown'}
 Category: ${product.category_name || 'Unknown'}
@@ -90,14 +110,14 @@ Description: ${product.description || 'No description available'}
 Country of Origin: ${product.country_of_origin || 'Not specified'}`
 }
 
-export function formatProductsForComparison(products: any[]): string {
+export function formatProductsForComparison(products: Product[]): string {
   return products.map((product, index) => `
 Product ${index + 1}:
 ${formatProductForAI(product)}
 `).join('\n---\n')
 }
 
-export function formatCategoryData(category: any, products: any[]): string {
+export function formatCategoryData(category: Category, products: Product[]): string {
   const topProducts = products
     .filter(p => p.category_id === category.id)
     .sort((a, b) => (b.bifl_total_score || 0) - (a.bifl_total_score || 0))

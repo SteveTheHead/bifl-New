@@ -1,34 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { ThumbsUp, Flag, Shield, CheckCircle, Star, ChevronDown, ChevronUp } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import { ThumbsUp, Flag, CheckCircle, ChevronDown, ChevronUp } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useSession } from '@/components/auth/auth-client'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
-// Get gradient pill styling based on rating
-function getScoreBadgeStyle(score: number) {
-  const scoreString = score.toString()
-  return {
-    className: "score-field px-3 py-1 rounded-full transform transition-all duration-300",
-    dataScore: scoreString
-  }
-}
-
-// Calculate average rating from individual ratings (convert from 1-5 scale to 0-10 scale)
-function calculateAverageRating(review: Review): number {
-  const ratings = [
-    review.durability_rating,
-    review.repairability_rating,
-    review.warranty_rating,
-    review.value_rating
-  ].filter(rating => rating !== null && rating !== undefined) as number[]
-
-  if (ratings.length === 0) return 0
-  // Convert from 1-5 scale back to 0-10 scale, then average
-  const convertedRatings = ratings.map(rating => rating * 2)
-  return convertedRatings.reduce((sum, rating) => sum + rating, 0) / convertedRatings.length
-}
 
 // Pill score display component (matching site-wide styling with dynamic gradient)
 function ScorePill({ rating }: { rating: number }) {
@@ -101,9 +78,9 @@ export function ReviewsList({ productId, refreshTrigger }: ReviewsListProps) {
 
   useEffect(() => {
     fetchReviews()
-  }, [productId, refreshTrigger])
+  }, [productId, refreshTrigger, fetchReviews])
 
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -128,7 +105,7 @@ export function ReviewsList({ productId, refreshTrigger }: ReviewsListProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [productId])
 
   const handleHelpful = async (reviewId: string) => {
     if (!session?.user) return

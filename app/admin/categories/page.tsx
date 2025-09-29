@@ -11,7 +11,6 @@ import {
   Trash2,
   Tag,
   ArrowUpDown,
-  BookOpen,
   RefreshCw,
   Eye
 } from 'lucide-react'

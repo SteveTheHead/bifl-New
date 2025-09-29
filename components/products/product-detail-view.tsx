@@ -61,8 +61,44 @@ function renderHTMLContent(htmlContent: string | null): JSX.Element | null {
   )
 }
 
+interface Product {
+  id: string
+  name: string
+  slug?: string
+  featured_image_url?: string | null
+  gallery_images?: string[] | null
+  price?: number | string | null
+  bifl_total_score?: number | null
+  durability_score?: number | null
+  repairability_score?: number | null
+  warranty_score?: number | null
+  social_score?: number | null
+  sustainability_score?: number | null
+  wordpress_meta?: {
+    brand_name?: string
+  }
+  optimized_product_description?: string | null
+  verdict_summary?: string | null
+  description?: string | null
+  excerpt?: string | null
+  dimensions?: string | null
+  lifespan_expectation?: number | null
+  primary_material?: string | null
+  country_of_origin?: string | null
+  verdict_bullets?: string[] | string | null
+  repairability_notes?: string | null
+  durability_notes?: string | null
+  warranty_notes?: string | null
+  warranty_years?: number | null
+  social_notes?: string | null
+  affiliate_link?: string | null
+  images?: string[]
+  category?: string | null
+  category_id?: string | null
+}
+
 interface ProductDetailViewProps {
-  product: any
+  product: Product
 }
 
 export function ProductDetailView({ product }: ProductDetailViewProps) {

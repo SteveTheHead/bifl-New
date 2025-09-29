@@ -48,7 +48,7 @@ export function slugify(text: string): string {
     .replace(/ +/g, "-")
 }
 
-export function debounce<T extends (...args: any[]) => void>(
+export function debounce<T extends (...args: unknown[]) => void>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {

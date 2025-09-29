@@ -36,7 +36,7 @@ export interface InteractionEvent {
   type: 'click' | 'hover' | 'scroll' | 'add_to_compare' | 'favorite' | 'share'
   target: string // product ID, category, etc.
   timestamp: Date
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 class BehaviorTracker {
@@ -69,19 +69,19 @@ class BehaviorTracker {
       try {
         const parsed = JSON.parse(stored)
         // Convert date strings back to Date objects
-        parsed.productViews = parsed.productViews?.map((view: any) => ({
+        parsed.productViews = parsed.productViews?.map((view: { timestamp: string | Date; [key: string]: unknown }) => ({
           ...view,
           timestamp: new Date(view.timestamp)
         })) || []
-        parsed.searches = parsed.searches?.map((search: any) => ({
+        parsed.searches = parsed.searches?.map((search: { timestamp: string | Date; [key: string]: unknown }) => ({
           ...search,
           timestamp: new Date(search.timestamp)
         })) || []
-        parsed.comparisons = parsed.comparisons?.map((comp: any) => ({
+        parsed.comparisons = parsed.comparisons?.map((comp: { timestamp: string | Date; [key: string]: unknown }) => ({
           ...comp,
           timestamp: new Date(comp.timestamp)
         })) || []
-        parsed.interactions = parsed.interactions?.map((int: any) => ({
+        parsed.interactions = parsed.interactions?.map((int: { timestamp: string | Date; [key: string]: unknown }) => ({
           ...int,
           timestamp: new Date(int.timestamp)
         })) || []
@@ -229,7 +229,7 @@ class BehaviorTracker {
   public trackInteraction(
     type: InteractionEvent['type'],
     target: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): void {
     const interaction: InteractionEvent = {
       type,
@@ -301,7 +301,7 @@ class BehaviorTracker {
     favoriteProducts: string[]
     comparedProducts: string[]
     searchQueries: string[]
-    preferences: Record<string, any>
+    preferences: Record<string, unknown>
   } {
     return {
       viewedProducts: [...new Set(this.behavior.productViews.map(v => v.productId))],

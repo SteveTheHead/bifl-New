@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const supabase = await createClient()
 
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
       console.error('RPC exec_sql failed:', error)
 
       // Try alternative approach: use raw query
-      const { data: queryData, error: queryError } = await supabase
+      const { error: queryError } = await supabase
         .from('admin_users')
         .select('*')
         .limit(0)

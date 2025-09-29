@@ -2,7 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
-import { useState } from "react";
+import Image from "next/image";
 
 export default function HowItWorks() {
   return (
@@ -14,7 +14,7 @@ export default function HowItWorks() {
             <h2 className="text-4xl font-serif font-bold text-brand-dark mb-6">The Process</h2>
             <h3 className="text-2xl font-semibold text-brand-dark mb-4">How We Actually Figure Out What's Built to Last</h3>
             <p className="text-xl text-brand-gray max-w-4xl mx-auto">
-              We don't guess. We don't rely on opinions alone. We systematically dig through the internet's
+              We don&apos;t guess. We don&apos;t rely on opinions alone. We systematically dig through the internet&apos;s
               collective wisdom about durable goods, using research techniques and algorithms
               that have been field tested.
             </p>
@@ -97,7 +97,7 @@ export default function HowItWorks() {
                 </div>
                 <h4 className="text-xl font-semibold text-brand-dark mb-4">Scores That Update</h4>
                 <p className="text-brand-gray">
-                  Products don't stay static. We continuously scan data flows to our
+                  Products don&apos;t stay static. We continuously scan data flows to our
                   system whenever new signals about products hit the internet - for
                   better or worse - keeping you accurately tracking up.
                 </p>
@@ -168,7 +168,7 @@ export default function HowItWorks() {
                 <div className="flex-1">
                   <h4 className="text-2xl font-semibold text-brand-dark mb-2">Warranty</h4>
                   <p className="text-brand-gray text-lg">
-                    We look at if there's a warranty offered, if the warranty is long, and if the company has a history of standing behind their products.
+                    We look at if there&apos;s a warranty offered, if the warranty is long, and if the company has a history of standing behind their products.
                   </p>
                 </div>
               </div>
@@ -212,7 +212,7 @@ export default function HowItWorks() {
             <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-all duration-300" style={{ '--hover-shadow': '0 20px 25px -5px rgba(74, 157, 147, 0.5), 0 10px 10px -5px rgba(74, 157, 147, 0.4)' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--hover-shadow)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = ''}>
               <CardContent className="p-6 text-center">
                 <div className="w-32 h-32 mx-auto mb-0">
-                  <img src="/badges/gold-standard.svg" alt="Gold Standard" className="w-full h-full" />
+                  <Image src="/badges/gold-standard.svg" alt="Gold Standard" width={128} height={128} className="w-full h-full" />
                 </div>
                 <h4 className="text-lg font-semibold text-brand-dark mb-1">Gold Standard</h4>
                 <p className="text-xs text-brand-gray mb-3">9.0+ average across all scores</p>
@@ -226,7 +226,7 @@ export default function HowItWorks() {
             <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-all duration-300" style={{ '--hover-shadow': '0 20px 25px -5px rgba(74, 157, 147, 0.5), 0 10px 10px -5px rgba(74, 157, 147, 0.4)' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--hover-shadow)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = ''}>
               <CardContent className="p-6 text-center">
                 <div className="w-32 h-32 mx-auto mb-0">
-                  <img src="/badges/lifetime-warranty.svg" alt="Lifetime Warranty" className="w-full h-full" />
+                  <Image src="/badges/lifetime-warranty.svg" alt="Lifetime Warranty" width={128} height={128} className="w-full h-full" />
                 </div>
                 <h4 className="text-lg font-semibold text-brand-dark mb-1">Lifetime Warranty</h4>
                 <p className="text-xs text-brand-gray mb-3">Warranty score = 10</p>
@@ -240,7 +240,7 @@ export default function HowItWorks() {
             <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-all duration-300" style={{ '--hover-shadow': '0 20px 25px -5px rgba(74, 157, 147, 0.5), 0 10px 10px -5px rgba(74, 157, 147, 0.4)' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--hover-shadow)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = ''}>
               <CardContent className="p-6 text-center">
                 <div className="w-32 h-32 mx-auto mb-0">
-                  <img src="/badges/crowd-favorite.svg" alt="Crowd Favorite" className="w-full h-full" />
+                  <Image src="/badges/crowd-favorite.svg" alt="Crowd Favorite" width={128} height={128} className="w-full h-full" />
                 </div>
                 <h4 className="text-lg font-semibold text-brand-dark mb-1">Crowd Favorite</h4>
                 <p className="text-xs text-brand-gray mb-3">Social score ≥ 8.5</p>
@@ -254,7 +254,7 @@ export default function HowItWorks() {
             <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-all duration-300" style={{ '--hover-shadow': '0 20px 25px -5px rgba(74, 157, 147, 0.5), 0 10px 10px -5px rgba(74, 157, 147, 0.4)' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--hover-shadow)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = ''}>
               <CardContent className="p-6 text-center">
                 <div className="w-32 h-32 mx-auto mb-0">
-                  <img src="/badges/bifl-approved.svg" alt="BIFL Approved" className="w-full h-full" />
+                  <Image src="/badges/bifl-approved.svg" alt="BIFL Approved" width={128} height={128} className="w-full h-full" />
                 </div>
                 <h4 className="text-lg font-semibold text-brand-dark mb-1">BIFL Approved</h4>
                 <p className="text-xs text-brand-gray mb-3">7.5+ across all categories</p>
@@ -268,7 +268,7 @@ export default function HowItWorks() {
             <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-all duration-300" style={{ '--hover-shadow': '0 20px 25px -5px rgba(74, 157, 147, 0.5), 0 10px 10px -5px rgba(74, 157, 147, 0.4)' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--hover-shadow)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = ''}>
               <CardContent className="p-6 text-center">
                 <div className="w-32 h-32 mx-auto mb-0">
-                  <img src="/badges/repair-friendly.svg" alt="Repair Friendly" className="w-full h-full" />
+                  <Image src="/badges/repair-friendly.svg" alt="Repair Friendly" width={128} height={128} className="w-full h-full" />
                 </div>
                 <h4 className="text-lg font-semibold text-brand-dark mb-1">Repair Friendly</h4>
                 <p className="text-xs text-brand-gray mb-3">Repairability score ≥ 8.5</p>
@@ -282,7 +282,7 @@ export default function HowItWorks() {
             <Card className="bg-brand-cream border-0 shadow-lg hover:shadow-xl transition-all duration-300" style={{ '--hover-shadow': '0 20px 25px -5px rgba(74, 157, 147, 0.5), 0 10px 10px -5px rgba(74, 157, 147, 0.4)' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--hover-shadow)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = ''}>
               <CardContent className="p-6 text-center">
                 <div className="w-32 h-32 mx-auto mb-0">
-                  <img src="/badges/eco-hero.svg" alt="Eco Hero" className="w-full h-full" />
+                  <Image src="/badges/eco-hero.svg" alt="Eco Hero" width={128} height={128} className="w-full h-full" />
                 </div>
                 <h4 className="text-lg font-semibold text-brand-dark mb-1">Eco Hero</h4>
                 <p className="text-xs text-brand-gray mb-3">Bonus Sustainability score ≥ 8.0</p>

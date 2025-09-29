@@ -83,7 +83,7 @@ export default async function SignInPage({
               href="/auth/signup"
               className="text-sm text-brand-teal hover:text-brand-dark"
             >
-              Don't have an account? Sign up
+              Don&apos;t have an account? Sign up
             </Link>
           </div>
 

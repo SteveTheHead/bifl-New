@@ -3,17 +3,11 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
 
-interface Favorite {
-  id: string
-  user_email: string
-  product_id: string
-  created_at: string
-}
 
 export function useFavorites() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<{ email?: string } | null>(null)
 
   // Check authentication using our Supabase auth system
   useEffect(() => {

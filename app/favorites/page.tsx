@@ -1,10 +1,10 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Heart, Star, Trash2, ShoppingBag, ArrowLeft } from 'lucide-react'
+import { Heart, Trash2, ShoppingBag, ArrowLeft } from 'lucide-react'
 import { useFavorites } from '@/lib/hooks/use-favorites'
 import { createClient } from '@/utils/supabase/client'
 
@@ -24,7 +24,7 @@ export default function FavoritesPage() {
   const { favorites, loading: favoritesLoading, removeFromFavorites } = useFavorites()
   const [products, setProducts] = useState<FavoriteProduct[]>([])
   const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<{ id: string; email?: string } | null>(null)
   const [authLoading, setAuthLoading] = useState(true)
 
   // Check authentication using our Supabase auth system
@@ -55,9 +55,9 @@ export default function FavoritesPage() {
     } else if (!favoritesLoading) {
       setLoading(false)
     }
-  }, [favorites, favoritesLoading])
+  }, [favorites, favoritesLoading, fetchFavoriteProducts])
 
-  const fetchFavoriteProducts = async () => {
+  const fetchFavoriteProducts = useCallback(async () => {
     if (favorites.length === 0) {
       setProducts([])
       setLoading(false)
@@ -84,7 +84,7 @@ export default function FavoritesPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [favorites])
 
   const handleRemoveFavorite = async (productId: string) => {
     await removeFromFavorites(productId)

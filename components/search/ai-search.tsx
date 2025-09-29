@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Search, X, Sparkles, Clock, TrendingUp, Filter, Star, DollarSign, Tag } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
@@ -50,7 +50,7 @@ export function AISearch() {
 
     // Load trending searches and suggestions
     loadSuggestions()
-  }, [])
+  }, []) // loadSuggestions should be wrapped in useCallback
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -82,7 +82,7 @@ export function AISearch() {
     if (query.length > 2) {
       performSearch(query)
     }
-  }, [selectedFilters])
+  }, [selectedFilters, query, performSearch])
 
   // Keyboard navigation
   useEffect(() => {
@@ -196,7 +196,7 @@ export function AISearch() {
       const supabase = createClient()
 
       // Build base query with filters
-      const buildQuery = (baseQuery: any) => {
+      const buildQuery = (baseQuery: ReturnType<typeof supabase.from>) => {
         let query = baseQuery.eq('status', 'published')
         console.log('📊 Building query with base filters')
 
@@ -229,7 +229,7 @@ export function AISearch() {
       console.log('🚀 Executing search queries...')
       const words = searchQuery.trim().split(/\s+/)
 
-      let searchResults: any[] = []
+      let searchResults: SearchResult[] = []
 
       if (words.length === 1) {
         // Single word search - use existing logic
@@ -654,7 +654,7 @@ export function AISearch() {
             <div className="p-2">
               <div className="px-2 py-1 mb-2">
                 <span className="text-xs font-medium text-brand-gray">
-                  {results.length} result{results.length !== 1 ? 's' : ''} for "{query}"
+                  {results.length} result{results.length !== 1 ? 's' : ''} for &quot;{query}&quot;
                 </span>
               </div>
               {results.map((product, index) => (
@@ -720,14 +720,14 @@ export function AISearch() {
                   onClick={() => setIsOpen(false)}
                   className="text-sm text-brand-teal hover:text-opacity-80 font-medium"
                 >
-                  View all results for "{query}" →
+                  View all results for &quot;{query}&quot; →
                 </Link>
               </div>
             </div>
           ) : query.length > 2 ? (
             /* No Results */
             <div className="p-8 text-center">
-              <p className="text-sm text-brand-gray mb-2">No products found for "{query}"</p>
+              <p className="text-sm text-brand-gray mb-2">No products found for &quot;{query}&quot;</p>
               <p className="text-xs text-brand-gray">
                 Try searching for brand names, categories, or product types
               </p>

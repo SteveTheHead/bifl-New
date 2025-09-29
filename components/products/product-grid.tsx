@@ -2,14 +2,36 @@
 
 import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
 import { ProductFilters } from './product-filters'
 import BadgeDisplay from '@/components/BadgeDisplay'
 import { AddToCompareButton } from '@/components/compare/add-to-compare-button'
 import { FavoriteButton } from '@/components/favorites/favorite-button'
 
+interface Product {
+  id: string
+  name: string
+  brand_name?: string
+  featured_image_url?: string | null
+  price?: number | string | null
+  bifl_total_score?: number | null
+  warranty_score?: number | null
+  social_score?: number | null
+  repairability_score?: number | null
+  sustainability_score?: number | null
+  durability_score?: number | null
+  affiliate_link?: string | null
+}
+
+interface Category {
+  id: string
+  name: string
+  slug: string
+}
+
 // Badge calculation function (matching BadgeDisplay logic)
-function calculateBadges(product: any): string[] {
+function calculateBadges(product: Product): string[] {
   if (!product) return []
 
   const badges: string[] = []
@@ -79,16 +101,18 @@ function getScoreLabel(score: number) {
 }
 
 // Product card component
-function SimpleProductCard({ product }: { product: any }) {
+function SimpleProductCard({ product }: { product: Product }) {
   const totalScore = product.bifl_total_score || 0
 
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 text-center transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
       <div className="relative mb-4">
-        <img
+        <Image
           className="w-full h-56 object-contain"
           src={product.featured_image_url || '/placeholder-product.png'}
           alt={product.name || 'Product'}
+          width={400}
+          height={224}
         />
         <BadgeDisplay
           product={product}
@@ -147,8 +171,8 @@ function SimpleProductCard({ product }: { product: any }) {
 }
 
 interface ProductGridProps {
-  initialProducts: any[]
-  categories: any[]
+  initialProducts: Product[]
+  categories: Category[]
   initialSearch?: string
 }
 

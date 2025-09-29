@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -60,7 +60,7 @@ export default function EditProductPage() {
   const params = useParams()
   const productId = params.id as string
 
-  const [session, setSession] = useState<any>(null)
+  const [session, setSession] = useState<{name?: string; email?: string; isAdmin?: boolean} | null>(null)
   const [loading, setLoading] = useState(true)
   const [product, setProduct] = useState<Product | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
@@ -104,23 +104,11 @@ export default function EditProductPage() {
     general_notes: '',
     meta_title: '',
     meta_description: '',
+    bifl_certification: '',
     status: 'draft'
   })
 
-  useEffect(() => {
-    checkSession()
-  }, [])
-
-  useEffect(() => {
-    if (session && productId) {
-      Promise.all([
-        fetchProduct(),
-        fetchCategoriesAndBrands()
-      ])
-    }
-  }, [session, productId])
-
-  const checkSession = async () => {
+  const checkSession = useCallback(async () => {
     try {
       const response = await fetch('/api/auth/simple-session')
       const data = await response.json()
@@ -135,9 +123,9 @@ export default function EditProductPage() {
       console.error('Session check error:', error)
       router.push('/auth/signin')
     }
-  }
+  }, [router])
 
-  const fetchProduct = async () => {
+  const fetchProduct = useCallback(async () => {
     try {
       const response = await fetch(`/api/admin/products/${productId}`)
       if (response.ok) {
@@ -191,7 +179,20 @@ export default function EditProductPage() {
       console.error('Failed to fetch product:', error)
       router.push('/admin/products')
     }
-  }
+  }, [productId, router])
+
+  useEffect(() => {
+    checkSession()
+  }, [checkSession])
+
+  useEffect(() => {
+    if (session && productId) {
+      Promise.all([
+        fetchProduct(),
+        fetchCategoriesAndBrands()
+      ])
+    }
+  }, [session, productId, fetchProduct])
 
   const fetchCategoriesAndBrands = async () => {
     try {
@@ -1137,7 +1138,7 @@ export default function EditProductPage() {
                 <option value="Eco Hero">Eco Hero (Sustainability score ≥ 8.0)</option>
               </select>
               <p className="text-xs text-brand-gray mt-1">
-                Select the appropriate badge based on the product's BIFL scores
+                Select the appropriate badge based on the product&apos;s BIFL scores
               </p>
             </div>
           </div>

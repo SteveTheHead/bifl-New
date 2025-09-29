@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -30,7 +30,7 @@ interface Category {
 
 export default function AIContentGenerator() {
   const router = useRouter()
-  const [session, setSession] = useState<any>(null)
+  const [session, setSession] = useState<{name?: string; email?: string; isAdmin?: boolean} | null>(null)
   const [loading, setLoading] = useState(true)
   const [generating, setGenerating] = useState(false)
   const [products, setProducts] = useState<Product[]>([])
@@ -44,12 +44,7 @@ export default function AIContentGenerator() {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([])
   const [customPrompt, setCustomPrompt] = useState('')
 
-  useEffect(() => {
-    checkSession()
-    fetchData()
-  }, [])
-
-  const checkSession = async () => {
+  const checkSession = useCallback(async () => {
     try {
       const response = await fetch('/api/auth/simple-session')
       const data = await response.json()
@@ -64,7 +59,12 @@ export default function AIContentGenerator() {
       console.error('Session check error:', error)
       router.push('/auth/signin')
     }
-  }
+  }, [router])
+
+  useEffect(() => {
+    checkSession()
+    fetchData()
+  }, [checkSession])
 
   const fetchData = async () => {
     try {
@@ -100,7 +100,7 @@ export default function AIContentGenerator() {
     setGeneratedContent('')
 
     try {
-      const payload: any = { type: activeTab }
+      const payload: {type: string; productId?: string; categoryId?: string; productIds?: string[]; customPrompt?: string} = { type: activeTab }
 
       switch (activeTab) {
         case 'product-description':
@@ -404,7 +404,7 @@ export default function AIContentGenerator() {
                     <Brain className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                     <p className="text-brand-gray">No content generated yet</p>
                     <p className="text-sm text-brand-gray mt-2">
-                      Configure your generation settings and click "Generate Content"
+                      Configure your generation settings and click &quot;Generate Content&quot;
                     </p>
                   </div>
                 </div>

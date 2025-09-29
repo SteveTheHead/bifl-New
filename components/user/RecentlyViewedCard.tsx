@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import BadgeDisplay from '@/components/BadgeDisplay'
 import { AddToCompareButton } from '@/components/compare/add-to-compare-button'
 import { Clock } from 'lucide-react'
@@ -41,8 +42,20 @@ function formatViewedAt(dateString: string) {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
+interface Product {
+  id: string
+  name: string
+  slug: string
+  brand_name?: string
+  featured_image_url?: string | null
+  bifl_total_score?: number | null
+  price?: number | null
+  viewed_at?: string
+  excerpt?: string | null
+}
+
 interface RecentlyViewedCardProps {
-  product: any
+  product: Product
 }
 
 export function RecentlyViewedCard({ product }: RecentlyViewedCardProps) {
@@ -51,10 +64,12 @@ export function RecentlyViewedCard({ product }: RecentlyViewedCardProps) {
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 text-center transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
       <div className="relative mb-4">
-        <img
+        <Image
           className="w-full h-56 object-contain"
           src={product.featured_image_url || '/placeholder-product.png'}
           alt={product.name || 'Product'}
+          width={300}
+          height={224}
         />
         <BadgeDisplay
           product={product}

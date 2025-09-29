@@ -6,8 +6,28 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Search } from 'lucide-react'
 
+interface Product {
+  id: string
+  name: string
+  brand_name?: string
+  bifl_total_score?: number | null
+  warranty_score?: number | null
+  social_score?: number | null
+  repairability_score?: number | null
+  sustainability_score?: number | null
+  durability_score?: number | null
+  price?: number | string | null
+  country_of_origin?: string
+}
+
+interface Category {
+  id: string
+  name: string
+  slug: string
+}
+
 // Import badge calculation from BadgeDisplay
-function calculateBadges(product: any): string[] {
+function calculateBadges(product: Product): string[] {
   if (!product) return []
 
   const badges: string[] = []
@@ -70,8 +90,8 @@ interface FilterProps {
     priceRange: [number, number]
     sortBy: string
   }) => void
-  categories: any[]
-  products: any[]
+  categories: Category[]
+  products: Product[]
 }
 
 export function ProductFilters({ onFiltersChange, categories, products }: FilterProps) {

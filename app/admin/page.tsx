@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -8,9 +8,7 @@ import {
   Tag,
   Building2,
   Star,
-  Users,
   BarChart3,
-  Settings,
   Plus,
   TrendingUp,
   ShoppingBag,
@@ -19,7 +17,7 @@ import {
 
 export default function AdminDashboard() {
   const router = useRouter()
-  const [session, setSession] = useState<any>(null)
+  const [session, setSession] = useState<{name?: string; email?: string; isAdmin?: boolean} | null>(null)
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({
     totalProducts: 0,
@@ -30,11 +28,7 @@ export default function AdminDashboard() {
     newProductsThisWeek: 0
   })
 
-  useEffect(() => {
-    checkSession()
-  }, [])
-
-  const checkSession = async () => {
+  const checkSession = useCallback(async () => {
     try {
       const response = await fetch('/api/auth/simple-session')
       const data = await response.json()
@@ -52,7 +46,11 @@ export default function AdminDashboard() {
       console.error('Session check error:', error)
       router.push('/auth/signin')
     }
-  }
+  }, [router])
+
+  useEffect(() => {
+    checkSession()
+  }, [checkSession])
 
   useEffect(() => {
     // Fetch dashboard stats

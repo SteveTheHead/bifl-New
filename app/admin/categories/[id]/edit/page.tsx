@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { Save, X } from 'lucide-react'
@@ -20,7 +20,7 @@ export default function EditCategoryPage() {
   const params = useParams()
   const categoryId = params.id as string
 
-  const [session, setSession] = useState<any>(null)
+  const [session, setSession] = useState<{name?: string; email?: string; isAdmin?: boolean} | null>(null)
   const [loading, setLoading] = useState(true)
   const [category, setCategory] = useState<Category | null>(null)
   const [saving, setSaving] = useState(false)
@@ -32,17 +32,7 @@ export default function EditCategoryPage() {
     is_featured: false
   })
 
-  useEffect(() => {
-    checkSession()
-  }, [])
-
-  useEffect(() => {
-    if (session && categoryId) {
-      fetchCategory()
-    }
-  }, [session, categoryId])
-
-  const checkSession = async () => {
+  const checkSession = useCallback(async () => {
     try {
       const response = await fetch('/api/auth/simple-session')
       const data = await response.json()
@@ -57,9 +47,9 @@ export default function EditCategoryPage() {
       console.error('Session check error:', error)
       router.push('/auth/signin')
     }
-  }
+  }, [router])
 
-  const fetchCategory = async () => {
+  const fetchCategory = useCallback(async () => {
     try {
       const response = await fetch(`/api/admin/categories/${categoryId}`)
       if (response.ok) {
@@ -82,7 +72,17 @@ export default function EditCategoryPage() {
       console.error('Failed to fetch category:', error)
       router.push('/admin/categories')
     }
-  }
+  }, [categoryId, router])
+
+  useEffect(() => {
+    checkSession()
+  }, [checkSession])
+
+  useEffect(() => {
+    if (session && categoryId) {
+      fetchCategory()
+    }
+  }, [session, categoryId, fetchCategory])
 
   const generateSlug = (name: string) => {
     return name

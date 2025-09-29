@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   // Only allow in development
   if (process.env.NODE_ENV !== 'development') {
     return NextResponse.json(
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     )
 
     // Create development admin user
-    const { data, error } = await supabase.auth.admin.createUser({
+    const { error } = await supabase.auth.admin.createUser({
       email: process.env.DEV_ADMIN_EMAIL || 'admin@bifl.dev',
       password: process.env.DEV_ADMIN_PASSWORD || 'BiflAdmin123!',
       email_confirm: true,

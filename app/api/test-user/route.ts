@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     // Only allow in development
     if (process.env.NODE_ENV !== 'development') {
@@ -27,11 +27,12 @@ export async function POST(request: NextRequest) {
       user: result
     })
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating test user:', error)
 
     // If user already exists, just return the credentials
-    if (error.message?.includes('already exists') || error.message?.includes('duplicate')) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    if (errorMessage?.includes('already exists') || errorMessage?.includes('duplicate')) {
       return NextResponse.json({
         success: true,
         message: 'Test user already exists',

@@ -1,13 +1,6 @@
 import { createClient, createAdminClient } from './server'
 import { Database } from './types'
 
-type Product = Database['public']['Tables']['products']['Row']
-type ProductWithTaxonomy = Database['public']['Views']['products_with_taxonomy']['Row']
-type Brand = Database['public']['Tables']['brands']['Row']
-type Category = Database['public']['Tables']['categories']['Row']
-type Material = Database['public']['Tables']['materials']['Row']
-type PriceRange = Database['public']['Tables']['price_ranges']['Row']
-
 // Product queries
 export async function getProducts(limit = 20, offset = 0) {
   const supabase = await createClient()

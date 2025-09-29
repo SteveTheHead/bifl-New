@@ -22,7 +22,7 @@ export class PasswordUtils {
     const hasUpperCase = /[A-Z]/.test(password)
     const hasLowerCase = /[a-z]/.test(password)
     const hasNumbers = /\d/.test(password)
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    // const _hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password) // Unused variable
 
     if (!hasUpperCase || !hasLowerCase || !hasNumbers) {
       return {

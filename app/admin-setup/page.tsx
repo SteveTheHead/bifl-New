@@ -34,8 +34,8 @@ export default function AdminSetupPage() {
       }
 
       setMessage('Admin account created successfully! You can now sign in.')
-    } catch (error: any) {
-      setError(error.message)
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : 'An unknown error occurred')
     } finally {
       setLoading(false)
     }
@@ -67,8 +67,8 @@ export default function AdminSetupPage() {
 
       // Redirect to admin dashboard
       window.location.href = '/admin'
-    } catch (error: any) {
-      setError(error.message)
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : 'An unknown error occurred')
     } finally {
       setLoading(false)
     }

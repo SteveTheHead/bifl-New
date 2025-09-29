@@ -16,7 +16,7 @@ interface RecentlyViewedProduct {
 export function useRecentlyViewed() {
   const [recentlyViewed, setRecentlyViewed] = useState<RecentlyViewedProduct[]>([])
   const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<{ email?: string } | null>(null)
 
   // Check authentication using our Supabase auth system
   useEffect(() => {
@@ -40,7 +40,7 @@ export function useRecentlyViewed() {
       }
     }
     checkUser()
-  }, [])
+  }, [fetchRecentlyViewed])
 
   const fetchRecentlyViewed = useCallback(async (userEmail: string) => {
     if (!userEmail) return
@@ -53,7 +53,7 @@ export function useRecentlyViewed() {
         try {
           const data = JSON.parse(text)
           setRecentlyViewed(data.products || [])
-        } catch (parseError) {
+        } catch {
           // Gracefully handle JSON parsing errors
           setRecentlyViewed([])
         }
@@ -61,7 +61,7 @@ export function useRecentlyViewed() {
         // Gracefully handle when table doesn't exist yet
         setRecentlyViewed([])
       }
-    } catch (error) {
+    } catch {
       // Gracefully handle errors - recently viewed is not critical functionality
       setRecentlyViewed([])
     } finally {
@@ -91,7 +91,7 @@ export function useRecentlyViewed() {
           JSON.parse(text) // Just validate it's valid JSON
           await fetchRecentlyViewed(user.email)
           return true
-        } catch (parseError) {
+        } catch {
           // Response was ok but not valid JSON - still consider it successful
           await fetchRecentlyViewed(user.email)
           return true
@@ -100,7 +100,7 @@ export function useRecentlyViewed() {
         // Gracefully handle when table doesn't exist yet - don't spam console
         return false
       }
-    } catch (error) {
+    } catch {
       // Gracefully handle errors - recently viewed is not critical functionality
       return false
     }

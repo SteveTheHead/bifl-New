@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Save, X } from 'lucide-react'
 
 export default function NewCategoryPage() {
   const router = useRouter()
-  const [session, setSession] = useState<any>(null)
+  const [session, setSession] = useState<{name?: string; email?: string; isAdmin?: boolean} | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [formData, setFormData] = useState({
@@ -18,11 +18,7 @@ export default function NewCategoryPage() {
     is_featured: false
   })
 
-  useEffect(() => {
-    checkSession()
-  }, [])
-
-  const checkSession = async () => {
+  const checkSession = useCallback(async () => {
     try {
       const response = await fetch('/api/auth/simple-session')
       const data = await response.json()
@@ -37,7 +33,11 @@ export default function NewCategoryPage() {
       console.error('Session check error:', error)
       router.push('/auth/signin')
     }
-  }
+  }, [router])
+
+  useEffect(() => {
+    checkSession()
+  }, [checkSession])
 
   const generateSlug = (name: string) => {
     return name
