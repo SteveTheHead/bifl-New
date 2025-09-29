@@ -81,7 +81,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
     if (product?.id) {
       addToRecentlyViewed(product.id)
     }
-  }, [product?.id, addToRecentlyViewed])
+  }, [product?.id])
 
   // Create gallery images array from actual gallery data
   const galleryImages = (() => {

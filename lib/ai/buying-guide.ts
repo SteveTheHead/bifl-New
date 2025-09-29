@@ -1,4 +1,4 @@
-import { AIService } from './index'
+import { AIService } from './service'
 
 export interface BuyingGuideSection {
   title: string
@@ -22,7 +22,7 @@ export class BuyingGuideGenerator {
   private aiService: AIService
 
   constructor() {
-    this.aiService = new AIService()
+    this.aiService = AIService.getInstance()
   }
 
   async generateBuyingGuide(
@@ -33,7 +33,7 @@ export class BuyingGuideGenerator {
     const prompt = this.createBuyingGuidePrompt(categoryName, categoryDescription, products)
 
     try {
-      const response = await this.aiService.generateContent(prompt)
+      const response = await this.aiService.generateSimpleText(prompt)
       return this.parseBuyingGuideResponse(response)
     } catch (error) {
       console.error('Error generating buying guide:', error)

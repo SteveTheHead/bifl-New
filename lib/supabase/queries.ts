@@ -56,23 +56,45 @@ export async function getFeaturedProducts() {
 export async function getProductById(id: string) {
   const supabase = await createClient()
 
-  const { data, error } = await supabase
-    .from('products')
-    .select(`
-      *,
-      brands!brand_id(name, slug, website, description),
-      categories!category_id(name, slug, description)
-    `)
-    .eq('id', id)
-    .eq('status', 'published')
-    .single()
-
-  if (error) {
-    console.error('Error fetching product by ID:', error)
+  // Validate the ID parameter
+  if (!id || typeof id !== 'string') {
+    console.error('Invalid product ID provided:', id)
     return null
   }
 
-  return data
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select(`
+        *,
+        brands!brand_id(name, slug, website, description),
+        categories!category_id(name, slug, description)
+      `)
+      .eq('id', id)
+      .eq('status', 'published')
+      .single()
+
+    if (error) {
+      // Log more detailed error information
+      console.error('Error fetching product by ID:', {
+        productId: id,
+        error: error,
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint
+      })
+      return null
+    }
+
+    return data
+  } catch (err) {
+    console.error('Unexpected error in getProductById:', {
+      productId: id,
+      error: err
+    })
+    return null
+  }
 }
 
 export async function getProductBySlug(slug: string) {
@@ -84,7 +106,7 @@ export async function getProductBySlug(slug: string) {
       *,
       brands!brand_id(name, slug, website, description),
       categories!category_id(name, slug, description),
-      materials!primary_material_id(name, slug, description),
+      materials!products_primary_material_id_fkey(name, slug, description),
       price_ranges!price_range_id(name, min_price, max_price)
     `)
     .eq('slug', slug)

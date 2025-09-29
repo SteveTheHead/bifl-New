@@ -68,11 +68,21 @@ export function CategoryPageClient({
         setLoadingGuide(true)
         const response = await fetch(`/api/categories/${category.slug}/buying-guide`)
         if (response.ok) {
-          const data = await response.json()
-          setBuyingGuide(data.buyingGuide)
+          const text = await response.text()
+          try {
+            const data = JSON.parse(text)
+            setBuyingGuide(data.buyingGuide)
+          } catch (parseError) {
+            console.error('Error parsing buying guide JSON:', parseError)
+            setBuyingGuide(null)
+          }
+        } else {
+          console.log(`Buying guide API returned ${response.status} for ${category.slug}`)
+          setBuyingGuide(null)
         }
       } catch (error) {
         console.error('Error fetching buying guide:', error)
+        setBuyingGuide(null)
       } finally {
         setLoadingGuide(false)
       }

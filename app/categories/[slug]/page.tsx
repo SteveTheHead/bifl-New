@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 
   const { data: category } = await supabase
     .from('categories')
-    .select('name, description')
+    .select('id, name, description')
     .eq('slug', slug)
     .single()
 
@@ -113,10 +113,8 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
     .from('products')
     .select(`
       *,
-      brands!inner(name, slug),
-      categories!inner(name, slug),
-      materials(name),
-      price_ranges(name, min_price, max_price)
+      brands(name, slug),
+      categories(name, slug)
     `)
     .eq('category_id', category.id)
     .eq('status', 'published')
@@ -128,9 +126,8 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   if (price_max) {
     query = query.lte('price', parseInt(price_max as string))
   }
-  if (brand) {
-    query = query.eq('brands.slug', brand)
-  }
+  // Note: Brand filtering would need a separate approach without inner join
+  // For now, we'll filter client-side in the transform step
 
   // Apply sorting
   switch (sort) {
@@ -157,22 +154,28 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   }
 
   // Transform products data
-  const transformedProducts = (products || []).map(product => ({
+  let transformedProducts = (products || []).map(product => ({
     ...product,
     brand_name: product.brands?.name,
     brand_slug: product.brands?.slug,
     category_name: product.categories?.name,
-    category_slug: product.categories?.slug,
-    material_name: product.materials?.name,
-    price_range_name: product.price_ranges?.name
+    category_slug: product.categories?.slug
   }))
+
+  // Apply client-side brand filtering
+  if (brand) {
+    transformedProducts = transformedProducts.filter(product =>
+      product.brand_slug === brand
+    )
+  }
 
   // Get available brands for filtering
   const { data: availableBrands } = await supabase
     .from('products')
-    .select('brands!inner(name, slug)')
+    .select('brand_id, brands(name, slug)')
     .eq('category_id', category.id)
     .eq('status', 'published')
+    .not('brand_id', 'is', null)
 
   const uniqueBrands = Array.from(
     new Map(
