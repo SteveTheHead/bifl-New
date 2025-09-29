@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: { productId: string } }
 ) {
   try {
-    const { productId } = await params
+    const { productId } = params
     const supabase = await createClient()
 
     // Fetch approved reviews that have pros or cons
