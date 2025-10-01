@@ -2,6 +2,9 @@ import { getProducts, getCategories, getPriceRanges } from '@/lib/supabase/queri
 import { Card, CardContent } from '@/components/ui/card'
 import { ProductGrid } from '@/components/products/product-grid'
 
+// Enable Next.js caching and revalidation
+export const revalidate = 1800 // Revalidate every 30 minutes
+
 interface ProductsPageProps {
   searchParams: Promise<{ search?: string }>
 }
@@ -10,8 +13,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const { search } = await searchParams
   try {
     // Get products and taxonomy data
+    // Note: In dev mode this may be slow, but production with caching will be fast
     const [products, categories, priceRanges] = await Promise.all([
-      getProducts(0, 0), // Get all products (0 = no limit)
+      getProducts(0, 0), // Get all products (needed for client-side filtering)
       getCategories(),
       getPriceRanges()
     ])

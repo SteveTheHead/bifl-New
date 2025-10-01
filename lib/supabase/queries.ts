@@ -6,9 +6,23 @@ import { sb } from '../supabase-utils'
 export async function getProducts(limit = 20, offset = 0) {
   const supabase = await createClient()
 
+  // Select only necessary fields for better performance
   let query = supabase
     .from('products_with_taxonomy')
-    .select('*')
+    .select(`
+      id,
+      name,
+      slug,
+      brand_name,
+      category_name,
+      featured_image_url,
+      bifl_total_score,
+      price,
+      status,
+      is_featured,
+      use_case,
+      excerpt
+    `)
     .eq('status', 'published')
     .order('bifl_total_score', { ascending: false })
 
@@ -420,7 +434,8 @@ export async function getAllProductsForAdmin() {
       is_featured,
       status,
       created_at,
-      use_case
+      use_case,
+      price
     `)
     .order('created_at', { ascending: false })
 
@@ -429,5 +444,10 @@ export async function getAllProductsForAdmin() {
     throw error
   }
 
-  return data
+  // Transform the response to match the expected format
+  return data?.map(product => ({
+    ...product,
+    brand_name: (product.brands as any)?.name || 'Unknown Brand',
+    category_name: (product.categories as any)?.name || 'Uncategorized'
+  })) || []
 }

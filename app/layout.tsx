@@ -8,21 +8,21 @@ import { CompareModal } from "@/components/compare/compare-modal";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 export const metadata: Metadata = {
-  title: "Next.js Starter Kit - Launch Your SAAS",
+  title: "BIFL - Buy It For Life Product Directory",
   description:
-    "A modern, full-stack Next.js starter kit with authentication, payments, and dashboard. Built with TypeScript, Tailwind CSS, and shadcn/ui.",
+    "Discover durable, long-lasting products that are built to last. Expert reviews and ratings for quality items worth investing in.",
   openGraph: {
-    title: "Next.js Starter Kit",
+    title: "BIFL - Buy It For Life",
     description:
-      "A modern, full-stack Next.js starter kit with authentication, payments, and dashboard. Built with TypeScript, Tailwind CSS, and shadcn/ui.",
-    url: "nextstarter.xyz",
-    siteName: "Next.js Starter Kit",
+      "Discover durable, long-lasting products that are built to last. Expert reviews and ratings for quality items worth investing in.",
+    url: "bifl.com",
+    siteName: "BIFL",
     images: [
       {
         url: "https://jdj14ctwppwprnqu.public.blob.vercel-storage.com/nsk-w9fFwBBmLDLxrB896I4xqngTUEEovS.png",
         width: 1200,
         height: 630,
-        alt: "Next.js Starter Kit",
+        alt: "BIFL - Buy It For Life",
       },
     ],
     locale: "en-US",

@@ -4,6 +4,9 @@ import { getCategories, getFeaturedProducts } from '@/lib/supabase/queries'
 import { Card, CardContent } from '@/components/ui/card'
 import BadgeDisplay from '@/components/BadgeDisplay'
 
+// Enable Next.js caching and revalidation
+export const revalidate = 3600 // Revalidate every hour
+
 // Score badge styling function (matching product grid)
 function getScoreBadgeStyle(score: number) {
   const scoreString = score.toString()

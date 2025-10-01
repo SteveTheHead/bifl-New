@@ -47,15 +47,6 @@ export function Navbar() {
     return () => window.removeEventListener('focus', handleFocus)
   }, [])
 
-  // Periodic check for user state (backup in case focus events don't work)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      checkUser()
-    }, 5000) // Check every 5 seconds
-
-    return () => clearInterval(interval)
-  }, [])
-
   const handleSignOut = async () => {
     try {
       setShowUserMenu(false)

@@ -61,6 +61,8 @@ export function SimilarProductsCarousel({ currentProductId, categoryId }: Simila
             .select('*')
             .eq('status', 'published')
             .not('id', 'in', `(${excludeIds.join(',')})`)
+            .not('featured_image_url', 'is', null)
+            .neq('featured_image_url', '')
 
           // If we have a category, prioritize products from the same category
           if (categoryId) {
@@ -85,6 +87,8 @@ export function SimilarProductsCarousel({ currentProductId, categoryId }: Simila
               .select('*')
               .eq('status', 'published')
               .not('id', 'in', `(${allExcludeIds.join(',')})`)
+              .not('featured_image_url', 'is', null)
+              .neq('featured_image_url', '')
               .order('bifl_total_score', { ascending: false })
               .limit(stillNeedCount)
 

@@ -12,7 +12,8 @@ import {
   Trash2,
   Eye,
   Star,
-  Package
+  Package,
+  RefreshCw
 } from 'lucide-react'
 
 interface Product {
@@ -160,14 +161,27 @@ export default function AdminProductsPage() {
                 ← Admin Dashboard
               </Link>
               <h1 className="text-2xl font-bold text-brand-dark">Product Management</h1>
+              <div className="bg-brand-teal/10 text-brand-teal px-3 py-1 rounded-full text-sm font-semibold">
+                {filteredProducts.length} {filteredProducts.length !== products.length && `/ ${products.length}`}
+              </div>
             </div>
-            <Link
-              href="/admin/products/new"
-              className="bg-brand-teal text-white px-4 py-2 rounded-lg hover:bg-brand-teal/90 transition-colors flex items-center space-x-2"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Add Product</span>
-            </Link>
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={fetchProducts}
+                disabled={loading}
+                className="bg-white text-brand-dark border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center space-x-2 disabled:opacity-50"
+              >
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                <span>Refresh</span>
+              </button>
+              <Link
+                href="/admin/products/new"
+                className="bg-brand-teal text-white px-4 py-2 rounded-lg hover:bg-brand-teal/90 transition-colors flex items-center space-x-2"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add Product</span>
+              </Link>
+            </div>
           </div>
         </div>
       </header>
