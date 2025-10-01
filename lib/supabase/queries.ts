@@ -15,6 +15,8 @@ export async function getProducts(limit = 20, offset = 0) {
       slug,
       brand_name,
       category_name,
+      category_id,
+      country_of_origin,
       featured_image_url,
       bifl_total_score,
       price,
