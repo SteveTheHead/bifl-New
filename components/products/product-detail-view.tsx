@@ -15,6 +15,7 @@ import { AddToCompareButton } from '@/components/compare/add-to-compare-button'
 import { ProductComparisonTable } from './product-comparison-table'
 import { ProductFAQ } from './product-faq'
 import { ProductCareMaintenance } from './product-care-maintenance'
+import { trackProductView, trackAffiliateClick } from '@/lib/analytics'
 
 // Get gradient pill styling based on BIFL score
 function getScoreBadgeStyle(score: number) {
@@ -118,8 +119,14 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
   useEffect(() => {
     if (product?.id) {
       addToRecentlyViewed(product.id)
+      // Track product view in Google Analytics
+      trackProductView(
+        product.id,
+        product.name,
+        product.categories?.name || product.wordpress_meta?.category_name
+      )
     }
-  }, [product?.id])
+  }, [product?.id, product.name])
 
   // Create gallery images array from actual gallery data
   const galleryImages = (() => {
@@ -474,6 +481,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                     href={product.affiliate_link}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => trackAffiliateClick(product.id, product.name, product.affiliate_link!)}
                     className="flex items-center justify-between w-full border border-gray-200 rounded-lg px-4 py-3 text-left hover:bg-gray-50 transition-colors"
                   >
                     <div className="flex items-center">

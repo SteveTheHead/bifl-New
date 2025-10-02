@@ -5,6 +5,8 @@ import { ConditionalNavbar } from "@/components/layout/conditional-navbar";
 import { CompareProvider } from "@/contexts/compare-context";
 import { FloatingCompareBar } from "@/components/compare/floating-compare-bar";
 import { CompareModal } from "@/components/compare/compare-modal";
+import { GoogleAnalytics } from "@/components/analytics/google-analytics";
+import { MicrosoftClarity } from "@/components/analytics/microsoft-clarity";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 export const metadata: Metadata = {
@@ -38,6 +40,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`font-[-apple-system,BlinkMacSystemFont]antialiased`}>
+        <GoogleAnalytics measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || ''} />
+        <MicrosoftClarity projectId={process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID || ''} />
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
