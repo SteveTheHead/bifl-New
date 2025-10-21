@@ -16,6 +16,7 @@ import { ProductComparisonTable } from './product-comparison-table'
 import { ProductFAQ } from './product-faq'
 import { ProductCareMaintenance } from './product-care-maintenance'
 import { trackProductView, trackAffiliateClick } from '@/lib/analytics'
+import { FeedbackModal } from '@/components/feedback-modal'
 
 // Get gradient pill styling based on BIFL score
 function getScoreBadgeStyle(score: number) {
@@ -124,6 +125,14 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [reviewRefreshTrigger, setReviewRefreshTrigger] = useState(0)
 
+  // Newsletter form state
+  const [newsletterEmail, setNewsletterEmail] = useState('')
+  const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [newsletterMessage, setNewsletterMessage] = useState('')
+
+  // Feedback modal state
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false)
+
   // Recently viewed tracking
   const { addToRecentlyViewed } = useRecentlyViewed()
 
@@ -179,6 +188,43 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
 
   const goToImage = (index: number) => {
     setCurrentImageIndex(index)
+  }
+
+  // Newsletter submission handler
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!newsletterEmail) {
+      setNewsletterStatus('error')
+      setNewsletterMessage('Please enter your email address')
+      return
+    }
+
+    setNewsletterStatus('loading')
+
+    try {
+      const response = await fetch('/api/newsletter/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: newsletterEmail
+        })
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setNewsletterStatus('success')
+        setNewsletterMessage(data.message || 'Thanks for subscribing!')
+        setNewsletterEmail('')
+      } else {
+        setNewsletterStatus('error')
+        setNewsletterMessage(data.message || 'Failed to subscribe. Please try again.')
+      }
+    } catch (error) {
+      setNewsletterStatus('error')
+      setNewsletterMessage('An error occurred. Please try again.')
+    }
   }
 
   return (
@@ -748,12 +794,35 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
             <div className="flex items-center">✓ Long-term gear reports</div>
             <div className="flex items-center">✓ Repair tips & sustainability news</div>
           </div>
-          <form className="max-w-lg mx-auto">
+          <form onSubmit={handleNewsletterSubmit} className="max-w-lg mx-auto">
             <div className="flex space-x-4 mb-4">
-              <input type="text" placeholder="Name" className="flex-1 px-4 py-2 border border-gray-300 rounded-lg" />
-              <input type="email" placeholder="Email" className="flex-1 px-4 py-2 border border-gray-300 rounded-lg" />
+              <input
+                type="email"
+                placeholder="Enter your email address"
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
+                disabled={newsletterStatus === 'loading' || newsletterStatus === 'success'}
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg disabled:opacity-60 disabled:cursor-not-allowed focus:ring-2 focus:ring-brand-teal focus:border-transparent"
+                required
+              />
             </div>
-            <button type="submit" className="bg-brand-teal text-white font-bold py-3 px-8 rounded-lg">Submit</button>
+            {newsletterMessage && (
+              <div className={`mb-4 p-3 rounded-lg ${
+                newsletterStatus === 'success'
+                  ? 'bg-green-50 text-green-800 border border-green-200'
+                  : 'bg-red-50 text-red-800 border border-red-200'
+              }`}>
+                {newsletterMessage}
+              </div>
+            )}
+            <button
+              type="submit"
+              disabled={newsletterStatus === 'loading' || newsletterStatus === 'success'}
+              className="text-white font-bold py-3 px-8 rounded-lg hover:opacity-90 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              style={{ backgroundColor: '#4A9D93' }}
+            >
+              {newsletterStatus === 'loading' ? 'Submitting...' : newsletterStatus === 'success' ? 'Subscribed!' : 'Submit'}
+            </button>
           </form>
         </section>
 
@@ -761,9 +830,20 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
         <section className="mt-8 border border-gray-200 rounded-2xl p-8 text-center">
           <h2 className="text-3xl font-bold mb-2">Help Us Improve</h2>
           <p className="text-brand-gray mb-6 max-w-xl mx-auto">This site is for you. Help us make it better. We're constantly refining the way we score and present BIFL products. If something's missing, broken, or off — we want to hear from you.</p>
-          <button className="bg-gray-700 text-white font-bold py-3 px-8 rounded-lg">Leave Us Feedback</button>
+          <button
+            onClick={() => setIsFeedbackModalOpen(true)}
+            className="bg-gray-700 text-white font-bold py-3 px-8 rounded-lg hover:bg-gray-600 transition-colors"
+          >
+            Leave Us Feedback
+          </button>
         </section>
       </main>
+
+      {/* Feedback Modal */}
+      <FeedbackModal
+        isOpen={isFeedbackModalOpen}
+        onClose={() => setIsFeedbackModalOpen(false)}
+      />
     </div>
   )
 }

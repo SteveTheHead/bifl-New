@@ -67,13 +67,6 @@ export function ProductCard({ product, variant = 'vertical' }: ProductCardProps)
               )}
             </div>
 
-            {/* Excerpt */}
-            {product.excerpt && (
-              <p className="text-sm text-brand-gray mb-3 line-clamp-2">
-                {product.excerpt}
-              </p>
-            )}
-
             {/* Stats */}
             <div className="flex items-center gap-4 mb-3 text-xs">
               <div className="flex items-center gap-1">
@@ -94,9 +87,10 @@ export function ProductCard({ product, variant = 'vertical' }: ProductCardProps)
                   <span>{product.repairability_score}/10</span>
                 </div>
               )}
-              {product.warranty_years && (
+              {product.warranty_score && (
                 <div className="flex items-center gap-1">
-                  <span className="text-purple-500">{product.warranty_years}yr warranty</span>
+                  <Shield className="w-3 h-3 text-purple-500" />
+                  <span>Warranty: {product.warranty_score}/10</span>
                 </div>
               )}
             </div>
@@ -105,7 +99,8 @@ export function ProductCard({ product, variant = 'vertical' }: ProductCardProps)
             <div className="flex items-center gap-2">
               <Link
                 href={`/products/${product.slug || product.id}`}
-                className="flex-1 bg-brand-teal text-white text-sm font-medium py-2 px-4 rounded-lg hover:bg-brand-teal/90 transition-colors text-center"
+                className="flex-1 text-white text-sm font-medium py-2 px-4 rounded-lg hover:opacity-90 transition-colors text-center"
+                style={{ backgroundColor: '#4A9D93' }}
               >
                 View Details
               </Link>
@@ -144,8 +139,8 @@ export function ProductCard({ product, variant = 'vertical' }: ProductCardProps)
           overlay={true}
         />
         {product.price && (
-          <div className="absolute top-2 right-2 bg-white rounded-lg px-2 py-1 shadow-sm border border-gray-200">
-            <span className="text-sm font-bold text-brand-dark">
+          <div className="absolute top-2 left-2 bg-white rounded-lg px-3 py-1.5 shadow-md border border-gray-200">
+            <span className="text-base font-bold text-brand-dark">
               ${product.price}
             </span>
           </div>
@@ -160,13 +155,6 @@ export function ProductCard({ product, variant = 'vertical' }: ProductCardProps)
           </h3>
           <p className="text-brand-gray text-sm">{product.brand_name}</p>
         </div>
-
-        {/* Excerpt */}
-        {product.excerpt && (
-          <p className="text-sm text-brand-gray mb-4 line-clamp-3">
-            {product.excerpt}
-          </p>
-        )}
 
         {/* BIFL Score */}
         <div className="flex justify-center mb-4">
@@ -187,40 +175,41 @@ export function ProductCard({ product, variant = 'vertical' }: ProductCardProps)
 
         {/* Quick Stats */}
         <div className="grid grid-cols-3 gap-2 mb-4 text-xs">
-          {product.durability_score && (
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-1 mb-1">
-                <Shield className="w-3 h-3 text-blue-500" />
-              </div>
-              <span className="font-medium">{product.durability_score}/10</span>
-              <div className="text-gray-500">Durability</div>
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-1 mb-1">
+              <Shield className="w-3 h-3 text-blue-500" />
             </div>
-          )}
-          {product.repairability_score && (
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-1 mb-1">
-                <Wrench className="w-3 h-3 text-green-500" />
-              </div>
-              <span className="font-medium">{product.repairability_score}/10</span>
-              <div className="text-gray-500">Repair</div>
+            <span className="font-medium">
+              {product.durability_score ? `${product.durability_score}/10` : 'N/A'}
+            </span>
+            <div className="text-gray-500 text-[10px]">Durability</div>
+          </div>
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-1 mb-1">
+              <Wrench className="w-3 h-3 text-green-500" />
             </div>
-          )}
-          {product.warranty_years && (
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-1 mb-1">
-                <span className="text-purple-500 text-sm">📜</span>
-              </div>
-              <span className="font-medium">{product.warranty_years}yr</span>
-              <div className="text-gray-500">Warranty</div>
+            <span className="font-medium">
+              {product.repairability_score ? `${product.repairability_score}/10` : 'N/A'}
+            </span>
+            <div className="text-gray-500 text-[10px]">Repair</div>
+          </div>
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-1 mb-1">
+              <Shield className="w-3 h-3 text-purple-500" />
             </div>
-          )}
+            <span className="font-medium">
+              {product.warranty_score ? `${product.warranty_score}/10` : 'N/A'}
+            </span>
+            <div className="text-gray-500 text-[10px]">Warranty</div>
+          </div>
         </div>
 
         {/* Actions */}
         <div className="space-y-2">
           <Link
             href={`/products/${product.slug || product.id}`}
-            className="w-full bg-brand-teal text-white font-medium py-2.5 px-4 rounded-lg hover:bg-brand-teal/90 transition-colors text-center block"
+            className="w-full text-white font-medium py-2.5 px-4 rounded-lg hover:opacity-90 transition-colors text-center block"
+            style={{ backgroundColor: '#4A9D93' }}
           >
             View Details
           </Link>

@@ -4,13 +4,39 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
-    domains: [
-      'm.media-amazon.com',
-      'images-na.ssl-images-amazon.com',
-      'via.placeholder.com',
-      'placehold.co',
-      'picsum.photos',
-      'gagdrneksilycmcewyvt.supabase.co'
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'm.media-amazon.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images-na.ssl-images-amazon.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'via.placeholder.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+      },
+      {
+        protocol: 'https',
+        hostname: 'gagdrneksilycmcewyvt.supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.ft.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.ft.com',
+      },
     ],
   },
 }

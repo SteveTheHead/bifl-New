@@ -12,7 +12,7 @@ export default function FooterSection() {
               Expert reviews of durable, long-lasting products. We help you find quality items worth buying once.
             </p>
             <p className="text-sm text-brand-gray">
-              © {new Date().getFullYear()} Buy It For Life. All rights reserved.
+              © {new Date().getFullYear()} BuyItForLifeProducts.com. All rights reserved.
             </p>
           </div>
 
@@ -86,7 +86,7 @@ export default function FooterSection() {
         {/* Amazon Affiliate Disclaimer */}
         <div className="border-t border-gray-200 pt-8">
           <p className="text-xs text-brand-gray text-center max-w-4xl mx-auto">
-            <strong>Affiliate Disclosure:</strong> Buy It For Life is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.com. We may earn a commission when you make a purchase through affiliate links, at no additional cost to you.
+            <strong>Affiliate Disclosure:</strong> BuyItForLifeProducts.com is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.com. We may earn a commission when you make a purchase through affiliate links, at no additional cost to you.
           </p>
         </div>
       </div>

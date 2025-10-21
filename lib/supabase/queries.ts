@@ -90,36 +90,44 @@ export async function getProductById(id: string) {
   }
 
   try {
-    const { data, error } = await supabase
+    // Check if ID looks like a UUID, if not, try as slug
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+
+    let query = supabase
       .from('products')
       .select(`
         *,
         brands!brand_id(name, slug, website, description),
         categories!category_id(name, slug, description)
       `)
-      .eq('id', id)
       .eq('status', 'published')
-      .single()
+
+    // Use id or slug based on format
+    if (isUUID) {
+      query = query.eq('id', id)
+    } else {
+      query = query.eq('slug', id)
+    }
+
+    const { data, error } = await query.single()
 
     if (error) {
       // Log more detailed error information
-      console.error('Error fetching product by ID:', {
-        productId: id,
-        error: error,
-        code: error.code,
-        message: error.message,
-        details: error.details,
-        hint: error.hint
-      })
+      console.error('Error fetching product:',
+        `ID/Slug: ${id}, `,
+        `Code: ${error.code}, `,
+        `Message: ${error.message}, `,
+        `Details: ${JSON.stringify(error.details)}`
+      )
       return null
     }
 
     return data
-  } catch (err) {
-    console.error('Unexpected error in getProductById:', {
-      productId: id,
-      error: err
-    })
+  } catch (err: any) {
+    console.error('Unexpected error in getProductById:',
+      `ID: ${id}, `,
+      `Error: ${err?.message || String(err)}`
+    )
     return null
   }
 }
@@ -498,5 +506,41 @@ export async function getAllProductsForAdmin() {
     ...(product as any),
     brand_name: ((product as any).brands as any)?.name || 'Unknown Brand',
     category_name: ((product as any).categories as any)?.name || 'Uncategorized'
+  })) || []
+}
+
+// Curation queries
+export async function getFeaturedCurations() {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('curations')
+    .select(`
+      id,
+      name,
+      slug,
+      description,
+      featured_image_url,
+      display_order,
+      curation_products!inner (
+        id,
+        product_id,
+        display_order
+      )
+    `)
+    .eq('is_active', true)
+    .eq('is_featured', true)
+    .order('display_order', { ascending: true })
+    .limit(6)
+
+  if (error) {
+    console.error('Error fetching featured curations:', error)
+    return []
+  }
+
+  // Add product count to each curation
+  return data?.map(curation => ({
+    ...curation,
+    product_count: curation.curation_products?.length || 0
   })) || []
 }

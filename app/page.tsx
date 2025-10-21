@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Metadata } from 'next'
-import { getCategories, getFeaturedProducts } from '@/lib/supabase/queries'
+import { getCategories, getFeaturedProducts, getFeaturedCurations } from '@/lib/supabase/queries'
 import { Card, CardContent } from '@/components/ui/card'
 import BadgeDisplay from '@/components/BadgeDisplay'
 import { OrganizationStructuredData } from '@/components/seo/structured-data'
@@ -75,10 +75,11 @@ function getScoreLabel(score: number) {
 
 export default async function HomePage() {
   try {
-    // Get categories and featured products from database
-    const [categories, featuredProducts] = await Promise.all([
+    // Get categories, featured products, and featured curations from database
+    const [categories, featuredProducts, featuredCurations] = await Promise.all([
       getCategories(),
-      getFeaturedProducts()
+      getFeaturedProducts(),
+      getFeaturedCurations()
     ])
 
   return (
@@ -360,7 +361,55 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Featured Curations Section */}
+      {featuredCurations && featuredCurations.length > 0 && (
+        <section className="py-12 sm:py-16 md:py-20 bg-white">
+          <div className="container mx-auto px-4 sm:px-6">
+            <div className="text-center mb-8 sm:mb-12 md:mb-16">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-brand-dark mb-4 sm:mb-6">Curated Collections</h2>
+              <p className="text-base sm:text-lg md:text-xl text-brand-gray max-w-3xl mx-auto px-4">
+                Expertly curated collections for every occasion, from holiday gifts to seasonal essentials.
+              </p>
+            </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+              {featuredCurations.map((curation: any) => (
+                <Link key={curation.id} href={`/curations/${curation.slug}`}>
+                  <div className="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer bg-white">
+                    {curation.featured_image_url ? (
+                      <>
+                        <Image
+                          src={curation.featured_image_url}
+                          alt={curation.name}
+                          width={400}
+                          height={256}
+                          className="w-full h-48 sm:h-56 md:h-64 object-cover group-hover:scale-110 transition-transform duration-300"
+                        />
+                        <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-all duration-300"></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                      </>
+                    ) : (
+                      <div className="w-full h-48 sm:h-56 md:h-64 bg-gradient-to-br from-brand-teal to-brand-dark"></div>
+                    )}
+                    <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 z-10">
+                      <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-2">{curation.name}</h3>
+                      {curation.description && (
+                        <p className="text-white/90 text-sm mb-3 line-clamp-2">{curation.description}</p>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/80 text-sm">{curation.product_count} products</span>
+                        <span className="inline-block text-white px-3 py-1.5 rounded-lg font-medium hover:bg-opacity-90 transition-colors cursor-pointer relative z-20 border-2 text-xs sm:text-sm" style={{ backgroundColor: '#4A9D93', borderColor: '#4A9D93' }}>
+                          View Collection
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Newsletter Section */}
       <NewsletterSection />

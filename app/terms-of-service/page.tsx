@@ -29,7 +29,7 @@ export default function TermsOfService() {
             <section>
               <h2 className="text-2xl font-bold text-brand-dark mb-4">1. Acceptance of Terms</h2>
               <p className="leading-relaxed">
-                Welcome to Buy It For Life. By accessing or using our website, you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use our website.
+                Welcome to BuyItForLifeProducts.com. By accessing or using our website, you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use our website.
               </p>
               <p className="leading-relaxed">
                 We reserve the right to modify these Terms at any time. Your continued use of the website after changes are posted constitutes acceptance of the modified Terms.
@@ -64,7 +64,7 @@ export default function TermsOfService() {
 
               <h3 className="text-xl font-semibold text-brand-dark mb-3">3.1 Our Content</h3>
               <p className="leading-relaxed mb-4">
-                All content on this website, including but not limited to text, graphics, logos, images, product reviews, ratings, and software, is the property of Buy It For Life or its content suppliers and is protected by copyright, trademark, and other intellectual property laws.
+                All content on this website, including but not limited to text, graphics, logos, images, product reviews, ratings, and software, is the property of BuyItForLifeProducts.com or its content suppliers and is protected by copyright, trademark, and other intellectual property laws.
               </p>
               <p className="leading-relaxed">
                 You may not reproduce, distribute, modify, create derivative works, publicly display, or exploit any of our content without our express written permission.
@@ -95,7 +95,7 @@ export default function TermsOfService() {
             <section>
               <h2 className="text-2xl font-bold text-brand-dark mb-4">5. Affiliate Relationships and Disclaimers</h2>
               <p className="leading-relaxed mb-4">
-                Buy It For Life participates in the Amazon Services LLC Associates Program and may earn commissions from qualifying purchases made through affiliate links on our website.
+                BuyItForLifeProducts.com participates in the Amazon Services LLC Associates Program and may earn commissions from qualifying purchases made through affiliate links on our website.
               </p>
               <p className="leading-relaxed mb-4">
                 When you click on an affiliate link and make a purchase, we may receive a commission at no additional cost to you. These affiliate relationships do not influence our product reviews or recommendations, which are based on our independent analysis.
@@ -129,7 +129,7 @@ export default function TermsOfService() {
             <section>
               <h2 className="text-2xl font-bold text-brand-dark mb-4">8. Limitation of Liability</h2>
               <p className="leading-relaxed mb-4">
-                TO THE MAXIMUM EXTENT PERMITTED BY LAW, BUY IT FOR LIFE SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES, RESULTING FROM:
+                TO THE MAXIMUM EXTENT PERMITTED BY LAW, BUYITFORLIFEPRODUCTS.COM SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES, RESULTING FROM:
               </p>
               <ul className="list-disc pl-6 mb-4 space-y-2">
                 <li>Your use or inability to use our website</li>
@@ -147,7 +147,7 @@ export default function TermsOfService() {
             <section>
               <h2 className="text-2xl font-bold text-brand-dark mb-4">9. Indemnification</h2>
               <p className="leading-relaxed">
-                You agree to indemnify, defend, and hold harmless Buy It For Life and its officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, and expenses, including reasonable attorneys' fees, arising out of or in any way connected with your access to or use of our website, your violation of these Terms, or your violation of any rights of another.
+                You agree to indemnify, defend, and hold harmless BuyItForLifeProducts.com and its officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, and expenses, including reasonable attorneys' fees, arising out of or in any way connected with your access to or use of our website, your violation of these Terms, or your violation of any rights of another.
               </p>
             </section>
 
@@ -211,7 +211,7 @@ export default function TermsOfService() {
             <div className="bg-amber-50 border-l-4 border-amber-500 p-6 rounded mt-8">
               <h3 className="text-lg font-semibold text-amber-900 mb-2">Important Notice</h3>
               <p className="text-amber-800">
-                Please read these Terms carefully before using our website. By using Buy It For Life, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.
+                Please read these Terms carefully before using our website. By using BuyItForLifeProducts.com, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.
               </p>
             </div>
           </div>

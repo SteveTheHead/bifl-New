@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState, useRef, useEffect } from 'react'
 import { Menu, X, Search, User, LogOut } from 'lucide-react'
 import { logout } from '@/app/auth/actions'
@@ -13,6 +14,7 @@ export function Navbar() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const userMenuRef = useRef<HTMLDivElement>(null)
+  const lastCheckRef = useRef<number>(0)
 
   // Fix hydration mismatch
   useEffect(() => {
@@ -21,12 +23,28 @@ export function Navbar() {
 
   // Check authentication using our Supabase auth system
   const checkUser = async () => {
+    // Debounce: Don't check more than once every 2 seconds
+    const now = Date.now()
+    if (now - lastCheckRef.current < 2000) {
+      return
+    }
+    lastCheckRef.current = now
+
     try {
-      const response = await fetch('/api/user/auth')
+      const response = await fetch('/api/user/auth', {
+        cache: 'no-store',
+        signal: AbortSignal.timeout(5000), // 5 second timeout
+      })
+
+      if (!response.ok) {
+        setUser(null)
+        return
+      }
+
       const data = await response.json()
       setUser(data.user)
     } catch (error) {
-      console.error('Error checking auth:', error)
+      // Silently handle auth check failures (user not authenticated, timeout, or network error)
       setUser(null)
     } finally {
       setLoading(false)
@@ -37,16 +55,6 @@ export function Navbar() {
     checkUser()
   }, [])
 
-  // Check user state when the window gains focus (e.g., after login in another tab/window)
-  useEffect(() => {
-    const handleFocus = () => {
-      checkUser()
-    }
-
-    window.addEventListener('focus', handleFocus)
-    return () => window.removeEventListener('focus', handleFocus)
-  }, [])
-
   const handleSignOut = async () => {
     try {
       setShowUserMenu(false)
@@ -55,7 +63,6 @@ export function Navbar() {
       // Force a page refresh to ensure all client-side state is cleared
       window.location.href = '/auth/signin'
     } catch (error) {
-      console.error('Sign out error:', error)
       // Still clear user state on error and redirect
       setUser(null)
       window.location.href = '/auth/signin'
@@ -81,12 +88,14 @@ export function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <div className="flex flex-col leading-none -space-y-2.5">
-              <span className="text-base font-bold text-brand-dark">BUYITFORLIFE</span>
-              <span className="text-base font-bold text-brand-gray">
-                PRODUCTS<span className="text-xs font-normal">.com</span>
-              </span>
-            </div>
+            <Image
+              src="/bifl-logo.png"
+              alt="BIFL - Buy It For Life Products"
+              width={1110}
+              height={404}
+              priority
+              className="h-24 w-auto md:h-32 lg:h-36"
+            />
           </Link>
 
           {/* Desktop Center - Search */}

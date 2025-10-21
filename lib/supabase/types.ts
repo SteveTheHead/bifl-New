@@ -720,6 +720,134 @@ export interface Database {
           created_at?: string
         }
       }
+      curations: {
+        Row: {
+          id: string
+          name: string
+          slug: string
+          description: string | null
+          featured_image_url: string | null
+          is_active: boolean
+          is_featured: boolean
+          display_order: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          slug: string
+          description?: string | null
+          featured_image_url?: string | null
+          is_active?: boolean
+          is_featured?: boolean
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          slug?: string
+          description?: string | null
+          featured_image_url?: string | null
+          is_active?: boolean
+          is_featured?: boolean
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      curation_products: {
+        Row: {
+          id: string
+          curation_id: string
+          product_id: string
+          display_order: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          curation_id: string
+          product_id: string
+          display_order?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          curation_id?: string
+          product_id?: string
+          display_order?: number
+          created_at?: string
+        }
+      }
+      feedback: {
+        Row: {
+          id: string
+          feedback_type: string
+          subject: string
+          details: string
+          attachment_url: string | null
+          contact_name: string | null
+          contact_email: string | null
+          status: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          feedback_type: string
+          subject: string
+          details: string
+          attachment_url?: string | null
+          contact_name?: string | null
+          contact_email?: string | null
+          status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          feedback_type?: string
+          subject?: string
+          details?: string
+          attachment_url?: string | null
+          contact_name?: string | null
+          contact_email?: string | null
+          status?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      newsletter_subscribers: {
+        Row: {
+          id: string
+          email: string
+          subscribed: boolean
+          subscribed_at: string
+          unsubscribed_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          email: string
+          subscribed?: boolean
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          email?: string
+          subscribed?: boolean
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       products_with_taxonomy: {

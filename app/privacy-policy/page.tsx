@@ -29,7 +29,7 @@ export default function PrivacyPolicy() {
             <section>
               <h2 className="text-2xl font-bold text-brand-dark mb-4">1. Introduction</h2>
               <p className="leading-relaxed">
-                Welcome to Buy It For Life ("we," "our," or "us"). We are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website.
+                Welcome to BuyItForLifeProducts.com ("we," "our," or "us"). We are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website.
               </p>
               <p className="leading-relaxed">
                 By using our website, you consent to the data practices described in this policy.

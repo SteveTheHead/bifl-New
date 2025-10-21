@@ -11,10 +11,6 @@ export interface AdminSession {
 export function getAdminSession(request: NextRequest): AdminSession | null {
   try {
     const sessionCookie = request.cookies.get('admin-session')
-      cookieExists: !!sessionCookie,
-      cookieValue: sessionCookie?.value?.substring(0, 50) + '...',
-      path: request.nextUrl.pathname
-    })
 
     if (!sessionCookie) {
       return null

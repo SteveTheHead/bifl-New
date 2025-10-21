@@ -36,7 +36,7 @@ export default function AffiliateDisclosure() {
             <section>
               <h2 className="text-2xl font-bold text-brand-dark mb-4">Amazon Associates Program</h2>
               <p className="leading-relaxed mb-4">
-                Buy It For Life is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.com.
+                BuyItForLifeProducts.com is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.com.
               </p>
               <p className="leading-relaxed">
                 When you click on product links on our website and make a purchase on Amazon, we may receive a small commission. This commission comes at no additional cost to you—you pay the same price you would pay if you visited Amazon directly.

@@ -13,7 +13,8 @@ import {
   TrendingUp,
   ShoppingBag,
   Brain,
-  MessageSquare
+  MessageSquare,
+  LayoutGrid
 } from 'lucide-react'
 
 export default function AdminDashboard() {
@@ -191,7 +192,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3 mb-6">
           <Link
             href="/admin/products/new"
             className="bg-white rounded-lg p-4 shadow-sm border border-gray-200/60 hover:shadow-md hover:border-brand-teal/30 transition-all group"
@@ -203,6 +204,21 @@ export default function AdminDashboard() {
               <div>
                 <p className="font-medium text-gray-900 text-sm">Add Product</p>
                 <p className="text-xs text-gray-500">Create new</p>
+              </div>
+            </div>
+          </Link>
+
+          <Link
+            href="/admin/curations"
+            className="bg-white rounded-lg p-4 shadow-sm border border-gray-200/60 hover:shadow-md hover:border-pink-500/30 transition-all group"
+          >
+            <div className="flex flex-col items-center text-center space-y-2">
+              <div className="p-2 bg-gradient-to-br from-pink-500 to-rose-600 rounded-lg group-hover:scale-110 transition-transform">
+                <LayoutGrid className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <p className="font-medium text-gray-900 text-sm">Curations</p>
+                <p className="text-xs text-gray-500">Collections</p>
               </div>
             </div>
           </Link>

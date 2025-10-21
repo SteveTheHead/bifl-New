@@ -102,9 +102,6 @@ function SettingsContent() {
             setOrders(null);
           }
         } catch (orderError) {
-            "Orders fetch failed - customer may not exist in Polar yet:",
-            orderError,
-          );
           setOrders(null);
         }
 

@@ -120,13 +120,6 @@ export async function PUT(
       updated_at: new Date().toISOString()
     }
 
-      name: existingCategory.name,
-      slug: existingCategory.slug,
-      description: existingCategory.description,
-      display_order: existingCategory.display_order,
-      is_featured: existingCategory.is_featured
-    })
-
     const { data: updatedCategories, error } = await supabase
       .from('categories')
       .update(updateData)

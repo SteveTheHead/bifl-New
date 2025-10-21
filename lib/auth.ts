@@ -136,12 +136,6 @@ export const auth = betterAuth({
                   userId: userId as string | null,
                 };
 
-                  id: subscriptionData.id,
-                  status: subscriptionData.status,
-                  userId: subscriptionData.userId,
-                  amount: subscriptionData.amount,
-                });
-
                 // STEP 3: Use Drizzle's onConflictDoUpdate for proper upsert
                 await db
                   .insert(subscription)
