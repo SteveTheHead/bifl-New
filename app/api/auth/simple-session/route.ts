@@ -6,7 +6,6 @@ export async function GET(request: NextRequest) {
   try {
     // First check for admin session
     const adminSession = getAdminSession(request)
-    console.log('Admin session check:', !!adminSession, adminSession?.email)
     if (adminSession) {
       return NextResponse.json({
         isAuthenticated: true,

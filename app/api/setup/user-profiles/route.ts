@@ -5,7 +5,6 @@ export async function POST() {
   try {
     const supabase = createAdminClient()
 
-    console.log('Setting up user_profiles table...')
 
     // Check if table already exists
     const { data: existingTable } = await supabase
@@ -16,7 +15,6 @@ export async function POST() {
       .single()
 
     if (existingTable) {
-      console.log('user_profiles table already exists')
       return NextResponse.json({
         success: true,
         message: 'User profiles table already exists'
@@ -33,7 +31,6 @@ export async function POST() {
     if (testError && testError.code === '42P01') {
       // Table doesn't exist, we need to create it manually
       // For now, let's use the auth metadata approach and document the table structure
-      console.log('user_profiles table does not exist, need manual creation')
 
       return NextResponse.json({
         success: false,
@@ -69,7 +66,6 @@ CREATE POLICY "Service role can manage all profiles" ON user_profiles
       }, { status: 400 })
     }
 
-    console.log('user_profiles table already exists')
     return NextResponse.json({
       success: true,
       message: 'User profiles table exists and ready to use'

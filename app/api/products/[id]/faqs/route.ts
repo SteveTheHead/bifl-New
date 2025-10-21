@@ -34,7 +34,6 @@ export async function GET(
 
     if (error) {
       // If table doesn't exist or there's a relation error, return clean generated FAQs
-      console.log('FAQ table may not exist yet:', error.message)
       const defaultFAQs = generateDefaultFAQs(product)
       return NextResponse.json({ faqs: defaultFAQs })
     }

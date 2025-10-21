@@ -82,19 +82,16 @@ export function ReviewsList({ productId, refreshTrigger }: ReviewsListProps) {
       setLoading(true)
       setError(null)
 
-      console.log('ReviewsList: Starting fetch for productId:', productId)
 
       const response = await fetch(`/api/reviews/${productId}`)
       const result = await response.json()
 
-      console.log('ReviewsList: API response:', result)
 
       if (!response.ok) {
         setError(`Failed to load reviews: ${result.error || 'Unknown error'}`)
         return
       }
 
-      console.log('ReviewsList: Setting reviews data:', result.reviews?.length || 0, 'reviews')
       setReviews(result.reviews || [])
     } catch (err) {
       console.error('Error:', err)

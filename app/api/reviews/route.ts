@@ -13,7 +13,6 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    console.log('API: Received review data:', body)
 
     // Add user_id to the review data
     const reviewData = {
@@ -23,7 +22,6 @@ export async function POST(request: NextRequest) {
 
     const { error, data } = await sb.insert(supabase, 'reviews', [reviewData])
 
-    console.log('API: Insert result:', { data, error })
 
     if (error) {
       console.error('API: Insert error:', error)

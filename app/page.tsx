@@ -5,6 +5,8 @@ import { getCategories, getFeaturedProducts } from '@/lib/supabase/queries'
 import { Card, CardContent } from '@/components/ui/card'
 import BadgeDisplay from '@/components/BadgeDisplay'
 import { OrganizationStructuredData } from '@/components/seo/structured-data'
+import { NewsletterSection } from '@/components/homepage/newsletter-section'
+import { FeedbackButton } from '@/components/feedback-button'
 
 // Enable Next.js caching and revalidation
 export const revalidate = 3600 // Revalidate every hour
@@ -79,8 +81,6 @@ export default async function HomePage() {
       getFeaturedProducts()
     ])
 
-    console.log('Categories being used:', categories?.map(c => c.name) || [])
-    console.log('Featured products:', featuredProducts?.length || 0)
   return (
     <div className="bg-brand-cream font-sans">
       {/* SEO Structured Data */}
@@ -363,137 +363,10 @@ export default async function HomePage() {
 
 
       {/* Newsletter Section */}
-      <section className="py-20 bg-brand-teal">
-        <div className="container mx-auto px-6 text-center">
-          <h2 className="text-4xl font-serif font-bold text-white mb-6">Stay Updated</h2>
-          <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
-            Get notified when new products earn BIFL certification, exclusive community insights, and durability tips.
-          </p>
+      <NewsletterSection />
 
-          <div className="max-w-md mx-auto">
-            <div className="flex space-x-4">
-              <input type="email" placeholder="Enter your email" className="flex-1 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-white bg-white/90" />
-              <button className="bg-brand-dark text-white px-6 py-3 rounded-lg font-semibold hover:bg-brand-dark/90 transition-colors">
-                Subscribe
-              </button>
-            </div>
-            <p className="text-white/70 text-sm mt-4">No spam, unsubscribe anytime. 25,000+ subscribers trust us.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Feedback Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-6">
-          <div className="max-w-2xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-serif font-bold text-brand-dark mb-6">Help Us Improve</h2>
-              <p className="text-xl text-brand-gray max-w-3xl mx-auto">
-                Our goal is to build the most trusted resource for durable goods, and your feedback is a critical part of that process. Whether you've found an error, have a product suggestion, or just want to share an idea, we're listening.
-              </p>
-            </div>
-
-            <div className="bg-white rounded-xl p-10 shadow-lg border border-gray-100">
-              <form className="space-y-8">
-                {/* Feedback Type Radio Buttons */}
-                <div>
-                  <label className="block text-brand-dark font-semibold mb-4 text-lg">What is your feedback about?</label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <label className="flex items-center space-x-3 cursor-pointer p-3 rounded-lg border border-gray-200 hover:border-brand-teal transition-colors">
-                      <input type="radio" name="feedback_type" value="website_bug" className="text-brand-teal focus:ring-brand-teal" />
-                      <span className="text-brand-dark font-medium">Website Bug</span>
-                    </label>
-                    <label className="flex items-center space-x-3 cursor-pointer p-3 rounded-lg border border-gray-200 hover:border-brand-teal transition-colors">
-                      <input type="radio" name="feedback_type" value="product_suggestion" className="text-brand-teal focus:ring-brand-teal" />
-                      <span className="text-brand-dark font-medium">Product Suggestion</span>
-                    </label>
-                    <label className="flex items-center space-x-3 cursor-pointer p-3 rounded-lg border border-gray-200 hover:border-brand-teal transition-colors">
-                      <input type="radio" name="feedback_type" value="data_correction" className="text-brand-teal focus:ring-brand-teal" />
-                      <span className="text-brand-dark font-medium">Data Correction</span>
-                    </label>
-                    <label className="flex items-center space-x-3 cursor-pointer p-3 rounded-lg border border-gray-200 hover:border-brand-teal transition-colors">
-                      <input type="radio" name="feedback_type" value="general_idea" className="text-brand-teal focus:ring-brand-teal" />
-                      <span className="text-brand-dark font-medium">General Idea</span>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Subject Field */}
-                <div>
-                  <label className="block text-brand-dark font-semibold mb-3 text-lg">Subject</label>
-                  <input
-                    type="text"
-                    placeholder="e.g., Incorrect warranty information for Brand X"
-                    className="w-full px-4 py-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent transition-all"
-                  />
-                </div>
-
-                {/* Details Textarea */}
-                <div>
-                  <label className="block text-brand-dark font-semibold mb-3 text-lg">Details</label>
-                  <textarea
-                    rows={6}
-                    placeholder="Please provide as much detail as possible. If suggesting a product, tell us why you think it's BIFL!"
-                    className="w-full px-4 py-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent resize-none transition-all"
-                  ></textarea>
-                </div>
-
-                {/* File Attachment */}
-                <div>
-                  <label className="block text-brand-dark font-semibold mb-3 text-lg">Attachment (Optional)</label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-10 text-center hover:border-brand-teal transition-all cursor-pointer">
-                    <div className="flex flex-col items-center space-y-4">
-                      <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                      </svg>
-                      <div className="space-y-1">
-                        <div>
-                          <span className="text-brand-teal font-semibold">Upload a file</span>
-                          <span className="text-gray-600"> or drag and drop</span>
-                        </div>
-                        <p className="text-sm text-gray-500">PNG, JPG, GIF up to 10MB</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Contact Info Section */}
-                <div className="border-t border-gray-200 pt-8">
-                  <h3 className="text-brand-dark font-semibold mb-3 text-lg">Contact Info (Optional)</h3>
-                  <p className="text-brand-gray mb-6">Provide your contact details if you'd like a response or are open to follow-up questions from our research team.</p>
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-brand-dark font-medium mb-2">Name</label>
-                      <input
-                        type="text"
-                        className="w-full px-4 py-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent transition-all"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-brand-dark font-medium mb-2">Email</label>
-                      <input
-                        type="email"
-                        className="w-full px-4 py-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent transition-all"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Submit Button */}
-                <div className="text-center pt-6">
-                  <button
-                    type="submit"
-                    className="px-12 py-4 text-white rounded-lg font-semibold transition-all hover:opacity-90 hover:scale-105 transform shadow-lg"
-                    style={{ backgroundColor: '#4A9D93' }}
-                  >
-                    Submit Feedback
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Feedback Button - Fixed position */}
+      <FeedbackButton />
 
     </div>
   )

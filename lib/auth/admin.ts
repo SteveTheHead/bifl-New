@@ -11,7 +11,6 @@ export interface AdminSession {
 export function getAdminSession(request: NextRequest): AdminSession | null {
   try {
     const sessionCookie = request.cookies.get('admin-session')
-    console.log('Admin session cookie check:', {
       cookieExists: !!sessionCookie,
       cookieValue: sessionCookie?.value?.substring(0, 50) + '...',
       path: request.nextUrl.pathname
@@ -28,11 +27,9 @@ export function getAdminSession(request: NextRequest): AdminSession | null {
     const maxAge = 24 * 60 * 60 * 1000 // 24 hours in ms
 
     if (sessionAge > maxAge) {
-      console.log('Admin session expired:', { sessionAge, maxAge })
       return null
     }
 
-    console.log('Valid admin session found:', { email: session.email, role: session.role })
     return session
   } catch (error) {
     console.error('Error parsing admin session:', error)

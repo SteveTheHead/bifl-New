@@ -15,7 +15,6 @@ export async function GET(request: NextRequest) {
         .delete()
         .or('name.is.null,name.eq.')
 
-      console.log('Cleaned up empty products')
     }
 
     // Use the new function that includes is_featured

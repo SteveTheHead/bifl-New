@@ -99,11 +99,9 @@ function SettingsContent() {
           if (ordersResponse.data) {
             setOrders(ordersResponse.data as unknown as OrdersResponse);
           } else {
-            console.log("No orders found or customer not created yet");
             setOrders(null);
           }
         } catch (orderError) {
-          console.log(
             "Orders fetch failed - customer may not exist in Polar yet:",
             orderError,
           );
@@ -112,9 +110,7 @@ function SettingsContent() {
 
         try {
           const { data: customerState } = await authClient.customer.state();
-          console.log("customerState", customerState);
         } catch (customerError) {
-          console.log("Customer state fetch failed:", customerError);
         }
       } catch (error) {
         console.error("Error fetching data:", error);

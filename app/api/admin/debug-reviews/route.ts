@@ -4,7 +4,6 @@ import { createClient } from '@supabase/supabase-js'
 // Temporary debug endpoint to check reviews
 export async function GET() {
   try {
-    console.log('Debug Reviews API: Starting request')
 
     // Use service role key to bypass RLS
     const supabase = createClient(
@@ -24,14 +23,12 @@ export async function GET() {
       .select('id, status, title, user_email, created_at')
       .order('created_at', { ascending: false })
 
-    console.log('Debug Reviews API: Query result', { reviewCount: data?.length || 0, error })
 
     if (error) {
       console.error('Debug Reviews API: Error fetching reviews:', error)
       return NextResponse.json({ error: error.message }, { status: 400 })
     }
 
-    console.log('Debug Reviews API: All reviews:', data)
     return NextResponse.json({
       reviews: data || [],
       statusCounts: {

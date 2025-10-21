@@ -10,7 +10,6 @@ export async function GET() {
       .select('id, name, slug, description, display_order, is_featured')
       .order('display_order', { ascending: true })
 
-    console.log('Public categories query result:', { count: categories?.length, error })
 
     if (error) {
       console.error('Categories fetch error:', error)

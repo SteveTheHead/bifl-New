@@ -7,7 +7,6 @@ export async function GET(
 ) {
   try {
     const { productId } = await params
-    console.log('API: Fetching reviews for product:', productId)
 
     // Use service role key to bypass RLS
     const supabase = createClient(
@@ -31,7 +30,6 @@ export async function GET(
       .in('status', statusFilter)
       .order('created_at', { ascending: false })
 
-    console.log('API: Reviews query result:', { data: data?.length || 0, error })
 
     if (error) {
       console.error('API: Error fetching reviews:', error)

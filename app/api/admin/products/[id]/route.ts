@@ -35,7 +35,6 @@ export async function PUT(
     const body = await request.json()
     const supabase = createAdminClient()
 
-    console.log('Updating product:', id, 'with data:', Object.keys(body))
 
     // Type assertion needed due to admin client limitations with typed mutations
     const updateData = body as Database['public']['Tables']['products']['Update']

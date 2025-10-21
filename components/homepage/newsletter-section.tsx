@@ -44,7 +44,12 @@ export function NewsletterSection() {
   }
 
   return (
-    <section className="py-20 bg-gradient-to-br from-brand-teal to-brand-dark relative overflow-hidden">
+    <section
+      className="py-20 relative overflow-hidden"
+      style={{
+        background: 'linear-gradient(to bottom right, #4A9D93, #2C3539)'
+      }}
+    >
       {/* Background decoration */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-10 left-10 w-64 h-64 bg-white rounded-full blur-3xl"></div>

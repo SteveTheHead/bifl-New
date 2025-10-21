@@ -3,10 +3,8 @@ import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
-  console.log('🔥 Avatar upload POST request received')
   try {
     const supabase = await createClient()
-    console.log('✅ Supabase client created')
 
     // Create admin client for storage operations
     const adminSupabase = createSupabaseClient(
@@ -19,7 +17,6 @@ export async function POST(request: NextRequest) {
         }
       }
     )
-    console.log('✅ Admin client created')
 
     // Get authenticated user - require real authentication
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -28,7 +25,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
     }
 
-    console.log('Avatar upload request for authenticated user:', user.id)
 
     const formData = await request.formData()
     const file = formData.get('avatar') as File
@@ -37,7 +33,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
-    console.log('File received:', file.name, file.type, file.size)
 
     // Validate file type and size
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
@@ -59,7 +54,6 @@ export async function POST(request: NextRequest) {
     const fileName = `${user.id}-${Date.now()}.${fileExt}`
     const filePath = `avatars/${fileName}`
 
-    console.log('Uploading file to:', filePath)
 
     // Upload to Supabase Storage using admin client
     const { data: uploadData, error: uploadError } = await adminSupabase.storage
@@ -77,7 +71,6 @@ export async function POST(request: NextRequest) {
       }, { status: 500 })
     }
 
-    console.log('Upload successful:', uploadData)
 
     // Get public URL using admin client
     const { data: urlData } = adminSupabase.storage
@@ -85,7 +78,6 @@ export async function POST(request: NextRequest) {
       .getPublicUrl(filePath)
 
     const avatarUrl = urlData.publicUrl
-    console.log('Generated public URL:', avatarUrl)
 
     // Update user metadata with avatar URL
     const { error: updateError } = await supabase.auth.updateUser({
@@ -101,7 +93,6 @@ export async function POST(request: NextRequest) {
       }, { status: 500 })
     }
 
-    console.log('User metadata updated successfully')
 
     return NextResponse.json({
       success: true,

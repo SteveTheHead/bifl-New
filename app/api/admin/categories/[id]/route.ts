@@ -74,11 +74,9 @@ export async function PUT(
 
     const { id: categoryId } = await params
 
-    console.log('Updating category:', categoryId, 'with data:', body)
 
     // Validate slug - remove invalid characters
     const cleanSlug = body.slug.replace(/[^\w-]/g, '-').replace(/--+/g, '-').replace(/^-+|-+$/g, '')
-    console.log('Cleaned slug:', { original: body.slug, cleaned: cleanSlug })
 
     // First check if category exists
     const { data: existingCategory, error: fetchError } = await supabase
@@ -87,10 +85,8 @@ export async function PUT(
       .eq('id', categoryId)
       .single()
 
-    console.log('Existing category check:', { existingCategory, fetchError })
 
     if (fetchError || !existingCategory) {
-      console.log('Category not found:', categoryId)
       return NextResponse.json(
         { error: 'Category not found' },
         { status: 404 }
@@ -106,7 +102,6 @@ export async function PUT(
         .neq('id', categoryId)
         .maybeSingle()
 
-      console.log('Slug check:', { cleanSlug, existingSlug, slugError })
 
       if (existingSlug) {
         return NextResponse.json(
@@ -125,8 +120,6 @@ export async function PUT(
       updated_at: new Date().toISOString()
     }
 
-    console.log('About to update with:', updateData)
-    console.log('Existing data:', {
       name: existingCategory.name,
       slug: existingCategory.slug,
       description: existingCategory.description,
@@ -140,7 +133,6 @@ export async function PUT(
       .eq('id', categoryId)
       .select()
 
-    console.log('Update result:', { updatedCategories, error })
 
     if (error) {
       console.error('Update error details:', error)
@@ -149,7 +141,6 @@ export async function PUT(
 
     // If no rows were updated but there's no error, it means the data was already correct
     if (!updatedCategories || updatedCategories.length === 0) {
-      console.log('No rows updated - data was already current, returning existing category')
       return NextResponse.json({ category: existingCategory })
     }
 
@@ -198,14 +189,12 @@ export async function DELETE(
       )
     }
 
-    console.log('Attempting to delete category:', categoryId)
 
     const { error } = await supabase
       .from('categories')
       .delete()
       .eq('id', categoryId)
 
-    console.log('Delete result:', { error })
 
     if (error) throw error
 

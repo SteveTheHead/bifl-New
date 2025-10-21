@@ -5,7 +5,6 @@ export async function POST() {
   try {
     const supabase = createAdminClient()
 
-    console.log('Setting up storage bucket with admin client...')
 
     // Check if bucket exists
     const { data: existingBuckets, error: listError } = await supabase.storage.listBuckets()
@@ -18,12 +17,10 @@ export async function POST() {
       }, { status: 500 })
     }
 
-    console.log('Existing buckets:', existingBuckets?.map(b => b.name))
 
     const bucketExists = existingBuckets?.some(bucket => bucket.name === 'user-uploads')
 
     if (bucketExists) {
-      console.log('Bucket already exists')
       return NextResponse.json({
         success: true,
         message: 'Storage bucket already exists',
@@ -31,7 +28,6 @@ export async function POST() {
       })
     }
 
-    console.log('Creating user-uploads bucket...')
 
     // Create the bucket with admin permissions
     const { data, error } = await supabase.storage.createBucket('user-uploads', {
@@ -44,7 +40,6 @@ export async function POST() {
       console.error('Error creating bucket:', error)
 
       // Try a simpler bucket creation approach
-      console.log('Attempting simpler bucket creation...')
       const { data: simpleData, error: simpleError } = await supabase.storage.createBucket('user-uploads', {
         public: true
       })
@@ -57,7 +52,6 @@ export async function POST() {
         }, { status: 500 })
       }
 
-      console.log('Simple bucket created successfully:', simpleData)
       return NextResponse.json({
         success: true,
         message: 'Storage bucket created successfully (simple)',
@@ -65,7 +59,6 @@ export async function POST() {
       })
     }
 
-    console.log('Bucket created successfully:', data)
     return NextResponse.json({
       success: true,
       message: 'Storage bucket created successfully',

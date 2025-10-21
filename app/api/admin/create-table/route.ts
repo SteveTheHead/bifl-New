@@ -24,7 +24,6 @@ export async function POST(_request: NextRequest) {
       CREATE INDEX IF NOT EXISTS idx_admin_users_active ON admin_users(is_active);
     `
 
-    console.log('Attempting to create admin_users table...')
 
     // Try to execute the SQL directly
     const { data, error } = await sb.rpc(supabase, 'exec_sql', { sql: createTableQuery })

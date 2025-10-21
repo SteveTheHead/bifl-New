@@ -86,7 +86,6 @@ export function CategoryPageClient({
             setBuyingGuide(null)
           }
         } else {
-          console.log(`Buying guide API returned ${response.status} for ${category.slug}`)
           setBuyingGuide(null)
         }
       } catch (error) {

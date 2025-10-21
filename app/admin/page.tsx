@@ -12,7 +12,8 @@ import {
   Plus,
   TrendingUp,
   ShoppingBag,
-  Brain
+  Brain,
+  MessageSquare
 } from 'lucide-react'
 
 export default function AdminDashboard() {
@@ -33,13 +34,11 @@ export default function AdminDashboard() {
       const response = await fetch('/api/auth/simple-session')
       const data = await response.json()
 
-      console.log('Session check:', data)
 
       if (data.isAuthenticated && data.user?.isAdmin) {
         setSession(data.user)
         setLoading(false)
       } else {
-        console.log('Not authenticated, redirecting to sign-in')
         router.push('/auth/signin')
       }
     } catch (error) {
@@ -192,7 +191,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
           <Link
             href="/admin/products/new"
             className="bg-white rounded-lg p-4 shadow-sm border border-gray-200/60 hover:shadow-md hover:border-brand-teal/30 transition-all group"
@@ -249,6 +248,21 @@ export default function AdminDashboard() {
               <div>
                 <p className="font-medium text-gray-900 text-sm">Reviews</p>
                 <p className="text-xs text-gray-500">Moderate</p>
+              </div>
+            </div>
+          </Link>
+
+          <Link
+            href="/admin/feedback"
+            className="bg-white rounded-lg p-4 shadow-sm border border-gray-200/60 hover:shadow-md hover:border-emerald-500/30 transition-all group"
+          >
+            <div className="flex flex-col items-center text-center space-y-2">
+              <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg group-hover:scale-110 transition-transform">
+                <MessageSquare className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <p className="font-medium text-gray-900 text-sm">Feedback</p>
+                <p className="text-xs text-gray-500">Manage all</p>
               </div>
             </div>
           </Link>

@@ -10,11 +10,9 @@ export async function PATCH(
     const { is_featured } = body
     const { id } = await params
 
-    console.log('Featured toggle request:', { id, is_featured })
 
     const product = await toggleProductFeatured(id, is_featured)
 
-    console.log('Featured toggle result:', product)
     return NextResponse.json({ product })
   } catch (error) {
     console.error('Error updating featured status:', error)

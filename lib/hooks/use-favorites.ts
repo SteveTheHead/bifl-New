@@ -48,7 +48,6 @@ export function useFavorites() {
       if (error) {
         if (error.code === 'PGRST116' || error.message?.includes('relation "user_favorites" does not exist')) {
           // Table doesn't exist, start with empty favorites
-          console.log('Favorites table does not exist yet, starting with empty favorites')
           setFavorites(new Set())
           return
         }

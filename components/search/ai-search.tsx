@@ -158,8 +158,6 @@ export function AISearch() {
       const brandsData = brandsResult.data || []
 
       // TODO: Fix type inference issues with Supabase data
-      console.log('Categories data:', categoriesData.length)
-      console.log('Brands data:', brandsData.length)
 
       // TODO: Re-enable suggestions once type issues are resolved
       const recentSuggestions = recentSearches.slice(0, 3).map(search => ({
@@ -175,8 +173,6 @@ export function AISearch() {
 
   const performSearch = async (searchQuery: string) => {
     setLoading(true)
-    console.log('🔍 Starting search for:', searchQuery)
-    console.log('🎯 Active filters:', selectedFilters)
 
     try {
       const supabase = createClient()
@@ -184,7 +180,6 @@ export function AISearch() {
       // Build base query with filters
       const buildQuery = (baseQuery: ReturnType<typeof supabase.from>) => {
         let query = baseQuery.eq('status', 'published')
-        console.log('📊 Building query with base filters')
 
         if (selectedFilters.category) {
           query = query.eq('category_name', selectedFilters.category)
@@ -212,7 +207,6 @@ export function AISearch() {
       }
 
       // AI-powered search with multiple strategies - improved for multi-word searches
-      console.log('🚀 Executing search queries...')
       const words = searchQuery.trim().split(/\s+/)
 
       let searchResults: SearchResult[] = []
@@ -264,13 +258,10 @@ export function AISearch() {
         searchResults = [multiWordResult, { data: [] }, { data: [] }, { data: [] }]
       }
 
-      console.log('📋 Search results by strategy:')
       searchResults.forEach((result, index) => {
         const strategy = ['Name matches', 'Brand matches', 'Category matches', 'Description/Use case matches'][index]
-        console.log(`  ${strategy}:`, (result as any).data?.length || 0, 'results')
         if ((result as any).error) console.error(`  Error in ${strategy}:`, (result as any).error)
         if ((result as any).data?.length) {
-          console.log(`  First result:`, (result as any).data[0]?.name)
         }
       })
 
@@ -382,8 +373,6 @@ export function AISearch() {
         }
       }
 
-      console.log('✅ Final results:', sortedResults.length, 'products')
-      console.log('📦 Product names:', sortedResults.map(p => p.name))
 
       setResults(sortedResults)
 
@@ -513,13 +502,11 @@ export function AISearch() {
                   <button
                     key={category}
                     onClick={() => {
-                      console.log('🏷️ Category filter clicked:', category)
                       setSelectedFilters(prev => {
                         const newFilters = {
                           ...prev,
                           category: prev.category === category ? undefined : category
                         }
-                        console.log('🏷️ New filters after category click:', newFilters)
                         return newFilters
                       })
                     }}

@@ -91,14 +91,11 @@ export function ReviewForm({ productId, onReviewSubmitted }: ReviewFormProps) {
   }
 
   // Debug logging
-  console.log('ReviewForm render:', { user, productId, isClient })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Form submission started:', { user, productId })
 
     if (!user) {
-      console.log('No user session found')
       setError('You must be signed in to submit a review')
       return
     }
@@ -154,7 +151,6 @@ export function ReviewForm({ productId, onReviewSubmitted }: ReviewFormProps) {
         status: 'pending'
       }
 
-      console.log('Submitting review via API:', reviewData)
 
       // Submit via API route to bypass RLS
       const response = await fetch('/api/reviews', {
@@ -165,7 +161,6 @@ export function ReviewForm({ productId, onReviewSubmitted }: ReviewFormProps) {
         body: JSON.stringify(reviewData)
       })
 
-      console.log('Response status:', response.status, response.statusText)
 
       if (!response.ok) {
         const errorText = await response.text()
@@ -174,13 +169,11 @@ export function ReviewForm({ productId, onReviewSubmitted }: ReviewFormProps) {
       }
 
       const result = await response.json()
-      console.log('API response:', result)
 
       if (!result.success) {
         throw new Error(result.error || 'Failed to submit review')
       }
 
-      console.log('Review submitted successfully!')
 
       // Reset form
       setDurabilityRating(0)
@@ -200,7 +193,6 @@ export function ReviewForm({ productId, onReviewSubmitted }: ReviewFormProps) {
       setError('')
       alert('Review submitted successfully! It will appear after moderation.')
 
-      console.log('Calling onReviewSubmitted to refresh reviews list...')
       onReviewSubmitted?.()
     } catch (err) {
       console.error('Caught error:', err)

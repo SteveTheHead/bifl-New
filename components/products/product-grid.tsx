@@ -349,9 +349,12 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
     }
 
     // Price range filter
+    // IMPORTANT: Always include products with null/0 prices to avoid hiding products with missing data
+    // Bug fix: Previously filtered out 6 products with null prices
     filtered = filtered.filter(product => {
-      const price = parseFloat(product.price?.toString() || '0')
-      if (isNaN(price)) return true // Include products without prices
+      if (!product.price) return true // Include products without prices
+      const price = parseFloat(product.price.toString())
+      if (isNaN(price) || price === 0) return true // Include products with invalid or zero prices
       return price >= filters.priceRange[0] && price <= filters.priceRange[1]
     })
 

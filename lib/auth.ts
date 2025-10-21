@@ -97,8 +97,6 @@ export const auth = betterAuth({
               type === "subscription.uncanceled" ||
               type === "subscription.updated"
             ) {
-              console.log("🎯 Processing subscription webhook:", type);
-              console.log("📦 Payload data:", JSON.stringify(data, null, 2));
 
               try {
                 // STEP 1: Extract user ID from customer data
@@ -138,7 +136,6 @@ export const auth = betterAuth({
                   userId: userId as string | null,
                 };
 
-                console.log("💾 Final subscription data:", {
                   id: subscriptionData.id,
                   status: subscriptionData.status,
                   userId: subscriptionData.userId,
@@ -178,7 +175,6 @@ export const auth = betterAuth({
                     },
                   });
 
-                console.log("✅ Upserted subscription:", data.id);
               } catch (error) {
                 console.error(
                   "💥 Error processing subscription webhook:",

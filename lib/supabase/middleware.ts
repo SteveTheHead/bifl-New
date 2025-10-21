@@ -44,18 +44,14 @@ export async function updateSession(request: NextRequest) {
       request.nextUrl.pathname !== '/admin/signin' &&
       !request.nextUrl.pathname.startsWith('/admin-setup')) {
 
-    console.log('Middleware: Admin route check for:', request.nextUrl.pathname)
     const isAdmin = isAdminRequest(request)
-    console.log('Middleware: isAdminRequest result:', isAdmin)
 
     if (!isAdmin) {
-      console.log('Middleware: Redirecting to admin signin - no valid admin session')
       // Redirect to admin signin
       const url = request.nextUrl.clone()
       url.pathname = '/admin/signin'
       return NextResponse.redirect(url)
     } else {
-      console.log('Middleware: Admin access granted')
     }
   }
 

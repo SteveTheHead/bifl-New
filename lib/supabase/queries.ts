@@ -34,8 +34,11 @@ export async function getProducts(limit = 20, offset = 0) {
     .eq('status', 'published')
     .order('bifl_total_score', { ascending: false })
 
-  // Only apply range if limit is not 0 (0 means get all)
-  if (limit > 0) {
+  // Handle limit: 0 means get all (use high limit), otherwise use specified limit
+  if (limit === 0) {
+    // Use a very high limit to get all products (Supabase default max is usually 1000)
+    query = query.limit(10000)
+  } else {
     query = query.range(offset, offset + limit - 1)
   }
 
@@ -427,7 +430,6 @@ export async function addReview(review: Database['public']['Tables']['reviews'][
 
 // Admin functions for managing featured products
 export async function toggleProductFeatured(productId: string, isFeatured: boolean) {
-  console.log('toggleProductFeatured called with:', { productId, isFeatured })
 
   // Use admin client to bypass RLS policies
   const adminClient = createAdminClient()
@@ -444,14 +446,12 @@ export async function toggleProductFeatured(productId: string, isFeatured: boole
     throw new Error(`Product with ID ${productId} not found`)
   }
 
-  console.log('Found product:', existingProduct)
 
   // Update using admin client with full permissions
   const { data, error, count } = await sb.update(adminClient, 'products', { is_featured: isFeatured })
     .eq('id', productId)
     .select()
 
-  console.log('Admin update result:', { data, error, count })
 
   if (error) {
     console.error('Error updating featured status:', error)
@@ -462,7 +462,6 @@ export async function toggleProductFeatured(productId: string, isFeatured: boole
     throw new Error('Update succeeded but no data returned')
   }
 
-  console.log('Successfully updated product featured status')
   return data[0]
 }
 
