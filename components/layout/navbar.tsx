@@ -108,9 +108,6 @@ export function Navbar() {
             <Link href="/how-it-works" className="text-brand-gray hover:text-brand-dark font-medium">
               How It Works
             </Link>
-            <Link href="/about" className="text-brand-gray hover:text-brand-dark font-medium">
-              About
-            </Link>
 
             {/* User Authentication */}
             {!isClient ? (
@@ -212,13 +209,6 @@ export function Navbar() {
               onClick={() => setIsOpen(false)}
             >
               How It Works
-            </Link>
-            <Link
-              href="/about"
-              className="block text-brand-gray hover:text-brand-dark font-medium py-3"
-              onClick={() => setIsOpen(false)}
-            >
-              About
             </Link>
             <div className="pt-4 border-t border-gray-200">
               {loading ? (

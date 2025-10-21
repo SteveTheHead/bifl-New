@@ -7,6 +7,7 @@ import { FloatingCompareBar } from "@/components/compare/floating-compare-bar";
 import { CompareModal } from "@/components/compare/compare-modal";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { MicrosoftClarity } from "@/components/analytics/microsoft-clarity";
+import FooterSection from "@/components/homepage/footer";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 export const metadata: Metadata = {
@@ -52,6 +53,7 @@ export default function RootLayout({
           <CompareProvider>
             <ConditionalNavbar />
             {children}
+            <FooterSection />
             <FloatingCompareBar />
             <CompareModal />
             <Toaster />
