@@ -1,9 +1,40 @@
-import { getProducts, getCategories, getPriceRanges } from '@/lib/supabase/queries'
+import { Metadata } from 'next'
+import { getProducts, getCategories, getAllCategories, getPriceRanges } from '@/lib/supabase/queries'
 import { Card, CardContent } from '@/components/ui/card'
 import { ProductGrid } from '@/components/products/product-grid'
 
 // Enable Next.js caching and revalidation
 export const revalidate = 1800 // Revalidate every 30 minutes
+
+// SEO Metadata
+export const metadata: Metadata = {
+  title: 'All Products - Buy It For Life',
+  description: 'Browse 327+ expertly reviewed BIFL products. Filter by category, durability score, and price. Find quality items built to last a lifetime with comprehensive ratings.',
+  keywords: ['BIFL products', 'durable products', 'buy it for life catalog', 'quality products', 'long-lasting items'],
+
+  openGraph: {
+    title: 'All Products - Buy It For Life',
+    description: 'Browse 327+ expertly reviewed BIFL products. Filter by category, durability score, and price.',
+    url: `${process.env.NEXT_PUBLIC_APP_URL}/products` || 'https://buyitforlife.com/products',
+    siteName: 'Buy It For Life',
+    type: 'website',
+  },
+
+  twitter: {
+    card: 'summary',
+    title: 'All Products - Buy It For Life',
+    description: 'Browse 327+ expertly reviewed BIFL products. Filter by category, durability score, and price.',
+  },
+
+  alternates: {
+    canonical: `${process.env.NEXT_PUBLIC_APP_URL}/products` || 'https://buyitforlife.com/products',
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+  },
+}
 
 interface ProductsPageProps {
   searchParams: Promise<{ search?: string }>
@@ -14,9 +45,10 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   try {
     // Get products and taxonomy data
     // Note: In dev mode this may be slow, but production with caching will be fast
-    const [products, categories, priceRanges] = await Promise.all([
+    const [products, mainCategories, allCategories, priceRanges] = await Promise.all([
       getProducts(0, 0), // Get all products (needed for client-side filtering)
-      getCategories(),
+      getCategories(), // Main categories for display
+      getAllCategories(), // All categories including subcategories for counting
       getPriceRanges()
     ])
 
@@ -37,7 +69,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           <div className="container mx-auto px-12">
             <ProductGrid
               initialProducts={products || []}
-              categories={categories || []}
+              categories={mainCategories || []}
+              allCategories={allCategories || []}
               initialSearch={search || ''}
             />
           </div>

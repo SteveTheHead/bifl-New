@@ -1,5 +1,6 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import type { Database } from '@/lib/supabase/types'
 
 export async function PUT(
   request: Request,
@@ -8,16 +9,19 @@ export async function PUT(
   try {
     const { id } = await params
     const { pros, cons } = await request.json()
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
-    const { error } = await supabase
+    const prosConsData: Database['public']['Tables']['products']['Update'] = {
+      pros_cons: {
+        pros: pros || [],
+        cons: cons || []
+      }
+    }
+
+    // Type assertion needed due to admin client limitations with typed mutations
+    const { error } = await (supabase
       .from('products')
-      .update({
-        pros_cons: {
-          pros: pros || [],
-          cons: cons || []
-        }
-      })
+      .update as any)(prosConsData)
       .eq('id', id)
 
     if (error) {

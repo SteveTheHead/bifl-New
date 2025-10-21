@@ -39,6 +39,7 @@ export interface Database {
           manufacturer_link: string | null
           pros: Json
           cons: Json
+          pros_cons: Json
           key_features: Json
           verdict_summary: string | null
           verdict_bullets: Json
@@ -49,7 +50,28 @@ export interface Database {
           warranty_notes: string | null
           general_notes: string | null
           country_of_origin: string | null
+          manufacturing_notes: string | null
           use_case: string | null
+          optimized_product_description: string | null
+          care_and_maintenance: Json
+          faq_1_q: string | null
+          faq_1_a: string | null
+          faq_2_q: string | null
+          faq_2_a: string | null
+          faq_3_q: string | null
+          faq_3_a: string | null
+          faq_4_q: string | null
+          faq_4_a: string | null
+          faq_5_q: string | null
+          faq_5_a: string | null
+          pro_1: string | null
+          pro_2: string | null
+          pro_3: string | null
+          pro_4: string | null
+          con_1: string | null
+          con_2: string | null
+          con_3: string | null
+          con_4: string | null
           wordpress_id: number | null
           wordpress_meta: Json
           is_featured: boolean
@@ -59,6 +81,7 @@ export interface Database {
           average_rating: number | null
           meta_title: string | null
           meta_description: string | null
+          bifl_certification: string[] | null
           created_at: string
           updated_at: string
         }
@@ -90,6 +113,7 @@ export interface Database {
           manufacturer_link?: string | null
           pros?: Json
           cons?: Json
+          pros_cons?: Json
           key_features?: Json
           verdict_summary?: string | null
           verdict_bullets?: Json
@@ -100,7 +124,28 @@ export interface Database {
           warranty_notes?: string | null
           general_notes?: string | null
           country_of_origin?: string | null
+          manufacturing_notes?: string | null
           use_case?: string | null
+          optimized_product_description?: string | null
+          care_and_maintenance?: Json
+          faq_1_q?: string | null
+          faq_1_a?: string | null
+          faq_2_q?: string | null
+          faq_2_a?: string | null
+          faq_3_q?: string | null
+          faq_3_a?: string | null
+          faq_4_q?: string | null
+          faq_4_a?: string | null
+          faq_5_q?: string | null
+          faq_5_a?: string | null
+          pro_1?: string | null
+          pro_2?: string | null
+          pro_3?: string | null
+          pro_4?: string | null
+          con_1?: string | null
+          con_2?: string | null
+          con_3?: string | null
+          con_4?: string | null
           wordpress_id?: number | null
           wordpress_meta?: Json
           is_featured?: boolean
@@ -110,6 +155,7 @@ export interface Database {
           average_rating?: number | null
           meta_title?: string | null
           meta_description?: string | null
+          bifl_certification?: string[] | null
           created_at?: string
           updated_at?: string
         }
@@ -141,6 +187,7 @@ export interface Database {
           manufacturer_link?: string | null
           pros?: Json
           cons?: Json
+          pros_cons?: Json
           key_features?: Json
           verdict_summary?: string | null
           verdict_bullets?: Json
@@ -151,7 +198,28 @@ export interface Database {
           warranty_notes?: string | null
           general_notes?: string | null
           country_of_origin?: string | null
+          manufacturing_notes?: string | null
           use_case?: string | null
+          optimized_product_description?: string | null
+          care_and_maintenance?: Json
+          faq_1_q?: string | null
+          faq_1_a?: string | null
+          faq_2_q?: string | null
+          faq_2_a?: string | null
+          faq_3_q?: string | null
+          faq_3_a?: string | null
+          faq_4_q?: string | null
+          faq_4_a?: string | null
+          faq_5_q?: string | null
+          faq_5_a?: string | null
+          pro_1?: string | null
+          pro_2?: string | null
+          pro_3?: string | null
+          pro_4?: string | null
+          con_1?: string | null
+          con_2?: string | null
+          con_3?: string | null
+          con_4?: string | null
           wordpress_id?: number | null
           wordpress_meta?: Json
           is_featured?: boolean
@@ -161,6 +229,7 @@ export interface Database {
           average_rating?: number | null
           meta_title?: string | null
           meta_description?: string | null
+          bifl_certification?: string[] | null
           created_at?: string
           updated_at?: string
         }

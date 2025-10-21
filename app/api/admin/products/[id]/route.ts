@@ -1,5 +1,6 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import type { Database } from '@/lib/supabase/types'
 
 export async function GET(
   request: Request,
@@ -7,7 +8,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data: product, error } = await supabase
       .from('products')
@@ -32,13 +33,15 @@ export async function PUT(
   try {
     const { id } = await params
     const body = await request.json()
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     console.log('Updating product:', id, 'with data:', Object.keys(body))
 
-    const { data, error } = await supabase
+    // Type assertion needed due to admin client limitations with typed mutations
+    const updateData = body as Database['public']['Tables']['products']['Update']
+    const { data, error} = await (supabase
       .from('products')
-      .update(body)
+      .update as any)(updateData)
       .eq('id', id)
       .select()
 
@@ -71,7 +74,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { error } = await supabase
       .from('products')

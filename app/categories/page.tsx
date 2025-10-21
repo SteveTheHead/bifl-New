@@ -2,6 +2,15 @@ import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { CategoryGrid } from '@/components/categories/category-grid'
 import { Metadata } from 'next'
+import { Database } from '@/lib/supabase/types'
+
+// Type definitions for better type safety
+type Category = Database['public']['Tables']['categories']['Row']
+type ProductCategoryId = { category_id: string | null }
+
+interface CategoryWithCount extends Category {
+  productCount: number
+}
 
 export const metadata: Metadata = {
   title: 'Browse All Categories - BIFL Products',
@@ -55,8 +64,8 @@ export const metadata: Metadata = {
 export default async function CategoriesPage() {
   const supabase = await createClient()
 
-  // Get all categories with product counts
-  const { data: categories, error: categoriesError } = await supabase
+  // Get all categories
+  const { data: allCategories, error: categoriesError } = await supabase
     .from('categories')
     .select('*')
     .order('display_order', { ascending: true })
@@ -65,34 +74,73 @@ export default async function CategoriesPage() {
     console.error('Error fetching categories:', categoriesError)
   }
 
-  // Get product counts for each category
-  const categoryIds = categories?.map((c: any) => c.id) || []
-  let productCounts = null
+  // Get product counts using SQL aggregation
+  const { data: productCountsRaw } = await supabase
+    .from('products')
+    .select('category_id')
+    .eq('status', 'published')
 
-  if (categoryIds.length > 0) {
-    const { data } = await supabase
-      .from('products')
-      .select('category_id')
-      .eq('status', 'published')
-      .in('category_id', categoryIds)
-    productCounts = data
+  // Build product count map for O(1) lookup
+  const productCountsByCategory = new Map<string, number>()
+  for (const product of (productCountsRaw || []) as ProductCategoryId[]) {
+    const categoryId = product.category_id
+    if (categoryId) {
+      productCountsByCategory.set(categoryId, (productCountsByCategory.get(categoryId) || 0) + 1)
+    }
   }
 
-  // Count products per category
-  const countsByCategory = productCounts?.reduce((acc: any, product: any) => {
-    acc[product.category_id] = (acc[product.category_id] || 0) + 1
-    return acc
-  }, {} as Record<string, number>) || {}
+  // Build category hierarchy map for fast lookups
+  const subcategoriesByParent = new Map<string, string[]>()
+
+  // Build subcategory lookup
+  for (const category of (allCategories || []) as Category[]) {
+    if (category.parent_id) {
+      if (!subcategoriesByParent.has(category.parent_id)) {
+        subcategoriesByParent.set(category.parent_id, [])
+      }
+      subcategoriesByParent.get(category.parent_id)!.push(category.id)
+    }
+  }
+
+  // Helper to get all descendant category IDs
+  const getAllDescendants = (categoryId: string): string[] => {
+    const directChildren = subcategoriesByParent.get(categoryId) || []
+    const allDescendants = [...directChildren]
+
+    for (const childId of directChildren) {
+      allDescendants.push(...getAllDescendants(childId))
+    }
+
+    return allDescendants
+  }
+
+  // Count products per category (including subcategories) using Map lookups
+  const countsByCategory: Record<string, number> = {}
+
+  for (const category of (allCategories || []) as Category[]) {
+    const categoryId = category.id
+    const allCategoryIds = [categoryId, ...getAllDescendants(categoryId)]
+
+    // Sum up counts from Map - much faster than array filtering
+    const count = allCategoryIds.reduce((sum, id) =>
+      sum + (productCountsByCategory.get(id) || 0), 0
+    )
+
+    countsByCategory[categoryId] = count
+  }
 
   // Transform categories to include product counts
-  const categoriesWithCounts = (categories || []).map((category: any) => ({
+  const categoriesWithCounts: CategoryWithCount[] = ((allCategories || []) as Category[]).map((category) => ({
     ...category,
     productCount: countsByCategory[category.id] || 0
   }))
 
+  // Only show main categories (parent_id is null)
+  const mainCategories = categoriesWithCounts.filter((c) => c.parent_id === null)
+
   // Separate featured and regular categories
-  const featuredCategories = categoriesWithCounts.filter(c => c.is_featured)
-  const regularCategories = categoriesWithCounts.filter(c => !c.is_featured)
+  const featuredCategories = mainCategories.filter(c => c.is_featured)
+  const regularCategories = mainCategories.filter(c => !c.is_featured)
 
   // Generate structured data for SEO
   const structuredData = {

@@ -18,6 +18,7 @@ interface Product {
   durability_score?: number | null
   price?: number | string | null
   country_of_origin?: string
+  bifl_certification?: string[] | null
 }
 
 interface Category {
@@ -91,10 +92,11 @@ interface FilterProps {
     sortBy: string
   }) => void
   categories: Category[]
+  allCategories?: Category[]
   products: Product[]
 }
 
-export function ProductFilters({ onFiltersChange, categories, products }: FilterProps) {
+export function ProductFilters({ onFiltersChange, categories, allCategories, products }: FilterProps) {
   const searchParams = useSearchParams()
   const router = useRouter()
   const pathname = usePathname()
@@ -121,29 +123,40 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
       const searchLower = search.toLowerCase()
       filtered = filtered.filter(product =>
         product.name?.toLowerCase().includes(searchLower) ||
-        (product as any).wordpress_meta?.brand_name?.toLowerCase().includes(searchLower) ||
+        product.brand_name?.toLowerCase().includes(searchLower) ||
         (product as any).description?.toLowerCase().includes(searchLower)
       )
     }
 
-    // Apply category filter
+    // Apply category filter (include subcategories)
     if (selectedCategories.length > 0) {
+      // Build a list of all category IDs including subcategories
+      const categoryIdsToMatch: string[] = []
+      selectedCategories.forEach(categoryId => {
+        categoryIdsToMatch.push(categoryId)
+        // Add all subcategories of this category
+        if (allCategories) {
+          const subcats = allCategories.filter((cat: any) => cat.parent_id === categoryId)
+          subcats.forEach((subcat: any) => categoryIdsToMatch.push(subcat.id))
+        }
+      })
+
       filtered = filtered.filter(product =>
-        selectedCategories.includes((product as any).category_id)
+        categoryIdsToMatch.includes((product as any).category_id)
       )
     }
 
     // Apply brand filter
     if (selectedBrands.length > 0) {
       filtered = filtered.filter(product =>
-        selectedBrands.includes((product as any).wordpress_meta?.brand_name)
+        selectedBrands.includes(product.brand_name || '')
       )
     }
 
     // Apply badge filter
     if (selectedBadges.length > 0) {
       filtered = filtered.filter(product => {
-        const productBadges = calculateBadges(product)
+        const productBadges = product.bifl_certification || calculateBadges(product)
         return selectedBadges.some(badge => productBadges.includes(badge))
       })
     }
@@ -176,16 +189,24 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
   }, [products, search, selectedCategories, selectedBrands, selectedBadges, selectedScoreRanges, selectedCountries])
 
   const priceStats = useMemo(() => {
-    if (filteredProductsForPriceCalc.length === 0) return { min: 0, max: 1000 }
-    const prices = filteredProductsForPriceCalc.map(p => parseFloat(p.price?.toString() || '0')).filter(p => !isNaN(p))
-    if (prices.length === 0) return { min: 0, max: 1000 }
+    if (filteredProductsForPriceCalc.length === 0) return { min: 0, max: 10000 }
+    const prices = filteredProductsForPriceCalc.map(p => parseFloat(p.price?.toString() || '0')).filter(p => !isNaN(p) && p > 0)
+    if (prices.length === 0) return { min: 0, max: 10000 }
     return {
       min: Math.floor(Math.min(...prices)),
       max: Math.ceil(Math.max(...prices))
     }
   }, [filteredProductsForPriceCalc])
 
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000])
+  // Initialize with the actual min and max price from all products
+  const initialPriceRange = useMemo(() => {
+    if (!products || products.length === 0) return [0, 10000] as [number, number]
+    const prices = products.map(p => parseFloat(p.price?.toString() || '0')).filter(p => !isNaN(p) && p > 0)
+    if (prices.length === 0) return [0, 10000] as [number, number]
+    return [Math.floor(Math.min(...prices)), Math.ceil(Math.max(...prices))] as [number, number]
+  }, [products])
+
+  const [priceRange, setPriceRange] = useState<[number, number]>(initialPriceRange)
 
   // Initialize filters from URL parameters
   useEffect(() => {
@@ -205,11 +226,11 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
     }
   }, [searchParams])
 
-  // Update price range when priceStats change (but keep current values if they're within the new range)
+  // Update price range when priceStats change (expand range if needed to show all filtered products)
   useEffect(() => {
     setPriceRange(prev => [
-      Math.max(prev[0], priceStats.min), // Don't go below new minimum
-      Math.min(prev[1], priceStats.max)  // Don't go above new maximum
+      Math.min(prev[0], priceStats.min), // Expand to include lower prices if needed
+      Math.max(prev[1], priceStats.max)  // Expand to include higher prices if needed
     ])
   }, [priceStats.min, priceStats.max])
 
@@ -294,16 +315,27 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
     setShowBrandDropdown(false)
   }
 
-  // Calculate product counts for categories and brands
+  // Calculate product counts for categories (including subcategories)
   const getCategoryCount = (categoryId: string) => {
-    if (!products) return 0
-    return products.filter(product => (product as any).category_id === categoryId).length
+    if (!products || !allCategories) return 0
+
+    // Build a map of category IDs that belong to this parent category
+    const subcategoryIds = allCategories
+      .filter((cat: any) => cat.parent_id === categoryId)
+      .map((cat: any) => cat.id)
+
+    // Count products in this category or any of its subcategories
+    return products.filter(product => {
+      const productCategoryId = (product as any).category_id
+      // Direct match OR product is in a subcategory of this category
+      return productCategoryId === categoryId || subcategoryIds.includes(productCategoryId)
+    }).length
   }
 
   const getBrandCount = (brandName: string) => {
     if (!products) return 0
     return products.filter(product =>
-      (product as any).wordpress_meta?.brand_name === brandName
+      product.brand_name === brandName
     ).length
   }
 
@@ -315,7 +347,7 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
   const getBadgeCount = (badgeName: string) => {
     if (!products) return 0
     return products.filter(product => {
-      const badges = calculateBadges(product)
+      const badges = product.bifl_certification || calculateBadges(product)
       return badges.includes(badgeName)
     }).length
   }
@@ -330,13 +362,13 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
   // Get unique brands from product metadata
   const allBrands = products ?
     [...new Set(products
-      .map(product => (product as any).wordpress_meta?.brand_name)
+      .map(product => product.brand_name)
       .filter(brand => brand && brand.trim() !== '')
     )].sort() : []
 
   // Filter brands based on search
-  const filteredBrands = allBrands.filter(brand =>
-    brand.toLowerCase().includes(brandSearch.toLowerCase())
+  const filteredBrands = allBrands.filter((brand): brand is string =>
+    brand !== undefined && brand.toLowerCase().includes(brandSearch.toLowerCase())
   )
 
   const removeBrand = (brandToRemove: string) => {
@@ -369,7 +401,7 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
   ]
 
   return (
-    <aside className="col-span-3">
+    <aside className="w-full">
       <style jsx>{`
         .range-slider {
           -webkit-appearance: none;
@@ -416,9 +448,9 @@ export function ProductFilters({ onFiltersChange, categories, products }: Filter
           box-shadow: 0 0 0 3px rgba(74, 157, 147, 0.2);
         }
       `}</style>
-      <div className="sticky top-28">
-        <div className="bg-white p-6 rounded-2xl shadow-lg">
-          <h3 className="text-2xl font-bold mb-6 border-b pb-4">Filters</h3>
+      <div className="lg:sticky lg:top-28">
+        <div className="bg-white lg:p-6 lg:rounded-2xl lg:shadow-lg">
+          <h3 className="hidden lg:block text-2xl font-bold mb-6 border-b pb-4">Filters</h3>
 
           {/* Search */}
           <div className="mb-8">

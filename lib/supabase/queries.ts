@@ -19,11 +19,17 @@ export async function getProducts(limit = 20, offset = 0) {
       country_of_origin,
       featured_image_url,
       bifl_total_score,
+      bifl_certification,
       price,
       status,
       is_featured,
       use_case,
-      excerpt
+      excerpt,
+      durability_score,
+      repairability_score,
+      warranty_score,
+      sustainability_score,
+      social_score
     `)
     .eq('status', 'published')
     .order('bifl_total_score', { ascending: false })
@@ -49,7 +55,15 @@ export async function getFeaturedProducts() {
 
   const { data, error } = await supabase
     .from('products_with_taxonomy')
-    .select('*')
+    .select(`
+      *,
+      bifl_certification,
+      durability_score,
+      repairability_score,
+      warranty_score,
+      sustainability_score,
+      social_score
+    `)
     .eq('status', 'published')
     .eq('is_featured', true)
     .order('bifl_total_score', { ascending: false })
@@ -216,7 +230,28 @@ export async function getBrands() {
   return data
 }
 
+// Get main categories only (parent_id IS NULL)
 export async function getCategories(): Promise<Database['public']['Tables']['categories']['Row'][]> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('categories')
+    .select('*')
+    .is('parent_id', null)
+    .not('name', 'is', null)
+    .neq('name', '')
+    .order('display_order', { ascending: true })
+
+  if (error) {
+    console.error('Error fetching categories:', error)
+    throw error
+  }
+
+  return data || []
+}
+
+// Get all categories (main and subcategories)
+export async function getAllCategories(): Promise<Database['public']['Tables']['categories']['Row'][]> {
   const supabase = await createClient()
 
   const { data, error } = await supabase
@@ -227,18 +262,31 @@ export async function getCategories(): Promise<Database['public']['Tables']['cat
     .order('display_order', { ascending: true })
 
   if (error) {
-    console.error('Error fetching categories:', error)
+    console.error('Error fetching all categories:', error)
     throw error
   }
 
-  // Filter out any categories that are just numbers or invalid
-  const validCategories = (data as any[])?.filter((category: any) => {
-    return category.name &&
-           category.name.trim() !== '' &&
-           isNaN(Number(category.name.trim()))
-  }) || []
+  return data || []
+}
 
-  return validCategories
+// Get subcategories for a specific parent category
+export async function getSubcategories(parentId: string): Promise<Database['public']['Tables']['categories']['Row'][]> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('parent_id', parentId)
+    .not('name', 'is', null)
+    .neq('name', '')
+    .order('display_order', { ascending: true })
+
+  if (error) {
+    console.error('Error fetching subcategories:', error)
+    throw error
+  }
+
+  return data || []
 }
 
 export async function getCategoriesWithProductCounts() {
@@ -448,8 +496,8 @@ export async function getAllProductsForAdmin() {
 
   // Transform the response to match the expected format
   return data?.map(product => ({
-    ...product,
-    brand_name: (product.brands as any)?.name || 'Unknown Brand',
-    category_name: (product.categories as any)?.name || 'Uncategorized'
+    ...(product as any),
+    brand_name: ((product as any).brands as any)?.name || 'Unknown Brand',
+    category_name: ((product as any).categories as any)?.name || 'Uncategorized'
   })) || []
 }

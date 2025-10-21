@@ -38,6 +38,8 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   const description = (category as any).description ||
     `Discover the ${productCount || 'best'} highest-rated ${categoryName.toLowerCase()} products built to last a lifetime. Expert reviews, AI-generated buying guides, and detailed BIFL ratings. Find durable, repairable ${categoryName.toLowerCase()} with strong warranties.`
 
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://buyitforlife.com'
+
   return {
     title,
     description,
@@ -57,8 +59,8 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
       title: `Best ${categoryName} - Buy It For Life Products`,
       description,
       type: 'website',
-      siteName: 'BIFL Products',
-      url: `https://bifl.com/categories/${slug}`,
+      siteName: 'Buy It For Life',
+      url: `${baseUrl}/categories/${slug}`,
       images: [
         {
           url: '/og-image-category.jpg',
@@ -86,8 +88,8 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
       },
     },
     alternates: {
-      canonical: `https://bifl.com/categories/${slug}`
-    }
+      canonical: `${baseUrl}/categories/${slug}`,
+    },
   }
 }
 
@@ -108,7 +110,30 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
     notFound()
   }
 
-  // Build products query with filters
+  // Get all categories to find subcategories
+  const { data: allCategories } = await supabase
+    .from('categories')
+    .select('*')
+
+  // Helper function to get all subcategory IDs for a category
+  const getSubcategoryIds = (categoryId: string): string[] => {
+    const subcategories = (allCategories || []).filter((c: any) => c.parent_id === categoryId)
+    const subcategoryIds = subcategories.map((c: any) => c.id)
+
+    // Recursively get subcategories of subcategories
+    const nestedSubcategoryIds = subcategoryIds.flatMap(id => getSubcategoryIds(id))
+
+    return [...subcategoryIds, ...nestedSubcategoryIds]
+  }
+
+  // Get all category IDs to include (category + all subcategories)
+  const categoryId = (category as any).id
+  const allCategoryIds = [categoryId, ...getSubcategoryIds(categoryId)]
+
+  // Get subcategories for display
+  const subcategories = (allCategories || []).filter((c: any) => c.parent_id === categoryId)
+
+  // Build products query with filters - include products from category and subcategories
   let query = supabase
     .from('products')
     .select(`
@@ -116,7 +141,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
       brands(name, slug),
       categories(name, slug)
     `)
-    .eq('category_id', (category as any).id)
+    .in('category_id', allCategoryIds)
     .eq('status', 'published')
 
   // Apply filters
@@ -222,6 +247,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
           category={category}
           products={transformedProducts}
           availableBrands={uniqueBrands}
+          subcategories={subcategories}
           initialFilters={{
             sort: sort as string,
             price_min: price_min as string,

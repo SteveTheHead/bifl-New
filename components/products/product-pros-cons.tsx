@@ -12,6 +12,14 @@ interface Product {
   social_score?: number | null
   social_notes?: string | null
   bifl_total_score?: number | null
+  pro_1?: string | null
+  pro_2?: string | null
+  pro_3?: string | null
+  pro_4?: string | null
+  con_1?: string | null
+  con_2?: string | null
+  con_3?: string | null
+  con_4?: string | null
   pros_cons?: {
     pros?: string[]
     cons?: string[]
@@ -23,7 +31,26 @@ interface ProductProsConsProps {
 }
 
 export function ProductProsCons({ product }: ProductProsConsProps) {
-  // Check if product has custom pros/cons in database
+  // First check if product has pros/cons from database columns
+  const prosFromDB: string[] = []
+  const consFromDB: string[] = []
+
+  if (product.pro_1?.trim()) prosFromDB.push(product.pro_1.trim())
+  if (product.pro_2?.trim()) prosFromDB.push(product.pro_2.trim())
+  if (product.pro_3?.trim()) prosFromDB.push(product.pro_3.trim())
+  if (product.pro_4?.trim()) prosFromDB.push(product.pro_4.trim())
+
+  if (product.con_1?.trim()) consFromDB.push(product.con_1.trim())
+  if (product.con_2?.trim()) consFromDB.push(product.con_2.trim())
+  if (product.con_3?.trim()) consFromDB.push(product.con_3.trim())
+  if (product.con_4?.trim()) consFromDB.push(product.con_4.trim())
+
+  // If we have pros/cons from database, use those
+  if (prosFromDB.length > 0 || consFromDB.length > 0) {
+    return renderProsConsSection(prosFromDB, consFromDB, 'Pros and Cons')
+  }
+
+  // Check if product has custom pros/cons object in database
   if (product.pros_cons?.pros || product.pros_cons?.cons) {
     const { pros = [], cons = [] } = product.pros_cons
 
@@ -34,7 +61,7 @@ export function ProductProsCons({ product }: ProductProsConsProps) {
     return renderProsConsSection(pros, cons, 'Pros and Cons')
   }
 
-  // Generate pros/cons from product scores and notes
+  // Generate pros/cons from product scores and notes as fallback
   const pros: string[] = []
   const cons: string[] = []
 

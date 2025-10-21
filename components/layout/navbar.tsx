@@ -187,30 +187,35 @@ export function Navbar() {
         {/* Mobile Navigation */}
         {isOpen && (
           <div className="md:hidden py-4 space-y-4">
+            {/* Mobile Search */}
+            <div className="pb-4 border-b border-gray-200">
+              <AISearch />
+            </div>
+
             <Link
               href="/products"
-              className="block text-brand-gray hover:text-brand-dark font-medium"
+              className="block text-brand-gray hover:text-brand-dark font-medium py-3"
               onClick={() => setIsOpen(false)}
             >
               Products
             </Link>
             <Link
               href="/categories"
-              className="block text-brand-gray hover:text-brand-dark font-medium"
+              className="block text-brand-gray hover:text-brand-dark font-medium py-3"
               onClick={() => setIsOpen(false)}
             >
               Categories
             </Link>
             <Link
               href="/how-it-works"
-              className="block text-brand-gray hover:text-brand-dark font-medium"
+              className="block text-brand-gray hover:text-brand-dark font-medium py-3"
               onClick={() => setIsOpen(false)}
             >
               How It Works
             </Link>
             <Link
               href="/about"
-              className="block text-brand-gray hover:text-brand-dark font-medium"
+              className="block text-brand-gray hover:text-brand-dark font-medium py-3"
               onClick={() => setIsOpen(false)}
             >
               About
@@ -227,21 +232,21 @@ export function Navbar() {
                   </div>
                   <Link
                     href="/user-dashboard"
-                    className="block text-brand-gray hover:text-brand-dark font-medium mb-3"
+                    className="block text-brand-gray hover:text-brand-dark font-medium py-3"
                     onClick={() => setIsOpen(false)}
                   >
                     Dashboard
                   </Link>
                   <Link
                     href="/favorites"
-                    className="block text-brand-gray hover:text-brand-dark font-medium mb-3"
+                    className="block text-brand-gray hover:text-brand-dark font-medium py-3"
                     onClick={() => setIsOpen(false)}
                   >
                     Favorites
                   </Link>
                   <Link
                     href="/user-dashboard/settings"
-                    className="block text-brand-gray hover:text-brand-dark font-medium mb-3"
+                    className="block text-brand-gray hover:text-brand-dark font-medium py-3"
                     onClick={() => setIsOpen(false)}
                   >
                     Settings
@@ -251,7 +256,7 @@ export function Navbar() {
                       handleSignOut()
                       setIsOpen(false)
                     }}
-                    className="block text-brand-gray hover:text-brand-dark font-medium mb-3 w-full text-left"
+                    className="block text-brand-gray hover:text-brand-dark font-medium py-3 w-full text-left"
                   >
                     Sign Out
                   </button>
@@ -259,7 +264,7 @@ export function Navbar() {
               ) : (
                 <Link
                   href="/auth/signin"
-                  className="block text-brand-gray hover:text-brand-dark font-medium mb-3"
+                  className="block text-brand-gray hover:text-brand-dark font-medium py-3"
                   onClick={() => setIsOpen(false)}
                 >
                   Sign In
@@ -267,7 +272,7 @@ export function Navbar() {
               )}
               <Link
                 href="/products"
-                className="block bg-brand-teal text-white px-4 py-2 rounded-lg text-center"
+                className="block bg-brand-teal text-white px-4 py-3 rounded-lg text-center font-medium hover:bg-brand-teal/90 transition-colors"
                 onClick={() => setIsOpen(false)}
               >
                 Browse Products

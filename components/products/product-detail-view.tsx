@@ -76,8 +76,20 @@ interface Product {
   warranty_score?: number | null
   social_score?: number | null
   sustainability_score?: number | null
+  brands?: {
+    name?: string
+    slug?: string
+    website?: string
+    description?: string
+  }
+  categories?: {
+    name?: string
+    slug?: string
+    description?: string
+  }
   wordpress_meta?: {
     brand_name?: string
+    category_name?: string
   }
   optimized_product_description?: string | null
   verdict_summary?: string | null
@@ -180,7 +192,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
             {/* Product Header */}
             <section>
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">{product.name}</h1>
-              <p className="text-base sm:text-lg text-brand-gray mb-4">{product.wordpress_meta?.brand_name || 'Unknown Brand'}</p>
+              <p className="text-base sm:text-lg text-brand-gray mb-4">{product.brands?.name || product.wordpress_meta?.brand_name || 'Unknown Brand'}</p>
               <p className="text-sm sm:text-base text-brand-gray leading-relaxed mb-6 sm:mb-8">
                 {product.optimized_product_description || product.verdict_summary || product.description || product.excerpt || 'No description available for this product.'}
               </p>

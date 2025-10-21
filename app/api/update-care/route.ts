@@ -1,18 +1,23 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import type { Database } from '@/lib/supabase/types'
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
     const { productId, careData, faqs, proscons } = body
 
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Handle care data update
     if (careData) {
-      const { data, error } = await supabase
+      const updateData: Database['public']['Tables']['products']['Update'] = {
+        care_and_maintenance: careData
+      }
+      // Type assertion needed due to admin client limitations with typed mutations
+      const { data, error } = await (supabase
         .from('products')
-        .update({ care_and_maintenance: careData })
+        .update as any)(updateData)
         .eq('id', productId)
         .select()
 
@@ -25,9 +30,13 @@ export async function POST(request: Request) {
 
     // Handle pros/cons update
     if (proscons) {
-      const { data, error } = await supabase
+      const updateData: Database['public']['Tables']['products']['Update'] = {
+        pros_cons: proscons
+      }
+      // Type assertion needed due to admin client limitations with typed mutations
+      const { data, error } = await (supabase
         .from('products')
-        .update({ pros_cons: proscons })
+        .update as any)(updateData)
         .eq('id', productId)
         .select()
 
@@ -40,16 +49,17 @@ export async function POST(request: Request) {
 
     // Handle FAQ inserts
     if (faqs && Array.isArray(faqs)) {
-      const faqsToInsert = faqs.map(faq => ({
+      const faqsToInsert: Database['public']['Tables']['product_faqs']['Insert'][] = faqs.map(faq => ({
         product_id: productId,
         question: faq.question,
         answer: faq.answer,
         display_order: faq.display_order || 0
       }))
 
-      const { data, error } = await supabase
+      // Type assertion needed due to admin client limitations with typed mutations
+      const { data, error } = await (supabase
         .from('product_faqs')
-        .insert(faqsToInsert)
+        .insert as any)(faqsToInsert)
         .select()
 
       if (error) {

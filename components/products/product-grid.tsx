@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
@@ -8,6 +8,7 @@ import { ProductFilters } from './product-filters'
 import BadgeDisplay from '@/components/BadgeDisplay'
 import { AddToCompareButton } from '@/components/compare/add-to-compare-button'
 import { FavoriteButton } from '@/components/favorites/favorite-button'
+import { SlidersHorizontal, X } from 'lucide-react'
 
 interface Product {
   id: string
@@ -22,6 +23,7 @@ interface Product {
   sustainability_score?: number | null
   durability_score?: number | null
   affiliate_link?: string | null
+  bifl_certification?: string[] | null
 }
 
 interface Category {
@@ -173,10 +175,23 @@ function SimpleProductCard({ product }: { product: Product }) {
 interface ProductGridProps {
   initialProducts: Product[]
   categories: Category[]
+  allCategories?: Category[]
   initialSearch?: string
 }
 
-export function ProductGrid({ initialProducts, categories, initialSearch = '' }: ProductGridProps) {
+export function ProductGrid({ initialProducts, categories, allCategories, initialSearch = '' }: ProductGridProps) {
+  // Mobile filter drawer state
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false)
+
+  // Calculate the actual min and max price from all products
+  const priceRange = useMemo(() => {
+    const prices = initialProducts
+      .map(p => parseFloat(p.price?.toString() || '0'))
+      .filter(p => !isNaN(p) && p > 0)
+    if (prices.length === 0) return [0, 10000]
+    return [Math.floor(Math.min(...prices)), Math.ceil(Math.max(...prices))]
+  }, [initialProducts])
+
   const [filters, setFilters] = useState({
     search: initialSearch,
     categories: [] as string[],
@@ -184,12 +199,23 @@ export function ProductGrid({ initialProducts, categories, initialSearch = '' }:
     badges: [] as string[],
     scoreRanges: [] as string[],
     countries: [] as string[],
-    priceRange: [0, 1000] as [number, number],
+    priceRange: priceRange as [number, number],
     sortBy: 'score-desc'
   })
 
   const [displayCount, setDisplayCount] = useState(48)
   const [pageSize, setPageSize] = useState(48)
+
+  // Stable callback for filter changes
+  const handleFiltersChange = useCallback((newFilters: typeof filters) => {
+    setFilters(newFilters)
+  }, [])
+
+  // Callback for mobile drawer that also closes the drawer
+  const handleMobileFiltersChange = useCallback((newFilters: typeof filters) => {
+    setFilters(newFilters)
+    setIsMobileFilterOpen(false)
+  }, [])
 
   // Reset display count when filters change
   useEffect(() => {
@@ -265,24 +291,35 @@ export function ProductGrid({ initialProducts, categories, initialSearch = '' }:
       }
     }
 
-    // Category filter
+    // Category filter (include subcategories)
     if (filters.categories.length > 0) {
+      // Build a list of all category IDs including subcategories
+      const categoryIdsToMatch: string[] = []
+      filters.categories.forEach(categoryId => {
+        categoryIdsToMatch.push(categoryId)
+        // Add all subcategories of this category
+        if (allCategories) {
+          const subcats = allCategories.filter((cat: any) => cat.parent_id === categoryId)
+          subcats.forEach((subcat: any) => categoryIdsToMatch.push(subcat.id))
+        }
+      })
+
       filtered = filtered.filter(product => {
-        return filters.categories.includes((product as any).category_id)
+        return categoryIdsToMatch.includes((product as any).category_id)
       })
     }
 
     // Brand filter
     if (filters.brands.length > 0) {
       filtered = filtered.filter(product =>
-        filters.brands.includes((product as any).wordpress_meta?.brand_name)
+        filters.brands.includes(product.brand_name || '')
       )
     }
 
     // Badge filter
     if (filters.badges.length > 0) {
       filtered = filtered.filter(product => {
-        const productBadges = calculateBadges(product)
+        const productBadges = product.bifl_certification || calculateBadges(product)
         return filters.badges.some(badge => productBadges.includes(badge))
       })
     }
@@ -357,25 +394,73 @@ export function ProductGrid({ initialProducts, categories, initialSearch = '' }:
   }
 
   return (
-    <div className="grid grid-cols-12 gap-8">
-      {/* Filters Sidebar */}
-      <ProductFilters
-        onFiltersChange={setFilters}
-        categories={categories}
-        products={initialProducts}
-      />
+    <>
+      {/* Mobile Filter Button (FAB) - Only visible on mobile */}
+      <button
+        onClick={() => setIsMobileFilterOpen(true)}
+        className="lg:hidden fixed bottom-6 right-6 z-40 bg-brand-teal text-white rounded-full shadow-lg hover:bg-brand-teal/90 transition-all duration-300 hover:scale-110 min-w-[56px] min-h-[56px] flex items-center justify-center gap-2 px-4"
+        aria-label="Open filters"
+      >
+        <SlidersHorizontal className="w-6 h-6" />
+        <span className="font-semibold">Filters</span>
+      </button>
 
-      {/* Product Grid Container */}
-      <div className="col-span-9">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-4">
-            <p className="text-brand-gray">
+      {/* Mobile Filter Drawer Overlay */}
+      {isMobileFilterOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/50 z-50 transition-opacity"
+          onClick={() => setIsMobileFilterOpen(false)}
+        />
+      )}
+
+      {/* Mobile Filter Drawer */}
+      <div
+        className={`lg:hidden fixed top-0 right-0 bottom-0 w-full max-w-sm bg-white z-50 transform transition-transform duration-300 ease-in-out overflow-y-auto ${
+          isMobileFilterOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between z-10">
+          <h2 className="text-xl font-bold text-brand-dark">Filters</h2>
+          <button
+            onClick={() => setIsMobileFilterOpen(false)}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+            aria-label="Close filters"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+        <div className="p-4">
+          <ProductFilters
+            onFiltersChange={handleMobileFiltersChange}
+            categories={categories}
+            allCategories={allCategories || categories}
+            products={initialProducts}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-12 gap-8">
+        {/* Filters Sidebar - Hidden on mobile, visible on desktop */}
+        <div className="hidden lg:block lg:col-span-3">
+          <ProductFilters
+            onFiltersChange={handleFiltersChange}
+            categories={categories}
+            allCategories={allCategories || categories}
+            products={initialProducts}
+          />
+        </div>
+
+        {/* Product Grid Container - Full width on mobile, 9 cols on desktop */}
+        <div className="col-span-12 lg:col-span-9">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+            <p className="text-brand-gray text-sm sm:text-base">
               Showing <span className="font-bold text-brand-dark">1-{Math.min(displayCount, filteredProducts.length)}</span> of <span className="font-bold text-brand-dark">{filteredProducts.length}</span> products
             </p>
             <div className="flex items-center gap-2">
               <label className="text-sm text-brand-gray">Show:</label>
               <select
-                className="border border-gray-300 rounded-lg px-2 py-1 text-sm focus:ring-brand-teal focus:border-brand-teal"
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-brand-teal focus:border-brand-teal min-h-[44px]"
                 value={pageSize}
                 onChange={(e) => handlePageSizeChange(Number(e.target.value))}
               >
@@ -387,10 +472,10 @@ export function ProductGrid({ initialProducts, categories, initialSearch = '' }:
               </select>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-brand-gray">Sort by:</label>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <label className="text-sm text-brand-gray whitespace-nowrap">Sort by:</label>
             <select
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-brand-teal focus:border-brand-teal"
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-brand-teal focus:border-brand-teal min-h-[44px] flex-1 sm:flex-none"
               value={filters.sortBy}
               onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value }))}
             >
@@ -412,10 +497,10 @@ export function ProductGrid({ initialProducts, categories, initialSearch = '' }:
 
         {/* Load More Button */}
         {hasMore && (
-          <div className="flex justify-center mt-8">
+          <div className="flex justify-center mt-8 mb-20 lg:mb-8">
             <button
               onClick={handleLoadMore}
-              className="px-6 py-2 text-white font-medium text-sm rounded-lg transition-colors bg-gray-500 hover:bg-gray-600"
+              className="px-6 py-3 text-white font-medium text-sm rounded-lg transition-colors bg-gray-500 hover:bg-gray-600 min-h-[44px]"
             >
               Load More ({filteredProducts.length - displayCount} remaining)
             </button>
@@ -436,7 +521,8 @@ export function ProductGrid({ initialProducts, categories, initialSearch = '' }:
             </CardContent>
           </Card>
         )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }

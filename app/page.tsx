@@ -1,11 +1,57 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { Metadata } from 'next'
 import { getCategories, getFeaturedProducts } from '@/lib/supabase/queries'
 import { Card, CardContent } from '@/components/ui/card'
 import BadgeDisplay from '@/components/BadgeDisplay'
+import { OrganizationStructuredData } from '@/components/seo/structured-data'
 
 // Enable Next.js caching and revalidation
 export const revalidate = 3600 // Revalidate every hour
+
+// SEO Metadata
+export const metadata: Metadata = {
+  title: 'Buy It For Life - Expert Reviews of Durable Products That Last',
+  description: 'Discover 327+ expertly reviewed products built to last. Comprehensive BIFL ratings on durability, repairability, and warranty. Find quality items worth buying once.',
+  keywords: ['buy it for life', 'BIFL', 'durable products', 'lifetime warranty', 'quality products', 'sustainable shopping', 'long-lasting products'],
+
+  openGraph: {
+    title: 'Buy It For Life - Expert Reviews of Durable Products That Last',
+    description: 'Discover 327+ expertly reviewed products built to last. Comprehensive BIFL ratings on durability, repairability, and warranty.',
+    url: process.env.NEXT_PUBLIC_APP_URL || 'https://buyitforlife.com',
+    siteName: 'Buy It For Life',
+    images: [
+      {
+        url: '/images/categories/hero Picture 1.png',
+        width: 1200,
+        height: 630,
+        alt: 'Buy It For Life - Durable Products',
+      }
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Buy It For Life - Expert Reviews of Durable Products',
+    description: 'Discover 327+ expertly reviewed products built to last. Comprehensive BIFL ratings on durability, repairability, and warranty.',
+    images: ['/images/categories/hero Picture 1.png'],
+  },
+
+  alternates: {
+    canonical: process.env.NEXT_PUBLIC_APP_URL || 'https://buyitforlife.com',
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
+}
 
 // Score badge styling function (matching product grid)
 function getScoreBadgeStyle(score: number) {
@@ -37,9 +83,11 @@ export default async function HomePage() {
     console.log('Featured products:', featuredProducts?.length || 0)
   return (
     <div className="bg-brand-cream font-sans">
+      {/* SEO Structured Data */}
+      <OrganizationStructuredData />
 
       {/* Hero Section */}
-      <section className="relative h-[700px] overflow-hidden">
+      <section className="relative h-[400px] sm:h-[500px] md:h-[600px] lg:h-[700px] overflow-hidden">
         <div className="absolute inset-0">
           <Image
             src="/images/categories/hero Picture 1.png"
@@ -51,63 +99,63 @@ export default async function HomePage() {
           <div className="absolute inset-0 bg-black/50"></div>
         </div>
 
-        <div className="relative z-10 container mx-auto px-6 h-full flex items-center">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 h-full flex items-center">
           <div className="max-w-4xl">
-            <h1 className="text-6xl lg:text-7xl font-serif font-bold text-white mb-6 leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-serif font-bold text-white mb-4 sm:mb-6 leading-tight">
               Buy Better. <span className="text-yellow-500">Once.</span>
             </h1>
 
-            <p className="text-xl text-white/90 mb-8 max-w-3xl leading-relaxed">
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8 max-w-3xl leading-relaxed">
               Thoroughly researched BIFL products that have proven their worth through years of real-world testing. Every recommendation backed by community feedback and unbiased research.
             </p>
 
-            <div className="flex flex-wrap items-center gap-8 mb-8">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 md:gap-6 lg:gap-8 mb-6 sm:mb-8">
               <div className="flex items-center space-x-2">
-                <svg className="w-6 h-6" fill="#4A9D93" viewBox="0 0 20 20">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="#4A9D93" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
-                <span className="text-white font-medium">Community-verified</span>
+                <span className="text-white font-medium text-sm sm:text-base">Community-verified</span>
               </div>
               <div className="flex items-center space-x-2">
-                <svg className="w-6 h-6" fill="#4A9D93" viewBox="0 0 20 20">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="#4A9D93" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
-                <span className="text-white font-medium">Years of Real World Testing</span>
+                <span className="text-white font-medium text-sm sm:text-base">Years of Real World Testing</span>
               </div>
               <div className="flex items-center space-x-2">
-                <svg className="w-6 h-6" fill="#4A9D93" viewBox="0 0 20 20">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="#4A9D93" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
-                <span className="text-white font-medium">No Bias</span>
+                <span className="text-white font-medium text-sm sm:text-base">No Bias</span>
               </div>
             </div>
 
             {/* Quality Badges */}
-            <div className="flex flex-wrap gap-3 mb-10">
-              <Link href="/products?badge=Gold%20Standard">
+            <div className="flex flex-wrap gap-2 sm:gap-3 mb-6 sm:mb-10">
+              <Link href="/products?badge=Gold%20Standard" className="inline-block">
                 <BadgeDisplay certification="Gold Standard" size="sm" />
               </Link>
-              <Link href="/products?badge=Crowd%20Favorite">
+              <Link href="/products?badge=Crowd%20Favorite" className="inline-block">
                 <BadgeDisplay certification="Crowd Favorite" size="sm" />
               </Link>
-              <Link href="/products?badge=Lifetime%20Warranty">
+              <Link href="/products?badge=Lifetime%20Warranty" className="inline-block">
                 <BadgeDisplay certification="Lifetime Warranty" size="sm" />
               </Link>
-              <Link href="/products?badge=BIFL%20Approved">
+              <Link href="/products?badge=BIFL%20Approved" className="inline-block">
                 <BadgeDisplay certification="BIFL Approved" size="sm" />
               </Link>
-              <Link href="/products?badge=Repair%20Friendly">
+              <Link href="/products?badge=Repair%20Friendly" className="inline-block">
                 <BadgeDisplay certification="Repair Friendly" size="sm" />
               </Link>
             </div>
 
             <Link
               href="/products"
-              className="inline-flex items-center text-white px-6 py-3 rounded-lg text-base font-semibold hover:bg-opacity-90 transform hover:scale-105 transition-all duration-300 shadow-lg"
+              className="inline-flex items-center text-white px-4 sm:px-6 py-3 rounded-lg text-sm sm:text-base font-semibold hover:bg-opacity-90 transform hover:scale-105 transition-all duration-300 shadow-lg min-h-[44px]"
               style={{ backgroundColor: '#4A9D93' }}
             >
               Browse The Directory
-              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </Link>
@@ -198,16 +246,16 @@ export default async function HomePage() {
 
 
       {/* Category Grid Section - Dynamic */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-serif font-bold text-brand-dark mb-6">Shop by Category</h2>
-            <p className="text-xl text-brand-gray max-w-3xl mx-auto">
+      <section className="py-12 sm:py-16 md:py-20 bg-white">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="text-center mb-8 sm:mb-12 md:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-brand-dark mb-4 sm:mb-6">Shop by Category</h2>
+            <p className="text-base sm:text-lg md:text-xl text-brand-gray max-w-3xl mx-auto px-4">
               Explore our carefully curated categories of durable goods, each containing only the finest products that have stood the test of time.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
             {categories?.map((category) => {
               // Map category names to local images
               const categoryImageMap: Record<string, string> = {
@@ -231,13 +279,13 @@ export default async function HomePage() {
                       alt={`${category.name.toLowerCase()} products`}
                       width={400}
                       height={256}
-                      className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
+                      className="w-full h-48 sm:h-56 md:h-64 object-cover group-hover:scale-110 transition-transform duration-300"
                     />
                     <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-all duration-300"></div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-                    <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
-                      <h3 className="text-2xl font-bold text-white mb-4">{category.name}</h3>
-                      <span className="inline-block text-white px-3 py-1.5 rounded-lg font-medium hover:bg-opacity-90 transition-colors cursor-pointer relative z-20 border-2 text-sm" style={{ backgroundColor: '#4A9D93', borderColor: '#4A9D93' }}>
+                    <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 z-10">
+                      <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-2 sm:mb-4">{category.name}</h3>
+                      <span className="inline-block text-white px-3 py-1.5 rounded-lg font-medium hover:bg-opacity-90 transition-colors cursor-pointer relative z-20 border-2 text-xs sm:text-sm" style={{ backgroundColor: '#4A9D93', borderColor: '#4A9D93' }}>
                         View Products
                       </span>
                     </div>
@@ -250,16 +298,16 @@ export default async function HomePage() {
       </section>
 
       {/* Featured Products Section - Dynamic */}
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-serif font-bold text-brand-dark mb-6">Featured Products</h2>
-            <p className="text-xl text-brand-gray max-w-3xl mx-auto">
+      <section className="py-12 sm:py-16 md:py-20 bg-gray-50">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="text-center mb-8 sm:mb-12 md:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-brand-dark mb-4 sm:mb-6">Featured Products</h2>
+            <p className="text-base sm:text-lg md:text-xl text-brand-gray max-w-3xl mx-auto px-4">
               Our top-rated products that have earned the highest community ratings and longest durability records.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {featuredProducts?.map((product: any) => {
               const totalScore = product.bifl_total_score || 0
 

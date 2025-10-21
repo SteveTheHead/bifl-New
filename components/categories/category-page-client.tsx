@@ -30,6 +30,13 @@ interface Category {
   description: string | null
 }
 
+interface Subcategory {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+}
+
 interface Brand {
   name: string
   slug: string
@@ -39,6 +46,7 @@ interface CategoryPageClientProps {
   category: Category
   products: Product[]
   availableBrands: Brand[]
+  subcategories?: Subcategory[]
   initialFilters: {
     sort?: string
     price_min?: string
@@ -51,6 +59,7 @@ export function CategoryPageClient({
   category,
   products,
   availableBrands,
+  subcategories = [],
   initialFilters
 }: CategoryPageClientProps) {
   const router = useRouter()
@@ -186,6 +195,24 @@ export function CategoryPageClient({
           <span>AI-Generated Buying Guide</span>
         </div>
       </div>
+
+      {/* Subcategories */}
+      {subcategories && subcategories.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-brand-dark mb-4">Browse by Subcategory</h2>
+          <div className="flex flex-wrap gap-3">
+            {subcategories.map((subcategory) => (
+              <a
+                key={subcategory.id}
+                href={`/categories/${subcategory.slug}`}
+                className="px-4 py-2 bg-white border border-gray-200 rounded-lg hover:border-brand-teal hover:bg-brand-teal/5 transition-all text-sm font-medium text-brand-dark hover:text-brand-teal"
+              >
+                {subcategory.name}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Buying Guide Section */}
       {showBuyingGuide && (

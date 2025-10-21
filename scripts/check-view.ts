@@ -1,62 +1,53 @@
 import { createClient } from '@supabase/supabase-js'
 import dotenv from 'dotenv'
+import path from 'path'
 
-dotenv.config({ path: '.env.local' })
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local') })
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
-const supabase = createClient(supabaseUrl, supabaseKey)
+const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 async function checkView() {
-  console.log('Checking products_with_taxonomy view...\n')
-
-  // Check if bifl_certification exists in the view
-  const { data: sampleProduct, error } = await supabase
+  // Get all published products from the view
+  const { data: viewData, error: viewError } = await supabase
     .from('products_with_taxonomy')
-    .select('bifl_certification')
-    .limit(1)
+    .select('id, name, brand_name, category_name')
+    .eq('status', 'published')
 
-  if (error) {
-    console.error('❌ Error checking view:', error.message)
-    console.log('\nThe products_with_taxonomy view needs to be updated to include bifl_certification')
+  console.log('Products in products_with_taxonomy view (published):', viewData?.length || 0)
 
-    console.log('\nRun this SQL to update the view:')
-    console.log(`
--- Drop the existing view
-DROP VIEW IF EXISTS products_with_taxonomy;
+  if (viewError) {
+    console.error('View error:', viewError)
+  }
 
--- Recreate the view with bifl_certification included
-CREATE OR REPLACE VIEW products_with_taxonomy AS
-SELECT
-  p.*,
-  b.name as brand_name,
-  b.slug as brand_slug,
-  c.name as category_name,
-  c.slug as category_slug
-FROM products p
-LEFT JOIN brands b ON p.brand_id = b.id
-LEFT JOIN categories c ON p.category_id = c.id;
-    `)
-  } else {
-    console.log('✅ bifl_certification field is available in products_with_taxonomy view')
+  // Get all products from main table
+  const { data: tableData, error: tableError } = await supabase
+    .from('products')
+    .select('id, name, brand_id, category_id, status')
+    .eq('status', 'published')
 
-    // Check if we have any products with certifications
-    const { data: certsData, error: certsError } = await supabase
-      .from('products_with_taxonomy')
-      .select('name, bifl_certification')
-      .not('bifl_certification', 'is', null)
-      .limit(5)
+  console.log('Products in products table (published):', tableData?.length || 0)
 
-    if (!certsError && certsData) {
-      console.log(`\n📊 Found ${certsData.length} products with certifications in the view:`)
-      certsData.forEach(product => {
-        console.log(`   - ${product.name}: ${product.bifl_certification}`)
+  if (tableError) {
+    console.error('Table error:', tableError)
+  }
+
+  // Find products in table but not in view
+  if (viewData && tableData) {
+    const viewIds = new Set(viewData.map(p => p.id))
+    const missingFromView = tableData.filter(p => !viewIds.has(p.id))
+
+    console.log('\nProducts in table but not in view:', missingFromView.length)
+
+    if (missingFromView.length > 0) {
+      console.log('\nMissing products:')
+      missingFromView.forEach(p => {
+        console.log(`  - ${p.name} (brand_id: ${p.brand_id}, category_id: ${p.category_id})`)
       })
     }
   }
 }
 
 checkView()
-  .then(() => process.exit(0))
-  .catch(console.error)

@@ -107,10 +107,16 @@ function calculateBadges(product: any): string[] {
 export default function BadgeDisplay({ certification, size = 'md', className = '', overlay = false, product = null }: BadgeDisplayProps) {
   const [hoveredBadge, setHoveredBadge] = useState<string | null>(null)
 
-  // Get badges array - either manual certification or calculate dynamically
-  const badges = certification
-    ? [certification]
-    : (product ? calculateBadges(product) : [])
+  // Get badges array - priority: prop certification > product.bifl_certification > calculate dynamically
+  let badges: string[] = []
+
+  if (certification) {
+    badges = [certification]
+  } else if (product?.bifl_certification && Array.isArray(product.bifl_certification)) {
+    badges = product.bifl_certification
+  } else if (product) {
+    badges = calculateBadges(product)
+  }
 
   if (badges.length === 0) {
     return null
