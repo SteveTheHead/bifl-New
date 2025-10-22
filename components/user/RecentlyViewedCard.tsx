@@ -123,6 +123,7 @@ export function RecentlyViewedCard({ product }: RecentlyViewedCardProps) {
             product={{
               id: product.id,
               name: product.name,
+              slug: product.slug,
               price: product.price || 0,
               images: product.featured_image_url ? [product.featured_image_url] : [],
               average_score: product.bifl_total_score || undefined,

@@ -588,6 +588,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                     product={{
                       id: product.id,
                       name: product.name,
+                      slug: product.slug,
                       price: parseFloat(product.price?.toString() || '0') || 0,
                       images: product.images || [],
                       average_score: product.bifl_total_score ?? undefined,

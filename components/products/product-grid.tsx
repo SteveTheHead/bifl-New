@@ -347,6 +347,7 @@ function SimpleProductCard({ product }: { product: Product }) {
             product={{
               id: product.id,
               name: product.name,
+              slug: product.slug,
               price: parseFloat(product.price?.toString() || '0') || 0,
               images: product.featured_image_url ? [product.featured_image_url] : [],
               average_score: product.bifl_total_score ?? undefined,
