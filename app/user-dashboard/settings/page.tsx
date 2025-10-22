@@ -19,9 +19,47 @@ export default function AccountSettingsPage() {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+
+  const handleSaveProfile = async () => {
+    if (!name.trim()) {
+      setMessage('Please enter your name')
+      return
+    }
+
+    setSaving(true)
+    setMessage('')
+
+    try {
+      const response = await fetch('/api/user/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim() })
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setMessage('Profile updated successfully!')
+        // Reload user data to reflect changes
+        const userResponse = await fetch('/api/user/auth')
+        const userData = await userResponse.json()
+        if (userData.user) {
+          setUser(userData.user)
+        }
+      } else {
+        setMessage(data.error || 'Failed to update profile')
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error)
+      setMessage('Failed to update profile')
+    } finally {
+      setSaving(false)
+    }
+  }
 
   useEffect(() => {
     const loadUser = async () => {
@@ -144,6 +182,16 @@ export default function AccountSettingsPage() {
                 placeholder="Enter your email"
               />
               <p className="text-xs text-brand-gray mt-1">Email cannot be changed at this time</p>
+            </div>
+
+            <div className="pt-4">
+              <button
+                onClick={handleSaveProfile}
+                disabled={saving}
+                className="w-full px-4 py-2 bg-brand-teal text-white font-semibold rounded-lg hover:bg-brand-teal/90 focus:outline-none focus:ring-2 focus:ring-brand-teal focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {saving ? 'Saving...' : 'Save Changes'}
+              </button>
             </div>
           </div>
         </div>
