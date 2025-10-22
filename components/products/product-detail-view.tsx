@@ -588,7 +588,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                     product={{
                       id: product.id,
                       name: product.name,
-                      slug: product.slug,
+                      slug: product.slug || product.id,
                       price: parseFloat(product.price?.toString() || '0') || 0,
                       images: product.images || [],
                       average_score: product.bifl_total_score ?? undefined,
@@ -795,7 +795,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
           currentProduct={{
             id: product.id,
             name: product.name,
-            slug: product.slug,
+            slug: product.slug || product.id,
             price: product.price?.toString() || '',
             featured_image_url: product.featured_image_url ?? undefined,
             bifl_total_score: product.bifl_total_score ?? undefined,

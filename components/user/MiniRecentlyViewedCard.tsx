@@ -34,7 +34,6 @@ interface Product {
   id: string
   name: string
   slug: string
-  slug: string
   brand_name?: string
   featured_image_url?: string | null
   bifl_total_score?: number | null
