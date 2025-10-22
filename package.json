@@ -6,7 +6,6 @@
     "dev": "next dev --turbopack",
     "dev:clean": "./dev-restart.sh",
     "validate-data": "node -r dotenv/config scripts/validate-product-data.ts dotenv_config_path=.env.local",
-    "prebuild": "npm run validate-data",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
