@@ -420,6 +420,11 @@ export default async function HomePage() {
     </div>
   )
   } catch (error) {
+    // Log the full error for debugging
+    console.error('Homepage loading error:', error)
+    console.error('Error type:', typeof error)
+    console.error('Error details:', JSON.stringify(error, null, 2))
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-brand-cream to-white">
         <div className="container mx-auto py-12">
@@ -434,6 +439,11 @@ export default async function HomePage() {
               <p className="text-brand-gray">
                 {error instanceof Error ? error.message : 'Unknown error occurred'}
               </p>
+              {process.env.NODE_ENV === 'development' && (
+                <pre className="mt-4 text-xs text-left bg-gray-100 p-4 rounded overflow-auto max-h-64">
+                  {JSON.stringify(error, null, 2)}
+                </pre>
+              )}
             </CardContent>
           </Card>
         </div>
