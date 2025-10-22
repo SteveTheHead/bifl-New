@@ -9,6 +9,7 @@ import { useCompare } from '@/contexts/compare-context'
 interface CompareProduct {
   id: string
   name: string
+  slug: string
   price: number
   images: string[]
   affiliate_link?: string

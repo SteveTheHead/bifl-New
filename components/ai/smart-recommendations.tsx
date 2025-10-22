@@ -17,6 +17,7 @@ interface SmartRecommendationsProps {
 interface Recommendation {
   id: string
   name: string
+  slug: string
   brand_name: string
   category_name: string
   bifl_total_score: number

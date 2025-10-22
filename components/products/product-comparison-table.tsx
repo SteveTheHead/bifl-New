@@ -8,6 +8,7 @@ import { ArrowRight, X } from 'lucide-react'
 interface ComparisonProduct {
   id: string
   name: string
+  slug: string
   price: string
   featured_image_url?: string
   bifl_total_score?: number

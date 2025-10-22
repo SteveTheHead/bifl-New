@@ -13,6 +13,7 @@ import { SlidersHorizontal, X } from 'lucide-react'
 interface Product {
   id: string
   name: string
+  slug: string
   brand_name?: string
   featured_image_url?: string | null
   price?: number | string | null
