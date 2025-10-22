@@ -230,7 +230,7 @@ export function SimilarProductsCarousel({ currentProductId, categoryId }: Simila
 
                     {/* View Product Button */}
                     <Link
-                      href={`/products/${product.id}`}
+                      href={`/products/${product.slug}`}
                       className="block w-full bg-brand-teal text-white font-bold py-3 px-4 rounded-lg text-center hover:bg-opacity-90 transition-opacity"
                       style={{ backgroundColor: '#4A9D93', minHeight: '48px' }}
                     >

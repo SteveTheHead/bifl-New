@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { getProductById } from '@/lib/supabase/queries'
+import { getProductBySlug } from '@/lib/supabase/queries'
 import { notFound } from 'next/navigation'
 import { ProductDetailView } from '@/components/products/product-detail-view'
 import { ProductStructuredData, FAQStructuredData, BreadcrumbStructuredData } from '@/components/seo/structured-data'
@@ -7,28 +7,29 @@ import { createClient } from '@/lib/supabase/server'
 
 interface ProductPageProps {
   params: Promise<{
-    id: string
+    slug: string
   }>
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const { id } = await params
-  const product = await getProductById(id)
+  const { slug } = await params
+  const product = await getProductBySlug(slug)
 
   if (!product) {
     notFound()
   }
+
+  const productData = product as any
 
   // Get FAQs for structured data
   const supabase = await createClient()
   const { data: faqs } = await supabase
     .from('product_faqs')
     .select('question, answer')
-    .eq('product_id', id)
+    .eq('product_id', productData.id)
     .eq('is_active', true)
     .order('display_order', { ascending: true })
 
-  const productData = product as any
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://buyitforlife.com'
 
   return (
@@ -48,7 +49,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             price: productData.price,
             priceCurrency: 'USD',
             availability: 'InStock',
-            url: productData.affiliate_link || `${baseUrl}/products/${id}`,
+            url: productData.affiliate_link || `${baseUrl}/products/${productData.slug}`,
           } : undefined,
         }}
       />
@@ -62,7 +63,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           { name: 'Home', url: baseUrl },
           { name: 'Products', url: `${baseUrl}/products` },
           ...(productData.category ? [{ name: productData.category.name, url: `${baseUrl}/categories/${productData.category.slug}` }] : []),
-          { name: productData.name, url: `${baseUrl}/products/${id}` },
+          { name: productData.name, url: `${baseUrl}/products/${productData.slug}` },
         ]}
       />
 
@@ -72,8 +73,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
 }
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
-  const { id } = await params
-  const product = await getProductById(id)
+  const { slug } = await params
+  const product = await getProductBySlug(slug)
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://buyitforlife.com'
 
   if (!product) {
@@ -119,7 +120,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     openGraph: {
       title: `${productData.name} - BIFL Score ${biflScore}/10`,
       description,
-      url: `${baseUrl}/products/${id}`,
+      url: `${baseUrl}/products/${productData.slug}`,
       siteName: 'Buy It For Life',
       images: productData.featured_image_url ? [
         {
@@ -140,7 +141,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     },
 
     alternates: {
-      canonical: `${baseUrl}/products/${id}`,
+      canonical: `${baseUrl}/products/${productData.slug}`,
     },
 
     robots: {

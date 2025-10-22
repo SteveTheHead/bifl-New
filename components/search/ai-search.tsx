@@ -110,7 +110,7 @@ export function AISearch() {
               handleSuggestionClick(suggestions[selectedIndex].query)
             } else if (results[selectedIndex]) {
               // Navigate to product
-              window.location.href = `/products/${results[selectedIndex].id}`
+              window.location.href = `/products/${results[selectedIndex].slug}`
               setIsOpen(false)
             }
           } else if (query.length > 2) {
@@ -828,7 +828,7 @@ export function AISearch() {
               {results.map((product, index) => (
                 <Link
                   key={product.id}
-                  href={`/products/${product.id}`}
+                  href={`/products/${product.slug}`}
                   onClick={() => setIsOpen(false)}
                   onMouseEnter={() => setSelectedIndex(index)}
                   className={`block p-3 rounded-lg transition-colors ${

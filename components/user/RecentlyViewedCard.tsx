@@ -111,7 +111,7 @@ export function RecentlyViewedCard({ product }: RecentlyViewedCardProps) {
 
       <div className="flex flex-col gap-2">
         <Link
-          href={`/products/${product.id}`}
+          href={`/products/${product.slug}`}
           className="w-full text-white font-semibold py-2 px-6 rounded-lg hover:bg-opacity-90 transition-colors cursor-pointer text-center"
           style={{ backgroundColor: '#4A9D93' }}
         >

@@ -343,7 +343,7 @@ export function ProductComparisonTable({ currentProduct }: ProductComparisonTabl
                       <span className="text-xs text-gray-500 font-medium">Current Product</span>
                     ) : (
                       <Link
-                        href={`/products/${product.id}`}
+                        href={`/products/${product.slug}`}
                         className="bg-teal-600 text-white text-xs font-medium py-2 px-2 rounded-lg hover:bg-teal-700 transition-colors w-1/2"
                       >
                         View Details

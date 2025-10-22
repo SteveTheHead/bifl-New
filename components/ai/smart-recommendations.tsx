@@ -194,7 +194,7 @@ export function SmartRecommendations({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {recommendations.map((product) => (
           <div key={product.id} className="group">
-            <Link href={`/products/${product.id}`} className="block">
+            <Link href={`/products/${product.slug}`} className="block">
               <div className="bg-gray-50 rounded-lg p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                 {/* Product Image */}
                 <div className="relative mb-4">

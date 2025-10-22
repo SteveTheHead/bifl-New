@@ -222,7 +222,7 @@ export default function FavoritesPage() {
                     {/* Actions */}
                     <div>
                       <Link
-                        href={`/products/${product.id}`}
+                        href={`/products/${product.slug}`}
                         className="w-full block text-white text-center py-3 px-4 rounded-lg font-medium hover:bg-opacity-90 transition-opacity"
                         style={{ backgroundColor: '#4A9D93' }}
                       >
@@ -251,7 +251,7 @@ export default function FavoritesPage() {
               </Link>
               <button
                 onClick={() => {
-                  const productLinks = products.map(p => `${window.location.origin}/products/${p.id}`).join('\n')
+                  const productLinks = products.map(p => `${window.location.origin}/products/${p.slug}`).join('\n')
                   navigator.clipboard.writeText(productLinks)
                 }}
                 className="inline-flex items-center px-6 py-3 border border-gray-300 text-brand-gray font-medium rounded-lg hover:bg-gray-50 transition-colors"

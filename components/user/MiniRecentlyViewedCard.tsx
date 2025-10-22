@@ -49,7 +49,7 @@ export function MiniRecentlyViewedCard({ product }: MiniRecentlyViewedCardProps)
   const totalScore = product.bifl_total_score || 0
 
   return (
-    <Link href={`/products/${product.id}`} className="group">
+    <Link href={`/products/${product.slug}`} className="group">
       <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 p-3 border border-gray-100 hover:border-brand-teal/30">
         <div className="flex items-center space-x-3">
           {/* Mini Image */}

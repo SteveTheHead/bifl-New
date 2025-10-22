@@ -294,7 +294,7 @@ export function RecommendationEngine() {
               return (
                 <Link
                   key={product.id}
-                  href={`/products/${product.id}`}
+                  href={`/products/${product.slug}`}
                   className="group bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-200 hover:-translate-y-1"
                 >
                   {/* Product Image */}

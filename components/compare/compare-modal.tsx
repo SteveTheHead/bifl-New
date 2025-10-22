@@ -499,7 +499,7 @@ export function CompareModal() {
                             <td key={product.id} className="py-6 text-center">
                               <div className="flex flex-col gap-2 items-center">
                                 <Link
-                                  href={`/products/${product.id}`}
+                                  href={`/products/${product.slug}`}
                                   onClick={() => setShowCompareModal(false)}
                                   className="bg-teal-600 text-white text-xs font-medium py-2 px-2 rounded-lg hover:bg-teal-700 transition-colors w-1/2"
                                 >

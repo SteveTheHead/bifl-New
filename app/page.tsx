@@ -314,7 +314,7 @@ export default async function HomePage() {
               const totalScore = product.bifl_total_score || 0
 
               return (
-                <Link key={product.id} href={`/products/${product.id}`}>
+                <Link key={product.id} href={`/products/${product.slug}`}>
                   <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer">
                     <div className="relative">
                       <Image
