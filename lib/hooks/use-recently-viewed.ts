@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useAuth } from '@/lib/contexts/auth-context'
 
 interface RecentlyViewedProduct {
   id: string
@@ -16,31 +17,17 @@ interface RecentlyViewedProduct {
 export function useRecentlyViewed() {
   const [recentlyViewed, setRecentlyViewed] = useState<RecentlyViewedProduct[]>([])
   const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<{ email?: string } | null>(null)
+  const { user } = useAuth()
 
-  // Check authentication using our Supabase auth system
+  // Fetch recently viewed when user changes
   useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const response = await fetch('/api/user/auth')
-        const data = await response.json()
-        setUser(data.user)
-
-        if (data.user?.email) {
-          fetchRecentlyViewed(data.user.email)
-        } else {
-          setRecentlyViewed([])
-          setLoading(false)
-        }
-      } catch (error) {
-        console.error('Error checking auth:', error)
-        setUser(null)
-        setRecentlyViewed([])
-        setLoading(false)
-      }
+    if (user?.email) {
+      fetchRecentlyViewed(user.email)
+    } else {
+      setRecentlyViewed([])
+      setLoading(false)
     }
-    checkUser()
-  }, [])
+  }, [user])
 
   const fetchRecentlyViewed = useCallback(async (userEmail: string) => {
     if (!userEmail) return

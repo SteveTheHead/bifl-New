@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { ThemeProvider } from "../components/provider";
 import { ConditionalNavbar } from "@/components/layout/conditional-navbar";
 import { CompareProvider } from "@/contexts/compare-context";
+import { AuthProvider } from "@/lib/contexts/auth-context";
 import { FloatingCompareBar } from "@/components/compare/floating-compare-bar";
 import { CompareModal } from "@/components/compare/compare-modal";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
@@ -51,15 +52,17 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <CompareProvider>
-            <ConditionalNavbar />
-            {children}
-            <FooterSection />
-            <FloatingCompareBar />
-            <CompareModal />
-            <Toaster />
-            <Analytics />
-          </CompareProvider>
+          <AuthProvider>
+            <CompareProvider>
+              <ConditionalNavbar />
+              {children}
+              <FooterSection />
+              <FloatingCompareBar />
+              <CompareModal />
+              <Toaster />
+              <Analytics />
+            </CompareProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

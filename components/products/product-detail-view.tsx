@@ -100,6 +100,7 @@ interface Product {
   lifespan_expectation?: number | null
   primary_material?: string | null
   country_of_origin?: string | null
+  manufacturing_notes?: string | null
   verdict_bullets?: string[] | string | null
   repairability_notes?: string | null
   durability_notes?: string | null
@@ -239,30 +240,40 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
             <section>
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">{product.name}</h1>
               <p className="text-base sm:text-lg text-brand-gray mb-4">{product.brands?.name || product.wordpress_meta?.brand_name || 'Unknown Brand'}</p>
-              <p className="text-sm sm:text-base text-brand-gray leading-relaxed mb-6 sm:mb-8">
+              <p className="text-sm sm:text-base text-brand-gray leading-relaxed mb-6">
                 {product.optimized_product_description || product.verdict_summary || product.description || product.excerpt || 'No description available for this product.'}
               </p>
-              <div className="flex flex-col sm:flex-row gap-6">
-                <div className="space-y-2 text-xs sm:text-sm flex-1">
-                  <div className="flex flex-col sm:flex-row">
-                    <strong className="w-full sm:w-32 font-medium">Dimensions:</strong>
-                    <span className="text-brand-gray">{product.dimensions || 'N/A'}</span>
+
+              {/* Product Specifications */}
+              <div className="bg-white rounded-xl border border-gray-100 p-5">
+                <h3 className="text-sm font-bold text-brand-dark mb-4 uppercase tracking-wide">Product Specifications</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                  <div className="space-y-3 text-sm">
+                    <div className="flex items-start">
+                      <strong className="w-28 font-medium text-brand-dark shrink-0">Dimensions:</strong>
+                      <span className="text-brand-gray">{product.dimensions || 'N/A'}</span>
+                    </div>
+                    <div className="flex items-start">
+                      <strong className="w-28 font-medium text-brand-dark shrink-0">Lifespan:</strong>
+                      <span className="text-brand-gray">{product.lifespan_expectation ? `${product.lifespan_expectation}+ years` : 'N/A'}</span>
+                    </div>
+                    <div className="flex items-start">
+                      <strong className="w-28 font-medium text-brand-dark shrink-0">Material:</strong>
+                      <span className="text-brand-gray">{product.primary_material || 'N/A'}</span>
+                    </div>
                   </div>
-                  <div className="flex flex-col sm:flex-row">
-                    <strong className="w-full sm:w-32 font-medium">Lifespan:</strong>
-                    <span className="text-brand-gray">{product.lifespan_expectation ? `${product.lifespan_expectation}+ years` : 'N/A'}</span>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex items-start">
+                      <strong className="w-36 font-medium text-brand-dark shrink-0">Country of Origin:</strong>
+                      <span className="text-brand-gray">{product.country_of_origin || 'Unknown'}</span>
+                    </div>
+                    {product.manufacturing_notes && (
+                      <div className="flex items-start">
+                        <strong className="w-36 font-medium text-brand-dark shrink-0">Manufacturing:</strong>
+                        <span className="text-brand-gray leading-relaxed">{product.manufacturing_notes}</span>
+                      </div>
+                    )}
                   </div>
-                  <div className="flex flex-col sm:flex-row">
-                    <strong className="w-full sm:w-32 font-medium">Material:</strong>
-                    <span className="text-brand-gray">{product.primary_material || 'N/A'}</span>
-                  </div>
-                  <div className="flex flex-col sm:flex-row">
-                    <strong className="w-full sm:w-32 font-medium">Country of Origin:</strong>
-                    <span className="text-brand-gray">{product.country_of_origin || 'Unknown'}</span>
-                  </div>
-                </div>
-                <div className="flex-shrink-0">
-                  <BadgeDisplay product={product} size="xs" overlay={false} className="!flex !flex-row !gap-2" />
                 </div>
               </div>
             </section>
@@ -275,7 +286,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                   <div className="space-y-4">
                     <p className="text-base text-brand-dark">{product.verdict_summary}</p>
                     {product.verdict_bullets && (
-                      <ul className="list-disc list-inside space-y-2 text-sm text-brand-dark ml-4">
+                      <ul className="space-y-3 text-sm text-brand-dark">
                         {(() => {
                           // Check if verdict_bullets is already an array (parsed by Supabase)
                           if (Array.isArray(product.verdict_bullets)) {
@@ -289,7 +300,10 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                                   .trim()
 
                                 return (
-                                  <li key={index} className="leading-relaxed font-semibold">{cleanBullet}</li>
+                                  <li key={index} className="flex items-start leading-relaxed">
+                                    <span style={{ color: '#4A9D93' }} className="mr-2 mt-1 shrink-0">•</span>
+                                    <span className="font-semibold">{cleanBullet}</span>
+                                  </li>
                                 )
                               })
                           }
@@ -307,7 +321,10 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                                   .trim()
 
                                 return (
-                                  <li key={index} className="leading-relaxed font-semibold">{cleanBullet}</li>
+                                  <li key={index} className="flex items-start leading-relaxed">
+                                    <span style={{ color: '#4A9D93' }} className="mr-2 mt-1 shrink-0">•</span>
+                                    <span className="font-semibold">{cleanBullet}</span>
+                                  </li>
                                 )
                               })
                           } catch (error) {
@@ -390,7 +407,10 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                                 .replace(/^,+|,+$/g, '')
                                 .trim()
                               return (
-                                <li key={index} className="leading-relaxed font-semibold">{cleanBullet}</li>
+                                <li key={index} className="flex items-start leading-relaxed">
+                                  <span style={{ color: '#4A9D93' }} className="mr-2 mt-1 shrink-0">•</span>
+                                  <span className="font-semibold">{cleanBullet}</span>
+                                </li>
                               )
                             })
                           }
@@ -533,6 +553,12 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                   </div>
                 )}
               </div>
+
+              {/* Badges */}
+              <div className="mt-4 flex justify-center">
+                <BadgeDisplay product={product} size="xs" overlay={false} className="!flex !flex-row !gap-2" />
+              </div>
+
               <div className="mt-6 flex flex-col space-y-3">
                 {product.affiliate_link && (
                   <a

@@ -28,7 +28,7 @@ export async function GET(
         *,
         brands!inner(name, slug),
         categories!inner(name, slug),
-        materials(name),
+        materials!products_primary_material_id_fkey(name),
         price_ranges(name, min_price, max_price)
       `)
       .eq('category_id', (category as any).id)

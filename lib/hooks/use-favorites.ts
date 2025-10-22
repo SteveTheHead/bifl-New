@@ -3,36 +3,23 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { sb } from '@/lib/supabase-utils'
+import { useAuth } from '@/lib/contexts/auth-context'
 
 
 export function useFavorites() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<{ email?: string } | null>(null)
+  const { user } = useAuth()
 
-  // Check authentication using our Supabase auth system
+  // Fetch favorites when user changes
   useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const response = await fetch('/api/user/auth')
-        const data = await response.json()
-        setUser(data.user)
-
-        if (data.user?.email) {
-          fetchFavorites(data.user.email)
-        } else {
-          setFavorites(new Set())
-          setLoading(false)
-        }
-      } catch (error) {
-        console.error('Error checking auth:', error)
-        setUser(null)
-        setFavorites(new Set())
-        setLoading(false)
-      }
+    if (user?.email) {
+      fetchFavorites(user.email)
+    } else {
+      setFavorites(new Set())
+      setLoading(false)
     }
-    checkUser()
-  }, [])
+  }, [user])
 
   const fetchFavorites = async (userEmail: string) => {
     if (!userEmail) return

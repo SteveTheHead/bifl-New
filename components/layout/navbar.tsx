@@ -6,65 +6,29 @@ import { useState, useRef, useEffect } from 'react'
 import { Menu, X, Search, User, LogOut } from 'lucide-react'
 import { logout } from '@/app/auth/actions'
 import { AISearch } from '../search/ai-search'
+import { useAuth } from '@/lib/contexts/auth-context'
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [isClient, setIsClient] = useState(false)
-  const [user, setUser] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
   const userMenuRef = useRef<HTMLDivElement>(null)
-  const lastCheckRef = useRef<number>(0)
+
+  const { user, loading } = useAuth()
 
   // Fix hydration mismatch
   useEffect(() => {
     setIsClient(true)
   }, [])
 
-  // Check authentication using our Supabase auth system
-  const checkUser = async () => {
-    // Debounce: Don't check more than once every 2 seconds
-    const now = Date.now()
-    if (now - lastCheckRef.current < 2000) {
-      return
-    }
-    lastCheckRef.current = now
-
-    try {
-      const response = await fetch('/api/user/auth', {
-        cache: 'no-store',
-        signal: AbortSignal.timeout(5000), // 5 second timeout
-      })
-
-      if (!response.ok) {
-        setUser(null)
-        return
-      }
-
-      const data = await response.json()
-      setUser(data.user)
-    } catch (error) {
-      // Silently handle auth check failures (user not authenticated, timeout, or network error)
-      setUser(null)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    checkUser()
-  }, [])
-
   const handleSignOut = async () => {
     try {
       setShowUserMenu(false)
-      setUser(null) // Clear user state immediately
       await logout()
       // Force a page refresh to ensure all client-side state is cleared
       window.location.href = '/auth/signin'
     } catch (error) {
-      // Still clear user state on error and redirect
-      setUser(null)
+      // Redirect on error
       window.location.href = '/auth/signin'
     }
   }
