@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/contexts/auth-context'
 interface RecentlyViewedProduct {
   id: string
   name: string
+  slug: string
   price: string
   featured_image_url?: string
   bifl_total_score?: number

@@ -6,6 +6,7 @@ import { useLocalStorage } from '@/lib/hooks/use-local-storage'
 interface Product {
   id: string
   name: string
+  slug: string
   price: number
   images: string[]
   average_score?: number
