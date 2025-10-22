@@ -24,6 +24,7 @@ export async function GET(request: NextRequest) {
       .select(`
         id,
         name,
+        slug,
         price,
         featured_image_url,
         affiliate_link,
@@ -65,6 +66,7 @@ export async function GET(request: NextRequest) {
         return {
           id: product.id,
           name: product.name,
+          slug: product.slug,
           price: product.price,
           images: product.featured_image_url ? [product.featured_image_url] : [],
           affiliate_link: product.affiliate_link,

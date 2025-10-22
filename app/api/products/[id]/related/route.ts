@@ -46,6 +46,7 @@ export async function GET(
       .select(`
         id,
         name,
+        slug,
         price,
         featured_image_url,
         bifl_total_score,

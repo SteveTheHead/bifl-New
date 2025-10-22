@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
       .select(`
         id,
         name,
+        slug,
         price,
         featured_image_url,
         bifl_total_score,

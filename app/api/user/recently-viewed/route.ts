@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
         products:product_id (
           id,
           name,
+          slug,
           price,
           featured_image_url,
           bifl_total_score,

@@ -125,6 +125,7 @@ async function getPersonalizedRecommendations(supabase: SupabaseClientType, user
       `
         id,
         name,
+        slug,
         price,
         featured_image_url,
         bifl_total_score,
@@ -165,6 +166,7 @@ async function getPersonalizedRecommendations(supabase: SupabaseClientType, user
         `
           id,
           name,
+          slug,
           price,
           featured_image_url,
           bifl_total_score,
@@ -223,6 +225,7 @@ async function getTopRatedProducts(supabase: SupabaseClientType) {
       `
         id,
         name,
+        slug,
         price,
         featured_image_url,
         bifl_total_score,
