@@ -12,6 +12,7 @@ interface Category {
   description: string | null
   display_order: number
   is_featured: boolean
+  show_buying_guide: boolean
   created_at: string
 }
 
@@ -29,7 +30,8 @@ export default function EditCategoryPage() {
     slug: '',
     description: '',
     display_order: 0,
-    is_featured: false
+    is_featured: false,
+    show_buying_guide: false
   })
 
   const checkSession = useCallback(async () => {
@@ -63,7 +65,8 @@ export default function EditCategoryPage() {
           slug: category.slug || '',
           description: category.description || '',
           display_order: category.display_order || 0,
-          is_featured: category.is_featured || false
+          is_featured: category.is_featured || false,
+          show_buying_guide: category.show_buying_guide || false
         })
       } else {
         router.push('/admin/categories')
@@ -109,6 +112,7 @@ export default function EditCategoryPage() {
         headers: {
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({
           ...formData,
           display_order: parseInt(formData.display_order.toString())
@@ -118,12 +122,13 @@ export default function EditCategoryPage() {
       if (response.ok) {
         router.push('/admin/categories')
       } else {
-        const error = await response.json()
-        alert(`Failed to update category: ${error.message || 'Unknown error'}`)
+        const errorData = await response.json()
+        console.error('Error response:', errorData)
+        alert(`Failed to update category: ${errorData.error || errorData.message || 'Unknown error'}`)
       }
     } catch (error) {
       console.error('Failed to update category:', error)
-      alert('Failed to update category')
+      alert(`Failed to update category: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setSaving(false)
     }
@@ -208,36 +213,45 @@ export default function EditCategoryPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-brand-gray mb-2">
-                    Display Order
-                  </label>
+              <div>
+                <label className="block text-sm font-medium text-brand-gray mb-2">
+                  Display Order
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={formData.display_order}
+                  onChange={(e) => setFormData(prev => ({ ...prev, display_order: parseInt(e.target.value) || 0 }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
+                  placeholder="0"
+                />
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center">
                   <input
-                    type="number"
-                    min="0"
-                    value={formData.display_order}
-                    onChange={(e) => setFormData(prev => ({ ...prev, display_order: parseInt(e.target.value) || 0 }))}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal"
-                    placeholder="0"
+                    type="checkbox"
+                    checked={formData.is_featured}
+                    onChange={(e) => setFormData(prev => ({ ...prev, is_featured: e.target.checked }))}
+                    className="h-4 w-4 text-brand-teal focus:ring-brand-teal border-gray-300 rounded"
+                    id="is_featured"
                   />
+                  <label htmlFor="is_featured" className="ml-2 text-sm text-brand-gray">
+                    Show in featured categories
+                  </label>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-brand-gray mb-2">
-                    Featured Category
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={formData.show_buying_guide}
+                    onChange={(e) => setFormData(prev => ({ ...prev, show_buying_guide: e.target.checked }))}
+                    className="h-4 w-4 text-brand-teal focus:ring-brand-teal border-gray-300 rounded"
+                    id="show_buying_guide"
+                  />
+                  <label htmlFor="show_buying_guide" className="ml-2 text-sm text-brand-gray">
+                    Show AI Buying Guide on category page
                   </label>
-                  <div className="flex items-center h-10">
-                    <input
-                      type="checkbox"
-                      checked={formData.is_featured}
-                      onChange={(e) => setFormData(prev => ({ ...prev, is_featured: e.target.checked }))}
-                      className="h-4 w-4 text-brand-teal focus:ring-brand-teal border-gray-300 rounded"
-                    />
-                    <label className="ml-2 text-sm text-brand-gray">
-                      Show in featured categories
-                    </label>
-                  </div>
                 </div>
               </div>
             </div>

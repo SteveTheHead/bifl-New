@@ -24,20 +24,20 @@ async function findCorruptedData() {
   products.forEach((product: any) => {
     const productIssues: string[] = []
 
-    // Check for error messages in notes
-    if (product.durability_notes?.includes('Error parsing') || product.durability_notes?.includes('error')) {
+    // Check for error messages in notes (only check for actual error messages, not the word "error" in content)
+    if (product.durability_notes?.includes('Error parsing')) {
       productIssues.push('Corrupted durability_notes (contains error message)')
     }
-    if (product.repairability_notes?.includes('Error parsing') || product.repairability_notes?.includes('error')) {
+    if (product.repairability_notes?.includes('Error parsing')) {
       productIssues.push('Corrupted repairability_notes (contains error message)')
     }
-    if (product.warranty_notes?.includes('Error parsing') || product.warranty_notes?.includes('error')) {
+    if (product.warranty_notes?.includes('Error parsing')) {
       productIssues.push('Corrupted warranty_notes (contains error message)')
     }
-    if (product.social_notes?.includes('Error parsing') || product.social_notes?.includes('error')) {
+    if (product.social_notes?.includes('Error parsing')) {
       productIssues.push('Corrupted social_notes (contains error message)')
     }
-    if (product.sustainability_notes?.includes('Error parsing') || product.sustainability_notes?.includes('error')) {
+    if (product.sustainability_notes?.includes('Error parsing')) {
       productIssues.push('Corrupted sustainability_notes (contains error message)')
     }
 

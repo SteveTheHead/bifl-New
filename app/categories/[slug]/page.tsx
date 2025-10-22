@@ -102,7 +102,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   // Get category details
   const { data: category, error: categoryError } = await supabase
     .from('categories')
-    .select('*')
+    .select('*, show_buying_guide')
     .eq('slug', slug)
     .single()
 

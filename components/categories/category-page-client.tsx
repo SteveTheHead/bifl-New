@@ -28,6 +28,7 @@ interface Category {
   name: string
   slug: string
   description: string | null
+  show_buying_guide?: boolean
 }
 
 interface Subcategory {
@@ -70,8 +71,15 @@ export function CategoryPageClient({
   const [loadingGuide, setLoadingGuide] = useState(true)
   const [showBuyingGuide, setShowBuyingGuide] = useState(true)
 
-  // Fetch buying guide
+  // Fetch buying guide (only if enabled for this category)
   useEffect(() => {
+    // Only fetch if category has buying guide enabled
+    if (!category.show_buying_guide) {
+      setLoadingGuide(false)
+      setBuyingGuide(null)
+      return
+    }
+
     const fetchBuyingGuide = async () => {
       try {
         setLoadingGuide(true)
@@ -97,7 +105,7 @@ export function CategoryPageClient({
     }
 
     fetchBuyingGuide()
-  }, [category.slug])
+  }, [category.slug, category.show_buying_guide])
 
   const updateFilters = (newFilters: Record<string, string | undefined>) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -214,7 +222,7 @@ export function CategoryPageClient({
       )}
 
       {/* Buying Guide Section */}
-      {showBuyingGuide && (
+      {category.show_buying_guide && showBuyingGuide && (
         <div className="mb-12">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-brand-dark">

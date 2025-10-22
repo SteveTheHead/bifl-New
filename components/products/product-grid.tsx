@@ -102,6 +102,194 @@ function getScoreLabel(score: number) {
   return "Poor"
 }
 
+// Word variation helper for handling singular/plural
+function getWordVariations(word: string): string[] {
+  const lower = word.toLowerCase().trim()
+  if (!lower) return []
+
+  const variations = new Set([lower])
+
+  // Handle plurals
+  if (lower.endsWith('s') && lower.length > 2) {
+    variations.add(lower.slice(0, -1)) // boots → boot
+    if (lower.endsWith('es') && lower.length > 3) {
+      variations.add(lower.slice(0, -2))
+    }
+  } else {
+    variations.add(lower + 's') // boot → boots
+  }
+
+  // Handle -ies/-y pattern
+  if (lower.endsWith('ies') && lower.length > 3) {
+    variations.add(lower.slice(0, -3) + 'y') // batteries → battery
+  } else if (lower.endsWith('y') && lower.length > 2) {
+    const secondLast = lower[lower.length - 2]
+    if (secondLast && !'aeiou'.includes(secondLast)) {
+      variations.add(lower.slice(0, -1) + 'ies') // battery → batteries
+    }
+  }
+
+  // Handle -ves/-fe pattern (knife/knives)
+  if (lower.endsWith('ves') && lower.length > 3) {
+    variations.add(lower.slice(0, -3) + 'fe') // knives → knife
+    variations.add(lower.slice(0, -3) + 'f')
+  } else if (lower.endsWith('fe') && lower.length > 2) {
+    variations.add(lower.slice(0, -2) + 'ves') // knife → knives
+  } else if (lower.endsWith('f') && lower.length > 2) {
+    variations.add(lower.slice(0, -1) + 'ves') // shelf → shelves
+  }
+
+  return Array.from(variations)
+}
+
+// Check if any word variation matches in the text (using word boundaries)
+function matchesAnyVariation(text: string, word: string): boolean {
+  const textLower = text.toLowerCase()
+  const variations = getWordVariations(word)
+  return variations.some(variant => {
+    // Use word boundary regex to match whole words only
+    const regex = new RegExp(`\\b${variant}\\b`, 'i')
+    return regex.test(text)
+  })
+}
+
+// Check if word appears at the start of a string (higher relevance)
+function startsWithWord(text: string, word: string): boolean {
+  const textLower = text.toLowerCase()
+  const wordLower = word.toLowerCase()
+  return textLower.startsWith(wordLower) || textLower.startsWith(wordLower + ' ')
+}
+
+// Check if word is a standalone/primary word (not a modifier)
+function isStandaloneWord(text: string, word: string): boolean {
+  const textLower = text.toLowerCase()
+  const wordLower = word.toLowerCase()
+
+  if (textLower === wordLower) return true
+
+  const commonModifiers = ['the', 'a', 'an', 'professional', 'premium', 'deluxe', 'classic']
+  const words = textLower.split(/\s+/).filter(w => !commonModifiers.includes(w))
+
+  return words.length === 1 && words[0] === wordLower
+}
+
+// Detect if this is a compound/accessory product (e.g., "knife sharpener" when searching "knife")
+function isCompoundMatch(text: string, searchWord: string): boolean {
+  const textLower = text.toLowerCase()
+  const searchLower = searchWord.toLowerCase()
+
+  if (!textLower.includes(searchLower)) return false
+
+  const compoundIndicators = [
+    'sharpener', 'holder', 'case', 'bag', 'kit', 'set', 'stand',
+    'rack', 'organizer', 'cleaner', 'polish', 'oil', 'maintenance',
+    'accessory', 'tool', 'for', 'with'
+  ]
+
+  return compoundIndicators.some(indicator => textLower.includes(indicator))
+}
+
+// Check if an exact phrase appears in text (e.g., "coffee grinder" as exact phrase)
+function containsExactPhrase(text: string, words: string[]): boolean {
+  if (words.length === 0) return false
+
+  const textLower = text.toLowerCase()
+  const phrase = words.join(' ')
+
+  // Check exact phrase with word boundaries
+  const regex = new RegExp(`\\b${phrase}\\b`, 'i')
+  return regex.test(textLower)
+}
+
+// Check if words appear near each other (within 2 words distance)
+function hasProximityMatch(text: string, words: string[]): boolean {
+  if (words.length < 2) return false
+
+  const textLower = text.toLowerCase()
+  const textWords = textLower.split(/\s+/)
+
+  // Find positions of each search word
+  const positions: number[][] = words.map(word => {
+    const positions: number[] = []
+    textWords.forEach((textWord, index) => {
+      if (matchesAnyVariation(textWord, word)) {
+        positions.push(index)
+      }
+    })
+    return positions
+  })
+
+  // Check if any combination of positions is close (within 2 words)
+  for (let i = 0; i < words.length - 1; i++) {
+    const currentPositions = positions[i]
+    const nextPositions = positions[i + 1]
+
+    for (const currentPos of currentPositions) {
+      for (const nextPos of nextPositions) {
+        if (Math.abs(nextPos - currentPos) <= 2) {
+          return true
+        }
+      }
+    }
+  }
+
+  return false
+}
+
+// Count how many search words appear in a specific field
+function countWordsInField(fieldText: string, words: string[]): number {
+  let count = 0
+  words.forEach(word => {
+    if (matchesAnyVariation(fieldText, word)) {
+      count++
+    }
+  })
+  return count
+}
+
+// Calculate enhanced relevance score
+function calculateEnhancedScore(
+  product: any,
+  searchWords: string[],
+  fieldName: string,
+  fieldValue: string,
+  baseScore: number
+): number {
+  let score = baseScore
+  const fieldLower = (fieldValue || '').toLowerCase()
+
+  searchWords.forEach(searchWord => {
+    const variations = getWordVariations(searchWord)
+
+    variations.forEach(variant => {
+      if (fieldLower.includes(variant)) {
+        // Position bonus: word at start is more relevant
+        if (startsWithWord(fieldValue, variant)) {
+          score += 2
+        }
+
+        // Standalone bonus: word is the primary subject
+        if (isStandaloneWord(fieldValue, variant)) {
+          score += 3
+        }
+
+        // Exact word boundary match (whole word, not substring)
+        const wordBoundaryRegex = new RegExp(`\\b${variant}\\b`, 'i')
+        if (wordBoundaryRegex.test(fieldValue)) {
+          score += 1.5
+        }
+
+        // Compound penalty: this is an accessory, not the main product
+        if (fieldName === 'name' && isCompoundMatch(fieldValue, variant)) {
+          score -= 2
+        }
+      }
+    })
+  })
+
+  return score
+}
+
 // Product card component
 function SimpleProductCard({ product }: { product: Product }) {
   const totalScore = product.bifl_total_score || 0
@@ -226,68 +414,139 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
   const filteredProducts = useMemo(() => {
     let filtered = [...initialProducts]
 
-    // Search filter - improved to handle multi-word searches
+    // Search filter - with singular/plural matching and enhanced relevancy scoring
     if (filters.search) {
       const searchTerm = filters.search.trim()
       const words = searchTerm.toLowerCase().split(/\s+/)
 
       if (words.length === 1) {
-        // Single word search
+        // Single word search with variations and enhanced scoring
         const searchLower = words[0]
-        filtered = filtered.filter(product =>
-          product.name?.toLowerCase().includes(searchLower) ||
-          product.brand_name?.toLowerCase().includes(searchLower) ||
-          (product as any).description?.toLowerCase().includes(searchLower) ||
-          (product as any).use_case?.toLowerCase().includes(searchLower)
-        )
-      } else {
-        // Multi-word search - prioritize products containing ALL words, then ANY words
+
+        // First filter to only matching products (exclude description to reduce noise)
         filtered = filtered.filter(product => {
-          const name = product.name?.toLowerCase() || ''
-          const brand = product.brand_name?.toLowerCase() || ''
-          const description = (product as any).description?.toLowerCase() || ''
-          const useCase = (product as any).use_case?.toLowerCase() || ''
+          const name = product.name || ''
+          const brand = product.brand_name || ''
+          const useCase = (product as any).use_case || ''
 
-          // Calculate relevance score
+          return matchesAnyVariation(name, searchLower) ||
+                 matchesAnyVariation(brand, searchLower) ||
+                 matchesAnyVariation(useCase, searchLower)
+        })
+
+        // Then calculate scores for sorting
+        filtered.forEach(product => {
+          const name = product.name || ''
+          const brand = product.brand_name || ''
+          const useCase = (product as any).use_case || ''
+
           let score = 0
-          let matchCount = 0
 
-          words.forEach(word => {
-            if (name.includes(word)) {
-              score += 3 // Name match is most important
-              matchCount++
-            } else if (brand.includes(word)) {
-              score += 2 // Brand match is second most important
-              matchCount++
-            } else if (useCase.includes(word)) {
-              score += 2.5 // Use case match is high priority
-              matchCount++
-            } else if (description.includes(word)) {
-              score += 1 // Description match is least important
-              matchCount++
+          // Base scores for field matches
+          if (matchesAnyVariation(name, searchLower)) {
+            score += 10
+            // Position bonus: word at start is more relevant
+            if (startsWithWord(name, searchLower)) {
+              score += 5
             }
-          })
-
-          // Bonus for products containing ALL words
-          if (matchCount === words.length) {
-            score += 10 // Much larger bonus for ALL words
+            // Compound penalty: accessories rank lower
+            if (isCompoundMatch(name, searchLower)) {
+              score -= 3
+            }
+          }
+          if (matchesAnyVariation(brand, searchLower)) {
+            score += 5
+          }
+          if (matchesAnyVariation(useCase, searchLower)) {
+            score += 7
           }
 
-          // For multi-word searches, require minimum relevance threshold
-          let minScoreRequired = 1
-          if (words.length >= 2) {
-            minScoreRequired = 2
-          }
+          // Bonus based on BIFL score for relevancy tiebreaker
+          score += (product.bifl_total_score || 0) * 0.2
 
-          // Store score for sorting later
-          (product as any)._searchScore = score
-
-          // Return products with sufficient relevance score
-          return score >= minScoreRequired
+          // Store score for sorting
+          ;(product as any)._searchScore = score
         })
 
         // Sort by relevance score (higher is better)
         filtered.sort((a, b) => ((b as any)._searchScore || 0) - ((a as any)._searchScore || 0))
+      } else {
+        // Multi-word search with phrase proximity and field concentration scoring
+        filtered = filtered.filter(product => {
+          const name = product.name || ''
+          const brand = product.brand_name || ''
+          const useCase = (product as any).use_case || ''
+
+          let score = 0
+          let matchCount = 0
+
+          // Count matches per field
+          const nameWordCount = countWordsInField(name, words)
+          const brandWordCount = countWordsInField(brand, words)
+          const useCaseWordCount = countWordsInField(useCase, words)
+
+          // Base scores for each word match
+          words.forEach(word => {
+            if (matchesAnyVariation(name, word)) {
+              score += 10
+              matchCount++
+              // Position bonus for words at start
+              if (startsWithWord(name, word)) {
+                score += 3
+              }
+            }
+            if (matchesAnyVariation(brand, word)) {
+              score += 5
+              matchCount++
+            }
+            if (matchesAnyVariation(useCase, word)) {
+              score += 7
+              matchCount++
+            }
+          })
+
+          // EXACT PHRASE BONUS: Highest priority for exact phrase match
+          if (containsExactPhrase(name, words)) {
+            score += 30
+          } else if (containsExactPhrase(useCase, words)) {
+            score += 20
+          }
+
+          // PROXIMITY BONUS: Words appear near each other
+          if (hasProximityMatch(name, words)) {
+            score += 15
+          } else if (hasProximityMatch(useCase, words)) {
+            score += 10
+          }
+
+          // FIELD CONCENTRATION BONUS: All words in same field (especially name)
+          if (nameWordCount === words.length) {
+            score += 25  // All words in name field
+          } else if (useCaseWordCount === words.length) {
+            score += 15  // All words in use case
+          }
+
+          // Bonus for products containing ALL words (across any fields)
+          if (matchCount >= words.length) {
+            score += 10
+          }
+
+          // BIFL score tiebreaker
+          score += (product.bifl_total_score || 0) * 0.1
+
+          // Store score for sorting
+          ;(product as any)._searchScore = score
+
+          // Require at least some matches
+          return matchCount > 0
+        })
+
+        // Sort by relevance score (higher is better)
+        filtered.sort((a, b) => {
+          const scoreB = (b as any)._searchScore || 0
+          const scoreA = (a as any)._searchScore || 0
+          return scoreB - scoreA
+        })
       }
     }
 
@@ -359,22 +618,29 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
     })
 
     // Sort products
-    filtered.sort((a, b) => {
-      switch (filters.sortBy) {
-        case 'score-desc':
-          return (b.bifl_total_score || 0) - (a.bifl_total_score || 0)
-        case 'score-asc':
-          return (a.bifl_total_score || 0) - (b.bifl_total_score || 0)
-        case 'name-asc':
-          return (a.name || '').localeCompare(b.name || '')
-        case 'name-desc':
-          return (b.name || '').localeCompare(a.name || '')
-        case 'newest':
-          return new Date((b as any).created_at || 0).getTime() - new Date((a as any).created_at || 0).getTime()
-        default:
-          return 0
-      }
-    })
+    // IMPORTANT: When there's an active search, prioritize search relevancy over sortBy
+    const hasActiveSearch = filters.search && filters.search.trim().length > 0
+
+    if (!hasActiveSearch) {
+      // No search active - use normal sorting
+      filtered.sort((a, b) => {
+        switch (filters.sortBy) {
+          case 'score-desc':
+            return (b.bifl_total_score || 0) - (a.bifl_total_score || 0)
+          case 'score-asc':
+            return (a.bifl_total_score || 0) - (b.bifl_total_score || 0)
+          case 'name-asc':
+            return (a.name || '').localeCompare(b.name || '')
+          case 'name-desc':
+            return (b.name || '').localeCompare(a.name || '')
+          case 'newest':
+            return new Date((b as any).created_at || 0).getTime() - new Date((a as any).created_at || 0).getTime()
+          default:
+            return 0
+        }
+      })
+    }
+    // If search is active, keep the relevancy sort already applied
 
     return filtered
   }, [initialProducts, filters])

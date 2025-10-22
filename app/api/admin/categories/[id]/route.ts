@@ -50,14 +50,6 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Simple admin check - in production you'd want more robust auth
-    const cookieHeader = request.headers.get('cookie') || ''
-    const isAdmin = cookieHeader.includes('admin-session=admin-authenticated')
-
-    if (!isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     const body = await request.json()
 
     // Use service role key to bypass RLS
@@ -117,6 +109,7 @@ export async function PUT(
       description: body.description || null,
       display_order: body.display_order,
       is_featured: body.is_featured,
+      show_buying_guide: body.show_buying_guide ?? false,
       updated_at: new Date().toISOString()
     }
 

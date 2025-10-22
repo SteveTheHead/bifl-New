@@ -134,8 +134,9 @@ export async function GET(
     })
 
     // Sort by relevance score (highest first), then by BIFL score as tiebreaker
+    // Require minimum relevance score of 10 to ensure genuinely similar products
     const sortedProducts = productsWithScores
-      .filter((product: any) => product.relevanceScore > 0) // Only include products with some relevance
+      .filter((product: any) => product.relevanceScore >= 10) // Only include truly similar products
       .sort((a: any, b: any) => {
         if (b.relevanceScore !== a.relevanceScore) {
           return b.relevanceScore - a.relevanceScore
@@ -144,20 +145,8 @@ export async function GET(
         return (b.bifl_total_score || 0) - (a.bifl_total_score || 0)
       })
 
-    // If we don't have enough relevant products, fall back to same category products
-    let finalProducts = sortedProducts.slice(0, 2)
-
-    if (finalProducts.length < 2) {
-      const categoryFallback = allProducts
-        .filter((product: any) =>
-          product.category_id === (currentProduct as any).category_id &&
-          !finalProducts.some((fp: any) => fp.id === product.id)
-        )
-        .sort((a: any, b: any) => (b.bifl_total_score || 0) - (a.bifl_total_score || 0))
-        .slice(0, 2 - finalProducts.length)
-
-      finalProducts = [...finalProducts, ...categoryFallback]
-    }
+    // Take top 2 most relevant products only (no fallback to unrelated items)
+    const finalProducts = sortedProducts.slice(0, 2)
 
     // Remove the relevanceScore from the response
     const cleanProducts = finalProducts.map(({ relevanceScore: _relevanceScore, ...product }: any) => product)

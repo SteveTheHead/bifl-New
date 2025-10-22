@@ -206,54 +206,71 @@ export function AISearch() {
         return query
       }
 
-      // AI-powered search with multiple strategies - improved for multi-word searches
+      // AI-powered search with word variations and multiple strategies
       const words = searchQuery.trim().split(/\s+/)
+
+      // Generate all variations for each word
+      const allVariations = words.flatMap(word => getWordVariations(word))
 
       let searchResults: SearchResult[] = []
 
       if (words.length === 1) {
-        // Single word search - use existing logic
+        // Single word search with variations
+        const variations = getWordVariations(searchQuery)
+        const variationPattern = variations.join('|')
+
         searchResults = await Promise.all([
-          // 1. Exact name matches (highest priority)
+          // 1. Name matches with variations (highest priority)
           buildQuery(supabase
             .from('products_with_taxonomy')
             .select('*'))
-            .ilike('name', `%${searchQuery}%`)
-            .limit(3),
+            .or(variations.map(v => `name.ilike.%${v}%`).join(','))
+            .limit(5),
 
           // 2. Brand matches
           buildQuery(supabase
             .from('products_with_taxonomy')
             .select('*'))
-            .ilike('brand_name', `%${searchQuery}%`)
+            .or(variations.map(v => `brand_name.ilike.%${v}%`).join(','))
             .limit(3),
 
           // 3. Category matches
           buildQuery(supabase
             .from('products_with_taxonomy')
             .select('*'))
-            .ilike('category_name', `%${searchQuery}%`)
+            .or(variations.map(v => `category_name.ilike.%${v}%`).join(','))
             .limit(3),
 
           // 4. Description/excerpt/use case matches
           buildQuery(supabase
             .from('products_with_taxonomy')
             .select('*'))
-            .or(`excerpt.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,use_case.ilike.%${searchQuery}%`)
+            .or(variations.flatMap(v => [
+              `excerpt.ilike.%${v}%`,
+              `description.ilike.%${v}%`,
+              `use_case.ilike.%${v}%`
+            ]).join(','))
             .limit(3)
         ])
       } else {
-        // Multi-word search - look for products containing individual words
-        const wordConditions = words.map(word =>
-          `name.ilike.%${word}%,brand_name.ilike.%${word}%,category_name.ilike.%${word}%,excerpt.ilike.%${word}%,description.ilike.%${word}%,use_case.ilike.%${word}%`
+        // Multi-word search - look for products containing word variations
+        const wordConditions = allVariations.flatMap(variant =>
+          [
+            `name.ilike.%${variant}%`,
+            `brand_name.ilike.%${variant}%`,
+            `category_name.ilike.%${variant}%`,
+            `excerpt.ilike.%${variant}%`,
+            `description.ilike.%${variant}%`,
+            `use_case.ilike.%${variant}%`
+          ]
         ).join(',')
 
-        // Single query that finds products containing ANY of the words
+        // Single query that finds products containing ANY of the word variations
         const multiWordResult = await buildQuery(supabase
           .from('products_with_taxonomy')
           .select('*'))
           .or(wordConditions)
-          .limit(20)
+          .limit(25)
 
         searchResults = [multiWordResult, { data: [] }, { data: [] }, { data: [] }]
       }
@@ -265,27 +282,40 @@ export function AISearch() {
         }
       })
 
-      // Combine and deduplicate results with relevance scoring
+      // Combine and deduplicate results with enhanced relevance scoring
       const combinedResults = new Map<string, SearchResult & { relevance_score: number }>()
 
       if (words.length === 1) {
-        // Single word search - use existing relevance logic
+        // Single word search with enhanced scoring
         searchResults.forEach((result, index) => {
-          const relevanceWeight = [4, 3, 2, 1][index] // Prioritize exact name matches
+          const baseRelevanceWeight = [5, 3, 2, 1][index] // Prioritize name matches
+          const fieldNames = ['name', 'brand_name', 'category_name', 'description'][index]
+
           ;((result as any).data || []).forEach((product: any) => {
             const existing = combinedResults.get(product.id)
-            const newScore = relevanceWeight + (product.bifl_total_score || 0) * 0.1
 
-            if (!existing || newScore > existing.relevance_score) {
+            // Calculate enhanced score with position/compound bonuses
+            let enhancedScore = calculateEnhancedScore(
+              product,
+              [searchQuery],
+              fieldNames,
+              product[fieldNames] || '',
+              baseRelevanceWeight
+            )
+
+            // Add BIFL score bonus (quality matters)
+            enhancedScore += (product.bifl_total_score || 0) * 0.15
+
+            if (!existing || enhancedScore > existing.relevance_score) {
               combinedResults.set(product.id, {
                 ...product,
-                relevance_score: newScore
+                relevance_score: enhancedScore
               })
             }
           })
         })
       } else {
-        // Multi-word search - calculate relevance based on word matches
+        // Multi-word search with enhanced scoring
         const allProducts = (searchResults[0] as any).data || []
 
         allProducts.forEach((product: any) => {
@@ -293,39 +323,82 @@ export function AISearch() {
           let matchCount = 0
 
           words.forEach(word => {
-            const wordLower = word.toLowerCase()
-            const name = (product.name || '').toLowerCase()
-            const brand = (product.brand_name || '').toLowerCase()
-            const category = (product.category_name || '').toLowerCase()
-            const excerpt = (product.excerpt || '').toLowerCase()
-            const description = (product.description || '').toLowerCase()
-            const useCase = (product.use_case || '').toLowerCase()
+            const variations = getWordVariations(word)
+            let wordMatched = false
 
-            if (name.includes(wordLower)) {
-              score += 3 // Name match most important
-              matchCount++
-            } else if (brand.includes(wordLower)) {
-              score += 2 // Brand match second
-              matchCount++
-            } else if (useCase.includes(wordLower)) {
-              score += 2.5 // Use case match high priority
-              matchCount++
-            } else if (category.includes(wordLower)) {
-              score += 1.5 // Category match third
-              matchCount++
-            } else if (excerpt.includes(wordLower) || description.includes(wordLower)) {
-              score += 1 // Description match least important
-              matchCount++
+            // Check name (highest priority)
+            variations.forEach(variant => {
+              const name = (product.name || '').toLowerCase()
+              if (name.includes(variant)) {
+                let wordScore = 3
+                wordScore = calculateEnhancedScore(product, [word], 'name', product.name || '', wordScore)
+                score += wordScore
+                wordMatched = true
+              }
+            })
+
+            // Check use case (very high priority for intent matching)
+            if (!wordMatched) {
+              variations.forEach(variant => {
+                const useCase = (product.use_case || '').toLowerCase()
+                if (useCase.includes(variant)) {
+                  score += 2.5
+                  wordMatched = true
+                }
+              })
             }
+
+            // Check brand
+            if (!wordMatched) {
+              variations.forEach(variant => {
+                const brand = (product.brand_name || '').toLowerCase()
+                if (brand.includes(variant)) {
+                  let wordScore = 2
+                  wordScore = calculateEnhancedScore(product, [word], 'brand_name', product.brand_name || '', wordScore)
+                  score += wordScore
+                  wordMatched = true
+                }
+              })
+            }
+
+            // Check category
+            if (!wordMatched) {
+              variations.forEach(variant => {
+                const category = (product.category_name || '').toLowerCase()
+                if (category.includes(variant)) {
+                  score += 1.5
+                  wordMatched = true
+                }
+              })
+            }
+
+            // Check description/excerpt
+            if (!wordMatched) {
+              variations.forEach(variant => {
+                const excerpt = (product.excerpt || '').toLowerCase()
+                const description = (product.description || '').toLowerCase()
+                if (excerpt.includes(variant) || description.includes(variant)) {
+                  score += 1
+                  wordMatched = true
+                }
+              })
+            }
+
+            if (wordMatched) matchCount++
           })
 
-          // Bonus for containing all words
+          // Big bonus for containing all search words
           if (matchCount === words.length) {
-            score += 10
+            score += 12
           }
 
-          // Add BIFL score bonus
-          score += (product.bifl_total_score || 0) * 0.1
+          // Partial match bonus (contains most words)
+          if (matchCount >= words.length * 0.7) {
+            score += 5
+          }
+
+          // Add BIFL score bonus (quality matters)
+          score += (product.bifl_total_score || 0) * 0.15
 
           // Only include products with sufficient relevance
           if (score >= 2) {
@@ -433,6 +506,128 @@ export function AISearch() {
         part
       )
     )
+  }
+
+  // Word variation helper for handling singular/plural and common patterns
+  const getWordVariations = (word: string): string[] => {
+    const lower = word.toLowerCase().trim()
+    if (!lower) return []
+
+    const variations = new Set([lower])
+
+    // Handle plurals
+    if (lower.endsWith('s') && lower.length > 2) {
+      variations.add(lower.slice(0, -1)) // boots → boot
+      if (lower.endsWith('es') && lower.length > 3) {
+        variations.add(lower.slice(0, -2)) // knives → knife (partial)
+      }
+    } else {
+      variations.add(lower + 's') // boot → boots
+    }
+
+    // Handle -ies/-y pattern (baby/babies, knife/knives)
+    if (lower.endsWith('ies') && lower.length > 3) {
+      variations.add(lower.slice(0, -3) + 'y') // batteries → battery
+    } else if (lower.endsWith('y') && lower.length > 2) {
+      const secondLast = lower[lower.length - 2]
+      if (secondLast && !'aeiou'.includes(secondLast)) {
+        variations.add(lower.slice(0, -1) + 'ies') // battery → batteries
+      }
+    }
+
+    // Handle -ves/-fe pattern (knife/knives, wife/wives)
+    if (lower.endsWith('ves') && lower.length > 3) {
+      variations.add(lower.slice(0, -3) + 'fe') // knives → knife
+      variations.add(lower.slice(0, -3) + 'f')  // knives → knif (for knife)
+    } else if (lower.endsWith('fe') && lower.length > 2) {
+      variations.add(lower.slice(0, -2) + 'ves') // knife → knives
+    } else if (lower.endsWith('f') && lower.length > 2) {
+      variations.add(lower.slice(0, -1) + 'ves') // shelf → shelves
+    }
+
+    return Array.from(variations)
+  }
+
+  // Check if word appears at the start of a string (higher relevance)
+  const startsWithWord = (text: string, word: string): boolean => {
+    const textLower = text.toLowerCase()
+    const wordLower = word.toLowerCase()
+    return textLower.startsWith(wordLower) || textLower.startsWith(wordLower + ' ')
+  }
+
+  // Check if word is a standalone/primary word (not a modifier)
+  const isStandaloneWord = (text: string, word: string): boolean => {
+    const textLower = text.toLowerCase()
+    const wordLower = word.toLowerCase()
+
+    // Exact match
+    if (textLower === wordLower) return true
+
+    // Word is the only significant word (with common modifiers ignored)
+    const commonModifiers = ['the', 'a', 'an', 'professional', 'premium', 'deluxe', 'classic']
+    const words = textLower.split(/\s+/).filter(w => !commonModifiers.includes(w))
+
+    return words.length === 1 && words[0] === wordLower
+  }
+
+  // Detect if this is a compound/accessory product (e.g., "knife sharpener" when searching "knife")
+  const isCompoundMatch = (text: string, searchWord: string): boolean => {
+    const textLower = text.toLowerCase()
+    const searchLower = searchWord.toLowerCase()
+
+    // Check if search word appears but text has additional significant words
+    if (!textLower.includes(searchLower)) return false
+
+    const compoundIndicators = [
+      'sharpener', 'holder', 'case', 'bag', 'kit', 'set', 'stand',
+      'rack', 'organizer', 'cleaner', 'polish', 'oil', 'maintenance',
+      'accessory', 'tool', 'for', 'with'
+    ]
+
+    return compoundIndicators.some(indicator => textLower.includes(indicator))
+  }
+
+  // Calculate enhanced relevance score
+  const calculateEnhancedScore = (
+    product: any,
+    searchWords: string[],
+    fieldName: string,
+    fieldValue: string,
+    baseScore: number
+  ): number => {
+    let score = baseScore
+    const fieldLower = (fieldValue || '').toLowerCase()
+
+    searchWords.forEach(searchWord => {
+      const variations = getWordVariations(searchWord)
+
+      variations.forEach(variant => {
+        if (fieldLower.includes(variant)) {
+          // Position bonus: word at start is more relevant
+          if (startsWithWord(fieldValue, variant)) {
+            score += 2
+          }
+
+          // Standalone bonus: word is the primary subject
+          if (isStandaloneWord(fieldValue, variant)) {
+            score += 3
+          }
+
+          // Exact word boundary match (whole word, not substring)
+          const wordBoundaryRegex = new RegExp(`\\b${variant}\\b`, 'i')
+          if (wordBoundaryRegex.test(fieldValue)) {
+            score += 1.5
+          }
+
+          // Compound penalty: this is an accessory, not the main product
+          if (fieldName === 'name' && isCompoundMatch(fieldValue, variant)) {
+            score -= 2
+          }
+        }
+      })
+    })
+
+    return score
   }
 
   // Simple fuzzy matching for typos (Levenshtein distance)

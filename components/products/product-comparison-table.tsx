@@ -137,8 +137,8 @@ export function ProductComparisonTable({ currentProduct }: ProductComparisonTabl
     )
   }
 
-  if (relatedProducts.length === 0) {
-    return null // Don't show the component if no related products
+  if (relatedProducts.length < 2) {
+    return null // Only show comparison table if we have at least 2 similar products
   }
 
   const allProducts = [currentProduct, ...relatedProducts]
