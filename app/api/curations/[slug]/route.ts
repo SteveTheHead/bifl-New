@@ -59,8 +59,8 @@ export async function GET(
 
     // Sort products by display_order
     const curationWithSortedProducts = {
-      ...curation,
-      curation_products: curation.curation_products?.sort(
+      ...(curation as any),
+      curation_products: (curation as any).curation_products?.sort(
         (a: any, b: any) => a.display_order - b.display_order
       ) || []
     }

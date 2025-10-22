@@ -78,7 +78,7 @@ export async function PATCH(
     if (is_featured !== undefined) updateData.is_featured = is_featured
     if (display_order !== undefined) updateData.display_order = display_order
 
-    const { data: curation, error } = await supabase
+    const { data: curation, error } = await (supabase as any)
       .from('curations')
       .update(updateData)
       .eq('id', id)

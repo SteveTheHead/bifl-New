@@ -59,7 +59,7 @@ export async function POST(request: Request) {
     }
 
     // Insert curation
-    const { data: curation, error } = await supabase
+    const { data: curation, error } = await (supabase as any)
       .from('curations')
       .insert({
         name,

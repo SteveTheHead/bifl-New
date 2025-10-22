@@ -53,7 +53,7 @@ export async function GET(request: Request) {
     }
 
     // Sort products within each curation by display_order
-    const curationsWithSortedProducts = curations?.map(curation => ({
+    const curationsWithSortedProducts = curations?.map((curation: any) => ({
       ...curation,
       curation_products: curation.curation_products?.sort(
         (a: any, b: any) => a.display_order - b.display_order

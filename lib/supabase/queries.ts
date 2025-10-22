@@ -539,7 +539,7 @@ export async function getFeaturedCurations() {
   }
 
   // Add product count to each curation
-  return data?.map(curation => ({
+  return data?.map((curation: any) => ({
     ...curation,
     product_count: curation.curation_products?.length || 0
   })) || []

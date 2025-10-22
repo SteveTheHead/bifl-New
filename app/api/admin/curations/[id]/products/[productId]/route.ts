@@ -53,7 +53,7 @@ export async function PATCH(
       )
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('curation_products')
       .update({ display_order })
       .eq('curation_id', curationId)

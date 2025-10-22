@@ -43,7 +43,7 @@ export async function POST(
     }))
 
     // Insert curation products
-    const { data: curationProducts, error } = await supabase
+    const { data: curationProducts, error } = await (supabase as any)
       .from('curation_products')
       .insert(inserts)
       .select(`

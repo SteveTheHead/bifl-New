@@ -25,21 +25,21 @@ export async function POST(request: Request) {
     const supabase = await createClient()
 
     // Check if email already exists and is subscribed
-    const { data: existing } = await supabase
+    const { data: existing } = await (supabase as any)
       .from('newsletter_subscribers')
       .select('id, subscribed')
       .eq('email', email)
       .single()
 
     if (existing) {
-      if (existing.subscribed) {
+      if ((existing as any).subscribed) {
         return NextResponse.json(
           { message: 'This email is already subscribed!' },
           { status: 400 }
         )
       } else {
         // Resubscribe previously unsubscribed user
-        const { error: updateError } = await supabase
+        const { error: updateError } = await (supabase as any)
           .from('newsletter_subscribers')
           .update({
             subscribed: true,
@@ -63,7 +63,7 @@ export async function POST(request: Request) {
     }
 
     // Insert new subscriber
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('newsletter_subscribers')
       .insert({
         email: email.toLowerCase().trim(),

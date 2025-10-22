@@ -26,6 +26,7 @@ interface Curation {
   id: string
   name: string
   slug: string
+  is_active: boolean
   curation_products: CurationProduct[]
 }
 

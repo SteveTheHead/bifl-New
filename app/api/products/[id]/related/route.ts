@@ -75,13 +75,16 @@ export async function GET(
       const productDescriptionLower = (product.description || '').toLowerCase()
 
       let relevanceScore = 0
+      let hasNameOrDescriptionMatch = false // Track if there are actual content matches
 
       // Score based on name word matches
       nameWords.forEach((word: string) => {
         if (productNameLower.includes(word)) {
           relevanceScore += 5 // High score for name matches
+          hasNameOrDescriptionMatch = true
         } else if (productDescriptionLower.includes(word)) {
           relevanceScore += 2 // Medium score for description matches
+          hasNameOrDescriptionMatch = true
         }
       })
 
@@ -129,14 +132,19 @@ export async function GET(
 
       return {
         ...product,
-        relevanceScore
+        relevanceScore,
+        hasNameOrDescriptionMatch
       }
     })
 
     // Sort by relevance score (highest first), then by BIFL score as tiebreaker
     // Require minimum relevance score of 10 to ensure genuinely similar products
     const sortedProducts = productsWithScores
-      .filter((product: any) => product.relevanceScore >= 10) // Only include truly similar products
+      .filter((product: any) => {
+        // Require BOTH a minimum score AND actual name/description matches
+        // This prevents products from qualifying based only on category/brand/price similarity
+        return product.relevanceScore >= 10 && product.hasNameOrDescriptionMatch
+      })
       .sort((a: any, b: any) => {
         if (b.relevanceScore !== a.relevanceScore) {
           return b.relevanceScore - a.relevanceScore
@@ -148,8 +156,8 @@ export async function GET(
     // Take top 2 most relevant products only (no fallback to unrelated items)
     const finalProducts = sortedProducts.slice(0, 2)
 
-    // Remove the relevanceScore from the response
-    const cleanProducts = finalProducts.map(({ relevanceScore: _relevanceScore, ...product }: any) => product)
+    // Remove the relevanceScore and hasNameOrDescriptionMatch from the response
+    const cleanProducts = finalProducts.map(({ relevanceScore: _relevanceScore, hasNameOrDescriptionMatch: _hasMatch, ...product }: any) => product)
 
     return NextResponse.json({
       products: cleanProducts.slice(0, 2)

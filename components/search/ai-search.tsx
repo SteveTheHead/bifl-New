@@ -178,7 +178,7 @@ export function AISearch() {
       const supabase = createClient()
 
       // Build base query with filters
-      const buildQuery = (baseQuery: ReturnType<typeof supabase.from>) => {
+      const buildQuery = (baseQuery: any) => {
         let query = baseQuery.eq('status', 'published')
 
         if (selectedFilters.category) {
