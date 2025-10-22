@@ -8,7 +8,8 @@ import { OrganizationStructuredData } from '@/components/seo/structured-data'
 import { NewsletterSection } from '@/components/homepage/newsletter-section'
 import { FeedbackButton } from '@/components/feedback-button'
 
-// Enable Next.js caching and revalidation
+// Enable dynamic rendering (required because we use Supabase cookies)
+export const dynamic = 'force-dynamic'
 export const revalidate = 3600 // Revalidate every hour
 
 // SEO Metadata
