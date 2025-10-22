@@ -794,6 +794,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
           currentProduct={{
             id: product.id,
             name: product.name,
+            slug: product.slug,
             price: product.price?.toString() || '',
             featured_image_url: product.featured_image_url ?? undefined,
             bifl_total_score: product.bifl_total_score ?? undefined,
