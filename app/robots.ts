@@ -10,6 +10,8 @@ export default function robots(): MetadataRoute.Robots {
       disallow: [
         '/api/',
         '/admin/',
+        '/dashboard/',
+        '/user-dashboard/',
         '/_next/',
         '/search?*', // Prevent indexing search result pages to avoid duplicate content
       ],
