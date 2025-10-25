@@ -1,239 +1,627 @@
-# Next.js SaaS Starter Kit 2.0
+# Buy It For Life (BIFL) Product Directory
 
-A comprehensive, production-ready SaaS starter kit built with Next.js 15, featuring authentication, subscriptions, AI integration, and modern UI components.
+A comprehensive, production-ready product directory for discovering durable, long-lasting products. Built with Next.js 15, featuring advanced search, filtering, product comparison, user authentication, and a complete admin panel.
+
+**Live Site:** [buyitforlifeproducts.com](https://www.buyitforlifeproducts.com)
+
+---
 
 ## ✨ Features
 
-### 🔐 Authentication & User Management
-- **Better Auth v1.2.8** - Modern authentication system
-- Google OAuth integration
-- Session management with database persistence
-- User profile management with image uploads
-- Account linking for multiple providers
+### 🛍️ Product Discovery
 
-### 💳 Subscription & Billing
-- **Polar.sh** integration for subscription management
-- Two-tier pricing: Starter ($99/month) & Professional ($499/month)
-- Real-time webhook processing
-- Customer portal for self-service billing
-- Subscription status tracking (active, canceled, expired)
-- Payment gating with elegant overlays
+- **327+ Curated Products** - Carefully selected durable products across multiple categories
+- **Advanced Search** - Full-text search with instant results
+- **Smart Filtering** - Filter by category, price range, BIFL score, warranty, and more
+- **Product Comparison** - Side-by-side comparison with smart category matching
+- **Related Products** - AI-powered product recommendations
+- **Recently Viewed** - Track user browsing history
+- **Product Details** - Comprehensive product pages with images, specs, FAQs, pros/cons
+
+### 📂 Categories & Organization
+
+- **Hierarchical Categories** - Parent-child category structure
+- **Category Pages** - Dedicated pages for each category with filtering
+- **Badges & Tags** - Visual indicators for product features (Made in USA, Eco-Friendly, etc.)
+- **Smart Categorization** - Products organized by use case and material
+
+### 🔐 User Features
+
+- **Authentication** - Email/password + Google OAuth via Better Auth
+- **User Dashboard** - Personalized dashboard with favorites and recently viewed
+- **Favorites/Wishlist** - Save products for later
+- **User Profiles** - Avatar uploads and profile management
+- **Session Management** - Secure session handling with HTTP-only cookies
+
+### 👨‍💼 Admin Panel
+
+- **Product Management** - Create, edit, delete products with rich interface
+- **Category Management** - Manage hierarchical categories
+- **Brand Management** - Organize and manage brands
+- **Review Moderation** - Moderate user reviews
+- **FAQ Management** - Add/edit product FAQs
+- **AI Content Generation** - Generate product descriptions with OpenAI/Anthropic
+- **Secure Authentication** - Separate admin authentication system
+- **Statistics Dashboard** - View product counts, reviews, and analytics
 
 ### 🤖 AI Integration
-- **OpenAI** powered chatbot
-- React Markdown rendering for rich responses
-- Multi-step conversation support
-- Integrated chat widget in dashboard
+
+- **AI Chat Assistant** - OpenAI-powered chatbot for product recommendations
+- **Content Generation** - AI-generated product descriptions and FAQs
+- **Smart Recommendations** - AI-powered related product suggestions
 
 ### 🎨 Modern UI/UX
+
 - **Tailwind CSS v4** - Latest utility-first styling
-- **shadcn/ui** components - Accessible, customizable
-- **Radix UI** primitives - Unstyled, accessible components
-- Dark/light theme support with smooth transitions
-- Responsive design with mobile-first approach
-- Loading skeletons and optimistic UI updates
+- **Radix UI Components** - Accessible, customizable components
+- **Responsive Design** - Mobile-first approach with optimized mobile filters
+- **Dark/Light Theme** - Theme support ready
+- **Loading States** - Skeleton loaders and optimistic UI
+- **Smooth Animations** - Framer Motion animations
+- **Product Cards** - Beautiful, informative product cards
 
-### 🗄️ Database & Storage
-- **Neon PostgreSQL** - Serverless database
-- **Drizzle ORM** - Type-safe database toolkit
-- **Cloudflare R2** - Scalable file storage with zero egress fees
-- Database migrations with Drizzle Kit
-- Drag & drop file uploads with progress tracking
+### 🚀 SEO & Performance
 
-### 📊 Analytics & Monitoring
-- **PostHog** integration for product analytics
-- User behavior tracking
-- Custom event monitoring
-- Error tracking and insights
+- **Complete SEO** - Meta tags, Open Graph, Twitter Cards on all pages
+- **Structured Data** - Schema.org markup (Product, FAQ, Breadcrumb, Organization)
+- **Dynamic Sitemap** - Auto-generated XML sitemap for all products and categories
+- **Robots.txt** - Configured for optimal crawling
+- **Image Optimization** - Next.js Image component with lazy loading
+- **Analytics Ready** - Google Analytics and Microsoft Clarity integration
+- **Performance Optimized** - Lighthouse score ready for production
 
-## 🚀 Tech Stack
+### 🗄️ Database & Infrastructure
 
-- **Framework**: Next.js 15.3.1 with App Router
-- **Language**: TypeScript with strict mode
-- **Styling**: Tailwind CSS v4 + shadcn/ui
-- **Database**: Neon PostgreSQL + Drizzle ORM
-- **Authentication**: Better Auth v1.2.8
-- **Payments**: Polar.sh
-- **AI**: OpenAI SDK
-- **Storage**: Cloudflare R2
-- **Analytics**: PostHog
-- **Deployment**: Vercel (recommended)
+- **Supabase PostgreSQL** - Serverless database with Row Level Security
+- **Type-Safe Queries** - Full TypeScript integration
+- **Database Migrations** - Version-controlled schema migrations
+- **File Storage** - Cloudflare R2 for product images (S3-compatible)
+- **Affiliate Links** - Track and manage affiliate product links
+
+---
+
+## 🏗️ Tech Stack
+
+- **Framework:** Next.js 15.3.1 (App Router)
+- **Language:** TypeScript 5
+- **Styling:** Tailwind CSS v4
+- **UI Components:** Radix UI + Custom Components
+- **Database:** Supabase (PostgreSQL)
+- **Authentication:** Better Auth v1.2.8
+- **AI:** OpenAI SDK + Anthropic SDK
+- **Storage:** Cloudflare R2
+- **Analytics:** Google Analytics + Microsoft Clarity
+- **Deployment:** Vercel
+- **Payments:** Polar.sh (optional subscription system)
+
+---
 
 ## 📁 Project Structure
 
 ```
 ├── app/
-│   ├── (auth)/              # Authentication pages
-│   ├── dashboard/           # Protected dashboard area
-│   │   ├── _components/     # Dashboard components
-│   │   ├── chat/           # AI chat interface
-│   │   ├── upload/         # File upload with R2
-│   │   ├── payment/        # Subscription management
-│   │   └── settings/       # User settings & billing
-│   ├── pricing/            # Public pricing page
-│   └── api/                # API routes
+│   ├── (auth)/                    # Authentication routes
+│   │   ├── signin/               # User login
+│   │   └── signup/               # User registration
+│   ├── admin/                    # Admin panel
+│   │   ├── products/            # Product management
+│   │   ├── categories/          # Category management
+│   │   ├── brands/              # Brand management
+│   │   ├── reviews/             # Review moderation
+│   │   ├── curations/           # Product collections
+│   │   ├── feedback/            # User feedback
+│   │   ├── ai-content/          # AI content tools
+│   │   └── signin/              # Admin login
+│   ├── products/                # Public product pages
+│   │   ├── page.tsx            # Product listing
+│   │   └── [slug]/             # Individual product pages
+│   ├── categories/              # Category pages
+│   │   └── [slug]/             # Category product listings
+│   ├── curations/               # Product collections
+│   ├── dashboard/               # User dashboard
+│   │   ├── chat/               # AI chat interface
+│   │   ├── payment/            # Subscription management
+│   │   └── settings/           # User settings
+│   ├── user-dashboard/          # Alternative user dashboard
+│   ├── favorites/               # User favorites page
+│   ├── api/                     # API routes
+│   │   ├── auth/               # Authentication APIs
+│   │   ├── admin/              # Admin APIs
+│   │   ├── products/           # Product APIs
+│   │   ├── categories/         # Category APIs
+│   │   ├── user/               # User APIs
+│   │   └── ...                 # Other APIs
+│   ├── sitemap.ts              # Dynamic sitemap
+│   ├── robots.ts               # Robots.txt config
+│   └── layout.tsx              # Root layout with metadata
 ├── components/
-│   ├── ui/                 # shadcn/ui components
-│   └── homepage/           # Landing page sections
+│   ├── ui/                     # Reusable UI components
+│   ├── homepage/               # Landing page sections
+│   └── ...                     # Feature components
 ├── lib/
-│   ├── auth/              # Authentication config
-│   ├── subscription.ts    # Subscription utilities
-│   └── upload-image.ts    # R2 file upload utilities
-└── db/
-    ├── schema.ts          # Database schema
-    └── drizzle.ts         # Database connection
+│   ├── auth/                   # Auth configuration
+│   │   ├── auth.ts            # Better Auth config
+│   │   ├── admin.ts           # Admin auth utilities
+│   │   └── password.ts        # Password hashing
+│   ├── subscription.ts         # Polar subscription utils
+│   └── upload-image.ts         # Cloudflare R2 upload
+├── utils/
+│   └── supabase/              # Supabase client utilities
+├── supabase/
+│   └── migrations/            # Database migrations
+└── scripts/
+    └── import-csv-data.ts     # Data import utilities
 ```
 
-## 🛠️ Quick Start
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+
-- PostgreSQL database (Neon recommended)
-- Cloudflare R2 bucket for file storage
-- Polar.sh account for subscriptions
-- OpenAI API key for AI features
-- Google OAuth credentials (optional)
+
+- **Node.js** 18+ (v20 recommended)
+- **Supabase account** - For database and authentication
+- **OpenAI API key** (optional) - For AI features
+- **Anthropic API key** (optional) - For AI content generation
+- **Cloudflare R2** (optional) - For file uploads
+- **Google OAuth credentials** (optional) - For Google login
 
 ### Installation
 
 1. **Clone the repository**
+
 ```bash
-git clone <repository-url>
-cd next-starter-2.0
+git clone https://github.com/yourusername/bifl-New.git
+cd bifl-New
 ```
 
 2. **Install dependencies**
+
 ```bash
 npm install
 ```
 
 3. **Environment Setup**
-Create a `.env.local` file with:
+
+Create a `.env.local` file in the root directory:
+
 ```env
-# Database
-DATABASE_URL="your-neon-database-url"
+# ============================================
+# REQUIRED - Supabase Database
+# ============================================
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-project-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
 
-# Authentication
-BETTER_AUTH_SECRET="your-secret-key"
-GOOGLE_CLIENT_ID="your-google-client-id"
-GOOGLE_CLIENT_SECRET="your-google-client-secret"
+# ============================================
+# REQUIRED - Application URLs
+# ============================================
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+# For production: https://yourdomain.com
 
-# Polar.sh
-POLAR_ACCESS_TOKEN="your-polar-access-token"
-POLAR_WEBHOOK_SECRET="your-webhook-secret"
+# ============================================
+# REQUIRED - Admin Authentication
+# ============================================
+ADMIN_SECRET_KEY=your-super-secret-admin-key-change-in-production
+DEV_ADMIN_EMAIL=admin@bifl.dev
+DEV_ADMIN_PASSWORD=YourSecurePassword123!
 
-# OpenAI
-OPENAI_API_KEY="your-openai-api-key"
+# ============================================
+# OPTIONAL - User Authentication (Better Auth)
+# ============================================
+# Generate with: openssl rand -base64 32
+BETTER_AUTH_SECRET=your-generated-secret-here
 
-# Cloudflare R2 Storage
-CLOUDFLARE_ACCOUNT_ID="your-cloudflare-account-id"
-R2_UPLOAD_IMAGE_ACCESS_KEY_ID="your-r2-access-key-id"
-R2_UPLOAD_IMAGE_SECRET_ACCESS_KEY="your-r2-secret-access-key"
-R2_UPLOAD_IMAGE_BUCKET_NAME="your-r2-bucket-name"
+# Google OAuth (optional)
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
 
-# Polar.sh Pricing Tiers
-NEXT_PUBLIC_STARTER_TIER="your-starter-product-id"
-NEXT_PUBLIC_STARTER_SLUG="your-starter-slug"
+# ============================================
+# OPTIONAL - AI Features
+# ============================================
+OPENAI_API_KEY=your-openai-api-key
+ANTHROPIC_API_KEY=your-anthropic-api-key
+
+# ============================================
+# OPTIONAL - Analytics
+# ============================================
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+NEXT_PUBLIC_CLARITY_PROJECT_ID=your-clarity-id
+
+# ============================================
+# OPTIONAL - Cloudflare R2 Storage
+# ============================================
+CLOUDFLARE_ACCOUNT_ID=your-cloudflare-account-id
+R2_UPLOAD_IMAGE_ACCESS_KEY_ID=your-r2-access-key
+R2_UPLOAD_IMAGE_SECRET_ACCESS_KEY=your-r2-secret-key
+R2_UPLOAD_IMAGE_BUCKET_NAME=your-bucket-name
+
+# ============================================
+# OPTIONAL - Polar.sh Subscriptions
+# ============================================
+POLAR_ACCESS_TOKEN=your-polar-access-token
+POLAR_WEBHOOK_SECRET=your-polar-webhook-secret
+POLAR_SUCCESS_URL=http://localhost:3000/success
+NEXT_PUBLIC_STARTER_TIER=free
+NEXT_PUBLIC_STARTER_SLUG=bifl-directory
 ```
 
 4. **Database Setup**
+
+Your Supabase database should have the following tables (migrations included):
+
+- `products` - Product data
+- `categories` - Hierarchical categories
+- `brands` - Brand information
+- `product_faqs` - Product FAQs
+- `product_pros_cons` - Product pros and cons
+- `reviews` - User reviews
+- `admin_users` - Admin accounts
+- `user` - User accounts (Better Auth)
+- `session` - User sessions (Better Auth)
+- `account` - OAuth accounts (Better Auth)
+- `user_favorites` - User wishlists
+- `user_recently_viewed` - View history
+- `curations` - Product collections
+- `newsletter_subscribers` - Email subscribers
+
+Run migrations:
+
 ```bash
-# Generate and run migrations
-npx drizzle-kit generate
-npx drizzle-kit push
+# Using Supabase CLI
+npx supabase db push
+
+# Or run migrations manually through Supabase dashboard
 ```
 
-5. **Cloudflare R2 Setup**
-- Create a Cloudflare account and set up R2 storage
-- Create a bucket for file uploads
-- Generate API tokens with R2 permissions
-- Configure CORS settings for your domain
+5. **Start Development Server**
 
-6. **Polar.sh Setup**
-- Create products for your pricing tiers
-- Set up webhook endpoints for subscription events
-- Configure your pricing structure
-
-7. **Start Development Server**
 ```bash
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to see your application.
 
-## 🎯 Key Features Explained
+6. **Build for Production**
 
-### Subscription Management
-- Automatic subscription status checking
-- Payment gating for premium features
-- Integration with Polar.sh customer portal
-- Webhook handling for real-time updates
-
-### AI Chat Integration
-- Built-in chatbot with OpenAI
-- Markdown rendering for rich responses
-- Conversation history and context
-
-### File Upload System
-- **Cloudflare R2 integration** with S3-compatible API
-- **Drag & drop interface** with visual feedback
-- **File validation** - Type checking and size limits
-- **Progress tracking** - Real-time upload progress
-- **Image gallery** - View uploaded files with metadata
-- **Copy URLs** - Easy sharing and integration
-
-### Analytics & Tracking
-- PostHog event tracking
-- User behavior monitoring
-- Custom analytics dashboard
-
-## 🔧 Customization
-
-### Adding New Features
-1. Create components in `components/`
-2. Add API routes in `app/api/`
-3. Update database schema in `db/schema.ts`
-4. Run `npx drizzle-kit generate` and `npx drizzle-kit push`
-
-### Styling
-- Modify `app/globals.css` for global styles
-- Use Tailwind classes for component styling
-- Customize theme in `tailwind.config.ts`
-
-### Authentication
-- Configure providers in `lib/auth/auth.ts`
-- Add new OAuth providers as needed
-- Customize user profile fields in database schema
-
-## 📚 Learn More
-
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Better Auth Documentation](https://better-auth.com)
-- [Polar.sh Documentation](https://docs.polar.sh)
-- [Drizzle ORM Documentation](https://orm.drizzle.team)
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
-
-## 🚀 Deployment
-
-### Vercel (Recommended)
-1. Connect your GitHub repository to Vercel
-2. Add environment variables in Vercel dashboard
-3. Deploy automatically on every push
-
-### Manual Deployment
 ```bash
 npm run build
 npm start
 ```
 
+---
+
+## 🔧 Configuration
+
+### Admin Setup
+
+1. Navigate to `/admin-setup` in your browser
+2. Create an admin account with email and password
+3. Login at `/admin/signin`
+4. Start managing products at `/admin/products`
+
+**Security Note:** Remove or disable `/admin-setup` route in production after creating admin accounts.
+
+### User Authentication (Optional)
+
+To enable user features (favorites, profiles, etc.):
+
+1. Generate a secret:
+   ```bash
+   openssl rand -base64 32
+   ```
+
+2. Add to `.env.local`:
+   ```env
+   BETTER_AUTH_SECRET=your_generated_secret
+   ```
+
+3. Restart the dev server
+4. Users can now sign up at `/auth/signup`
+
+### Google OAuth Setup (Optional)
+
+1. Create a project in [Google Cloud Console](https://console.cloud.google.com/)
+2. Enable Google+ API
+3. Create OAuth 2.0 credentials
+4. Add authorized redirect URI: `https://yourdomain.com/api/auth/callback/google`
+5. Add credentials to `.env.local`
+
+### Analytics Setup (Optional)
+
+**Google Analytics:**
+1. Create a GA4 property
+2. Get your Measurement ID (G-XXXXXXXXXX)
+3. Add to `.env.local`: `NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX`
+
+**Microsoft Clarity:**
+1. Create a Clarity project
+2. Get your Project ID
+3. Add to `.env.local`: `NEXT_PUBLIC_CLARITY_PROJECT_ID=your-id`
+
+---
+
+## 📊 Features Guide
+
+### Product Management (Admin)
+
+**Add Products:**
+1. Go to `/admin/products/new`
+2. Fill in product details (name, description, price, etc.)
+3. Add product image URL
+4. Set category, brand, and badges
+5. Add affiliate link
+6. Submit
+
+**Edit Products:**
+1. Go to `/admin/products`
+2. Click edit on any product
+3. Update details
+4. Save changes
+
+**Generate AI Content:**
+1. Go to `/admin/ai-content`
+2. Enter product name
+3. Choose AI provider (OpenAI or Anthropic)
+4. Generate description, FAQs, pros/cons
+
+### Category Management
+
+- Create hierarchical categories (parent/child relationships)
+- Add category descriptions and metadata
+- Manage category slugs for SEO-friendly URLs
+
+### User Features
+
+**Favorites:**
+- Users can save products to their favorites
+- View all favorites at `/favorites`
+- Persist across sessions
+
+**Recently Viewed:**
+- Automatically tracks viewed products
+- Shows in user dashboard
+
+**Product Comparison:**
+- Select multiple products
+- Compare side-by-side
+- Filter by matching categories
+
+### Search & Filtering
+
+**Search:**
+- Full-text search across product names and descriptions
+- Instant results
+
+**Filters:**
+- Category
+- Price range (slider)
+- BIFL Score
+- Warranty period
+- Made in USA
+- Eco-friendly
+- Budget-friendly
+
+---
+
+## 🚀 Deployment
+
+### Vercel (Recommended)
+
+1. **Connect Repository**
+   - Import your GitHub repository to Vercel
+   - Vercel will auto-detect Next.js
+
+2. **Environment Variables**
+   - Go to Project Settings → Environment Variables
+   - Add all required variables from `.env.local`
+   - Apply to Production, Preview, and Development
+
+3. **Deploy**
+   - Push to main branch
+   - Vercel automatically builds and deploys
+   - Check deployment at your Vercel URL
+
+4. **Custom Domain**
+   - Go to Project Settings → Domains
+   - Add your custom domain
+   - Update DNS records as instructed
+   - Update `NEXT_PUBLIC_APP_URL` to your production domain
+
+5. **Production Checklist**
+   - ✅ Update `NEXT_PUBLIC_APP_URL` to production domain
+   - ✅ Set strong `ADMIN_SECRET_KEY`
+   - ✅ Change `DEV_ADMIN_PASSWORD` to secure password
+   - ✅ Add `BETTER_AUTH_SECRET` (if using user auth)
+   - ✅ Test admin login at `/admin/signin`
+   - ✅ Test product pages
+   - ✅ Verify sitemap at `/sitemap.xml`
+   - ✅ Check robots.txt at `/robots.txt`
+   - ✅ Run Lighthouse audit
+
+### Other Platforms
+
+The application can be deployed to any platform that supports Next.js:
+
+- **Netlify** - Similar to Vercel
+- **Railway** - Good for full-stack apps
+- **DigitalOcean App Platform** - Container-based
+- **Self-hosted** - Build and run with Node.js
+
+---
+
+## 🛠️ Development
+
+### Available Scripts
+
+```bash
+# Development
+npm run dev              # Start dev server (with Turbopack)
+npm run dev:clean        # Clean restart (clears cache)
+
+# Production
+npm run build           # Build for production
+npm start              # Start production server
+
+# Data Management
+npm run import-csv      # Import products from CSV
+npm run validate-data   # Validate product data
+
+# Code Quality
+npm run lint           # Run ESLint
+```
+
+### Adding New Products via CSV
+
+1. Prepare CSV with columns: `name`, `description`, `price`, `category`, `image_url`, etc.
+2. Place CSV in project root
+3. Run: `npm run import-csv`
+4. Products will be imported to database
+
+### Database Migrations
+
+Migrations are located in `/supabase/migrations/`
+
+To create a new migration:
+1. Make schema changes in Supabase dashboard
+2. Export as SQL migration
+3. Place in migrations folder
+4. Apply with `npx supabase db push`
+
+---
+
+## 🎨 Customization
+
+### Styling
+
+- **Global Styles:** Edit `app/globals.css`
+- **Tailwind Config:** Modify `tailwind.config.ts`
+- **Theme Colors:** Update CSS variables in `globals.css`
+
+### Components
+
+- **UI Components:** Located in `components/ui/`
+- **Feature Components:** Organized by feature in `components/`
+- All components use Tailwind CSS and Radix UI
+
+### Adding New Features
+
+1. Create component in `components/`
+2. Add API route in `app/api/`
+3. Update database schema if needed
+4. Add new page in `app/`
+
+---
+
+## 📈 Analytics & Monitoring
+
+### Built-in Analytics
+
+- **Vercel Analytics** - Included in deployment
+- **Google Analytics** - Configure with `NEXT_PUBLIC_GA_MEASUREMENT_ID`
+- **Microsoft Clarity** - Configure with `NEXT_PUBLIC_CLARITY_PROJECT_ID`
+
+### Monitoring
+
+- Product view tracking
+- User engagement metrics
+- Affiliate link click tracking
+- Search query tracking
+
+---
+
+## 🔒 Security
+
+### Authentication Security
+
+- **Password Hashing:** bcryptjs with salt rounds
+- **Session Management:** HTTP-only cookies
+- **CSRF Protection:** Built into Better Auth
+- **Secure Cookies:** `secure` flag in production
+
+### Admin Security
+
+- **Separate Authentication:** Admin auth separate from user auth
+- **Server-Side Checks:** All admin pages check authentication server-side
+- **Session Expiration:** 24-hour admin sessions
+- **Role-Based Access:** Admin role required for all admin routes
+
+### Database Security
+
+- **Row Level Security (RLS):** Configured in Supabase
+- **Service Role:** Used only for admin operations
+- **Parameterized Queries:** Protection against SQL injection
+
+---
+
+## 📚 Additional Documentation
+
+Detailed guides available in the repository:
+
+- `USER-FEATURES-SUMMARY.md` - Complete user authentication guide
+- `SEO-IMPLEMENTATION-GUIDE.md` - SEO setup and best practices
+- `LAUNCH-STATUS-UPDATE.md` - Production readiness checklist
+- `PRODUCTION-LAUNCH-CHECKLIST.md` - Pre-launch verification
+- `MOBILE-OPTIMIZATION.md` - Mobile design guide
+- `IMPORT-GUIDE.md` - Data import instructions
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
 ## 📄 License
 
 This project is licensed under the MIT License.
 
-## 🤝 Contributing
+---
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+## 🙏 Acknowledgments
+
+Built with these amazing technologies:
+
+- [Next.js](https://nextjs.org/) - React framework
+- [Supabase](https://supabase.com/) - Backend as a service
+- [Better Auth](https://www.better-auth.com/) - Authentication
+- [Tailwind CSS](https://tailwindcss.com/) - Styling
+- [Radix UI](https://www.radix-ui.com/) - UI components
+- [Vercel](https://vercel.com/) - Hosting
+- [OpenAI](https://openai.com/) - AI features
+- [Cloudflare R2](https://www.cloudflare.com/products/r2/) - File storage
 
 ---
 
-Built with ❤️ using Next.js and modern web technologies.
+## 📞 Support
+
+- **Issues:** [GitHub Issues](https://github.com/yourusername/bifl-New/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/yourusername/bifl-New/discussions)
+- **Email:** support@buyitforlifeproducts.com
+
+---
+
+## 🗺️ Roadmap
+
+### Planned Features
+
+- [ ] User reviews and ratings
+- [ ] Email notifications for favorites
+- [ ] Price tracking and alerts
+- [ ] Mobile app (React Native)
+- [ ] Advanced product filtering
+- [ ] Product recommendation engine
+- [ ] Community forums
+- [ ] Seller/brand partnerships
+- [ ] API for third-party integrations
+
+---
+
+**Built with ❤️ for discovering products that last a lifetime.**
