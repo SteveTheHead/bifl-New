@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Shield, User, Key, CheckCircle, AlertCircle } from 'lucide-react'
+import { Shield, User, CheckCircle, AlertCircle } from 'lucide-react'
 
 export default function AdminSetupPage() {
   const [email, setEmail] = useState('')
@@ -41,38 +41,6 @@ export default function AdminSetupPage() {
     }
   }
 
-  const handleQuickLogin = async () => {
-    setLoading(true)
-    setMessage('')
-    setError('')
-
-    try {
-      // Try to sign in with dev admin credentials
-      const response = await fetch('/api/auth/admin-login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: 'admin@bifl.dev',
-          password: 'BiflAdmin123'
-        })
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to sign in')
-      }
-
-      // Redirect to admin dashboard
-      window.location.href = '/admin'
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : 'An unknown error occurred')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   return (
     <div className="min-h-screen bg-brand-cream flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -105,28 +73,6 @@ export default function AdminSetupPage() {
             {error}
           </div>
         )}
-
-        {/* Quick Access for Development */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-blue-800 mb-4 flex items-center">
-            <Key className="w-5 h-5 mr-2" />
-            Development Access
-          </h3>
-          <p className="text-sm text-blue-700 mb-4">
-            Use the pre-configured development admin account to access the dashboard immediately.
-          </p>
-          <div className="space-y-2 text-xs text-blue-600 mb-4">
-            <p><strong>Email:</strong> admin@bifl.dev</p>
-            <p><strong>Password:</strong> BiflAdmin123</p>
-          </div>
-          <button
-            onClick={handleQuickLogin}
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
-          >
-            {loading ? 'Signing in...' : 'Quick Admin Access'}
-          </button>
-        </div>
 
         {/* Manual Setup */}
         <div className="bg-white rounded-lg border border-gray-200 p-6">

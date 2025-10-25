@@ -47,18 +47,6 @@ export default function AdminSignInPage() {
     }
   }
 
-  const handleQuickAccess = async () => {
-    setEmail('admin@bifl.dev')
-    setPassword('AdminPassword123!')
-
-    // Trigger the form submission after setting values
-    setTimeout(() => {
-      const formElement = document.querySelector('form')
-      if (formElement) {
-        formElement.requestSubmit()
-      }
-    }, 100)
-  }
 
   return (
     <div className="min-h-screen bg-brand-cream flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -98,28 +86,10 @@ export default function AdminSignInPage() {
           </div>
         )}
 
-        {/* Quick Access */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-blue-800 mb-4 flex items-center">
-            <Shield className="w-5 h-5 mr-2" />
-            Quick Access
-          </h3>
-          <p className="text-sm text-blue-700 mb-4">
-            Use the pre-configured admin credentials for immediate access.
-          </p>
-          <button
-            onClick={handleQuickAccess}
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-          >
-            {loading ? 'Signing in...' : 'Quick Admin Access'}
-          </button>
-        </div>
-
         {/* Sign In Form */}
         <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
           <h3 className="text-lg font-semibold text-brand-dark mb-6 text-center">
-            Or sign in with your credentials
+            Sign in with your credentials
           </h3>
 
           <form onSubmit={handleSignIn} className="space-y-6">
