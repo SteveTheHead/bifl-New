@@ -11,6 +11,7 @@ import { Polar } from "@polar-sh/sdk";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
+import { Resend } from "resend";
 
 // Utility function to safely parse dates
 function safeParseDate(value: string | Date | null | undefined): Date | null {
@@ -24,6 +25,9 @@ const polarClient = new Polar({
   server: "sandbox",
 });
 
+// Initialize Resend client for sending verification emails
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 export const auth = betterAuth({
   trustedOrigins: [`${process.env.NEXT_PUBLIC_APP_URL}`],
   allowedDevOrigins: [`${process.env.NEXT_PUBLIC_APP_URL}`],
@@ -31,9 +35,66 @@ export const auth = betterAuth({
     enabled: true,
     maxAge: 5 * 60, // Cache duration in seconds
   },
+  emailVerification: {
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url, token }) => {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://buyitforlifeproducts.com';
+
+      try {
+        await resend.emails.send({
+          from: 'Buy It For Life <onboarding@resend.dev>',
+          to: user.email,
+          subject: 'Verify your email address',
+          html: `
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <style>
+                  body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                  .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                  .header { background: #2563eb; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+                  .content { background: #f9fafb; padding: 30px; border: 1px solid #e5e7eb; border-top: none; }
+                  .button { display: inline-block; background: #2563eb; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+                  .footer { text-align: center; padding: 20px; color: #6b7280; font-size: 14px; }
+                </style>
+              </head>
+              <body>
+                <div class="container">
+                  <div class="header">
+                    <h1>Welcome to Buy It For Life!</h1>
+                  </div>
+                  <div class="content">
+                    <p>Hi there,</p>
+                    <p>Thanks for signing up! Please verify your email address to get started with discovering products that last a lifetime.</p>
+                    <p style="text-align: center;">
+                      <a href="${url}" class="button">Verify Email Address</a>
+                    </p>
+                    <p>Or copy and paste this link into your browser:</p>
+                    <p style="word-break: break-all; color: #2563eb;">${url}</p>
+                    <p><strong>This link will expire in 24 hours.</strong></p>
+                    <p>If you didn't create an account, you can safely ignore this email.</p>
+                  </div>
+                  <div class="footer">
+                    <p>Buy It For Life - Products That Last</p>
+                    <p>${appUrl}</p>
+                  </div>
+                </div>
+              </body>
+            </html>
+          `,
+        });
+
+        console.log('✅ Verification email sent to:', user.email);
+      } catch (error) {
+        console.error('❌ Failed to send verification email:', error);
+        throw error;
+      }
+    },
+  },
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false, // Disable for development
+    requireEmailVerification: true,
   },
   database: drizzleAdapter(db, {
     provider: "pg",
@@ -52,9 +113,9 @@ export const auth = betterAuth({
     },
   },
   plugins: [
-    polar({
+    ...(process.env.POLAR_ACCESS_TOKEN ? [polar({
       client: polarClient,
-      createCustomerOnSignUp: true,
+      createCustomerOnSignUp: false, // Disabled for BIFL - no subscriptions needed
       use: [
         checkout({
           products: [
@@ -180,7 +241,7 @@ export const auth = betterAuth({
           },
         }),
       ],
-    }),
+    })] : []),
     nextCookies(),
   ],
 });

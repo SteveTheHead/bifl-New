@@ -1,12 +1,54 @@
-import Link from 'next/link'
-import { signup } from '../actions'
+'use client'
 
-export default async function SignUpPage({
-  searchParams
-}: {
-  searchParams: Promise<{ message?: string; error?: string }>
-}) {
-  const params = await searchParams
+import Link from 'next/link'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { authClient } from '@/lib/auth-client'
+
+export default function SignUpPage() {
+  const router = useRouter()
+  const [error, setError] = useState<string>('')
+  const [message, setMessage] = useState<string>('')
+  const [loading, setLoading] = useState(false)
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setError('')
+    setMessage('')
+    setLoading(true)
+
+    const formData = new FormData(e.currentTarget)
+    const name = formData.get('name') as string
+    const email = formData.get('email') as string
+    const password = formData.get('password') as string
+
+    try {
+      const { data, error } = await authClient.signUp.email({
+        email,
+        password,
+        name,
+      })
+
+      if (error) {
+        setError(error.message || 'Failed to sign up. Please try again.')
+        setLoading(false)
+        return
+      }
+
+      // Success! Show message about email verification
+      setMessage('Success! Please check your email to verify your account.')
+      setLoading(false)
+
+      // Redirect to signin after 3 seconds
+      setTimeout(() => {
+        router.push('/auth/signin?message=Please check your email to verify your account')
+      }, 3000)
+    } catch (err: any) {
+      setError(err.message || 'An unexpected error occurred')
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-brand-cream flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -22,19 +64,19 @@ export default async function SignUpPage({
           </p>
         </div>
 
-        {params.message && (
+        {message && (
           <div className="text-green-600 text-sm text-center bg-green-50 border border-green-200 rounded-lg p-3">
-            {params.message}
+            {message}
           </div>
         )}
 
-        {params.error && (
+        {error && (
           <div className="text-red-600 text-sm text-center bg-red-50 border border-red-200 rounded-lg p-3">
-            {params.error}
+            {error}
           </div>
         )}
 
-        <form className="mt-8 space-y-6" action={signup}>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-brand-dark">
@@ -45,7 +87,8 @@ export default async function SignUpPage({
                 name="name"
                 type="text"
                 required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-brand-teal focus:border-brand-teal"
+                disabled={loading}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-brand-teal focus:border-brand-teal disabled:opacity-50"
                 placeholder="Enter your full name"
               />
             </div>
@@ -59,7 +102,8 @@ export default async function SignUpPage({
                 name="email"
                 type="email"
                 required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-brand-teal focus:border-brand-teal"
+                disabled={loading}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-brand-teal focus:border-brand-teal disabled:opacity-50"
                 placeholder="Enter your email"
               />
             </div>
@@ -73,9 +117,10 @@ export default async function SignUpPage({
                 name="password"
                 type="password"
                 required
-                minLength={6}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-brand-teal focus:border-brand-teal"
-                placeholder="Choose a strong password (min 6 characters)"
+                minLength={8}
+                disabled={loading}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-brand-teal focus:border-brand-teal disabled:opacity-50"
+                placeholder="Choose a strong password (min 8 characters)"
               />
             </div>
           </div>
@@ -83,10 +128,11 @@ export default async function SignUpPage({
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-white font-medium rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-teal"
+              disabled={loading}
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-white font-medium rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-teal disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ backgroundColor: '#4A9D93' }}
             >
-              Sign Up
+              {loading ? 'Creating Account...' : 'Sign Up'}
             </button>
           </div>
 

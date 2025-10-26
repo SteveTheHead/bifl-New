@@ -216,6 +216,10 @@ BETTER_AUTH_SECRET=your-generated-secret-here
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 
+# Email Verification (Resend)
+# Get your API key from: https://resend.com/api-keys
+RESEND_API_KEY=your-resend-api-key
+
 # ============================================
 # OPTIONAL - AI Features
 # ============================================
