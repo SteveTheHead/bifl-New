@@ -3,7 +3,7 @@ import { getProductBySlug } from '@/lib/supabase/queries'
 import { notFound } from 'next/navigation'
 import { ProductDetailView } from '@/components/products/product-detail-view'
 import { ProductStructuredData, FAQStructuredData, BreadcrumbStructuredData } from '@/components/seo/structured-data'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createBuildClient } from '@/lib/supabase/server'
 
 interface ProductPageProps {
   params: Promise<{
@@ -70,6 +70,20 @@ export default async function ProductPage({ params }: ProductPageProps) {
       <ProductDetailView product={product} />
     </>
   )
+}
+
+export async function generateStaticParams() {
+  const supabase = createBuildClient()
+
+  const { data: products } = await supabase
+    .from('products')
+    .select('slug')
+    .eq('status', 'published')
+    .limit(1000) // Limit to prevent excessive build times
+
+  return (products || []).map((product: { slug: string }) => ({
+    slug: product.slug,
+  }))
 }
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {

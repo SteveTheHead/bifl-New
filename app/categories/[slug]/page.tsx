@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createBuildClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { CategoryPageClient } from '@/components/categories/category-page-client'
 import { Metadata } from 'next'
@@ -9,7 +9,20 @@ interface CategoryPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
-export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
+export async function generateStaticParams() {
+  const supabase = createBuildClient()
+
+  const { data: categories } = await supabase
+    .from('categories')
+    .select('slug')
+    .limit(500)
+
+  return (categories || []).map((category: { slug: string }) => ({
+    slug: category.slug,
+  }))
+}
+
+export async function generateMetadata({ params, searchParams }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params
   const supabase = await createClient()
 
@@ -22,7 +35,11 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   if (!category) {
     return {
       title: 'Category Not Found',
-      description: 'The requested category could not be found.'
+      description: 'The requested category could not be found.',
+      robots: {
+        index: false,
+        follow: false,
+      }
     }
   }
 
@@ -39,6 +56,12 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
     `Discover the ${productCount || 'best'} highest-rated ${categoryName.toLowerCase()} products built to last a lifetime. Expert reviews, AI-generated buying guides, and detailed BIFL ratings. Find durable, repairable ${categoryName.toLowerCase()} with strong warranties.`
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://buyitforlife.com'
+  const canonicalUrl = `${baseUrl}/categories/${slug}`
+
+  // Check if this is a filtered/sorted view - if so, prevent indexing
+  const params_resolved = await searchParams
+  const hasFilters = params_resolved.sort || params_resolved.price_min || params_resolved.price_max || params_resolved.brand
+  const shouldIndex = !hasFilters
 
   return {
     title,
@@ -77,10 +100,10 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
       images: ['/og-image-category.jpg']
     },
     robots: {
-      index: true,
+      index: shouldIndex,
       follow: true,
       googleBot: {
-        index: true,
+        index: shouldIndex,
         follow: true,
         'max-video-preview': -1,
         'max-image-preview': 'large',
@@ -88,7 +111,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
       },
     },
     alternates: {
-      canonical: `${baseUrl}/categories/${slug}`,
+      canonical: canonicalUrl, // Always point to clean URL without filters
     },
   }
 }

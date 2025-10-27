@@ -5,6 +5,8 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { authClient } from '@/lib/auth-client'
 
+export const dynamic = 'force-dynamic'
+
 export default function SignInPage() {
   const router = useRouter()
   const searchParams = useSearchParams()

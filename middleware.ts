@@ -1,7 +1,22 @@
 import { updateSession } from '@/utils/supabase/middleware'
-import { type NextRequest } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
+  // Block search engines from crawling admin, API, and dashboard routes
+  const shouldBlockCrawlers = pathname.startsWith('/admin') ||
+                              pathname.startsWith('/api') ||
+                              pathname.startsWith('/user-dashboard') ||
+                              pathname.startsWith('/dashboard') ||
+                              pathname.startsWith('/_next')
+
+  if (shouldBlockCrawlers) {
+    const response = await updateSession(request)
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow')
+    return response
+  }
+
   return await updateSession(request)
 }
 
