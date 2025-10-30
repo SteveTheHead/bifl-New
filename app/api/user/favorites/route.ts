@@ -1,13 +1,16 @@
 import { createClient } from '@/utils/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { auth } from '@/lib/auth'
+import { headers } from 'next/headers'
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
+    // Check authentication with Better Auth
+    const session = await auth.api.getSession({
+      headers: await headers()
+    })
 
-    // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
+    if (!session?.user) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
     }
 
@@ -17,7 +20,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid product IDs' }, { status: 400 })
     }
 
-    // Get products by IDs
+    // Get products by IDs (Supabase is still used for database queries, just not auth)
+    const supabase = await createClient()
     const { data: products, error } = await supabase
       .from('products')
       .select(`

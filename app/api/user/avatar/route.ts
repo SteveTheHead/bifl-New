@@ -1,10 +1,24 @@
 import { createClient } from '@/utils/supabase/server'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { auth } from '@/lib/auth'
+import { headers } from 'next/headers'
+import { db } from '@/db/drizzle'
+import { user as userTable } from '@/db/schema'
+import { eq } from 'drizzle-orm'
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
+    // Check authentication with Better Auth
+    const session = await auth.api.getSession({
+      headers: await headers()
+    })
+
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+    }
+
+    const userId = session.user.id
 
     // Create admin client for storage operations
     const adminSupabase = createSupabaseClient(
@@ -17,13 +31,6 @@ export async function POST(request: NextRequest) {
         }
       }
     )
-
-    // Get authenticated user - require real authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
-    }
 
 
     const formData = await request.formData()
@@ -79,17 +86,16 @@ export async function POST(request: NextRequest) {
 
     const avatarUrl = urlData.publicUrl
 
-    // Update user metadata with avatar URL
-    const { error: updateError } = await supabase.auth.updateUser({
-      data: {
-        avatar_url: avatarUrl
-      }
-    })
-
-    if (updateError) {
-      console.error('Update user metadata error:', updateError)
+    // Update user's image field in Better Auth database
+    try {
+      await db
+        .update(userTable)
+        .set({ image: avatarUrl })
+        .where(eq(userTable.id, userId))
+    } catch (updateError) {
+      console.error('Update user image error:', updateError)
       return NextResponse.json({
-        error: 'Failed to update user metadata'
+        error: 'Failed to update user avatar'
       }, { status: 500 })
     }
 
@@ -108,25 +114,26 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
   try {
-    const supabase = await createClient()
+    // Check authentication with Better Auth
+    const session = await auth.api.getSession({
+      headers: await headers()
+    })
 
-    // Get authenticated user - require real authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    if (!session?.user) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
     }
 
-    // Remove avatar URL from user metadata
-    const { error: updateError } = await supabase.auth.updateUser({
-      data: {
-        avatar_url: null
-      }
-    })
+    const userId = session.user.id
 
-    if (updateError) {
+    // Remove avatar URL from user
+    try {
+      await db
+        .update(userTable)
+        .set({ image: null })
+        .where(eq(userTable.id, userId))
+    } catch (updateError) {
       console.error('Update user error:', updateError)
       return NextResponse.json({
         error: 'Failed to remove avatar'
