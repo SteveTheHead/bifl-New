@@ -1,11 +1,12 @@
 'use client'
 
-// Using simple session check instead of better-auth
+// Using Better Auth session
+import { useSession } from '@/lib/auth-client'
 import { useFavorites } from '@/lib/hooks/use-favorites'
 import { useRecentlyViewed } from '@/lib/hooks/use-recently-viewed'
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import {
   Heart,
   Eye,
@@ -40,8 +41,11 @@ interface Product {
 }
 
 export default function UserDashboardPage() {
-  const [session, setSession] = useState<any>(null)
-  const [isPending, setIsPending] = useState(true)
+  const router = useRouter()
+  const { data: session, isPending } = useSession()
+
+  console.log('🔍 Dashboard: useSession result:', { session, isPending })
+
   const { favorites, loading: favoritesLoading } = useFavorites()
   const { recentlyViewed, loading: recentlyViewedLoading } = useRecentlyViewed()
   const [stats, setStats] = useState<DashboardStats>({
@@ -54,40 +58,15 @@ export default function UserDashboardPage() {
   const [isPersonalized, setIsPersonalized] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  // Check authentication with Better Auth
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        console.log('🔍 Dashboard: Checking authentication...')
-        const response = await fetch('/api/user/auth')
-        console.log('📡 Dashboard: Auth API response status:', response.status)
-        const data = await response.json()
-        console.log('📥 Dashboard: Auth API data:', data)
-
-        if (data.user) {
-          console.log('✅ Dashboard: User authenticated:', data.user.email)
-          setSession({ user: data.user })
-        } else {
-          console.log('❌ Dashboard: No user found, redirecting to signin')
-          redirect('/auth/signin')
-        }
-      } catch (error) {
-        console.error('💥 Dashboard: Auth check error:', error)
-        redirect('/auth/signin')
-      } finally {
-        setIsPending(false)
-      }
-    }
-
-    checkAuth()
-  }, [])
-
   // Redirect if not authenticated
   useEffect(() => {
     if (!isPending && !session?.user) {
-      redirect('/auth/signin')
+      console.log('❌ Dashboard: No session, redirecting to signin')
+      router.push('/auth/signin')
+    } else if (session?.user) {
+      console.log('✅ Dashboard: User authenticated:', session.user.email)
     }
-  }, [session, isPending])
+  }, [session, isPending, router])
 
   // Fetch user data and stats
   useEffect(() => {
@@ -162,8 +141,8 @@ export default function UserDashboardPage() {
             <div className="flex items-center space-x-4">
               <div className="relative">
                 <Avatar
-                  src={session.user.user_metadata?.avatar_url}
-                  name={session.user.user_metadata?.name || session.user.email}
+                  src={session?.user?.image}
+                  name={session?.user?.name || session?.user?.email || 'User'}
                   size="lg"
                 />
                 <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-brand-teal rounded-full border-2 border-white shadow-md flex items-center justify-center">
@@ -175,7 +154,7 @@ export default function UserDashboardPage() {
                   My Dashboard
                 </h1>
                 <p className="text-brand-gray mt-1 text-sm">
-                  Welcome back, {session.user.user_metadata?.name || session.user.email}
+                  Welcome back, {session?.user?.name || session?.user?.email || 'User'}
                 </p>
               </div>
             </div>

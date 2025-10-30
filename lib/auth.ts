@@ -36,9 +36,15 @@ export const auth = betterAuth({
     'http://localhost:3000'
   ],
   allowedDevOrigins: ['http://localhost:3000'],
-  cookieCache: {
-    enabled: true,
-    maxAge: 5 * 60, // Cache duration in seconds
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60, // Cache duration in seconds
+    },
+  },
+  advanced: {
+    useSecureCookies: process.env.NODE_ENV === 'production',
+    cookiePrefix: 'better-auth',
   },
   emailVerification: {
     sendOnSignUp: true,

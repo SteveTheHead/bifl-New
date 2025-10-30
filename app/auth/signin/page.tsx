@@ -55,9 +55,16 @@ export default function SignInPage() {
         return
       }
 
-      // Success! Redirect
-      console.log('✅ Sign in successful! Redirecting...')
+      // Success! Wait a moment for cookie to be set, then redirect
+      console.log('✅ Sign in successful! Session:', data)
+      console.log('⏳ Waiting for cookie to be set...')
+
+      // Wait 500ms for cookie to be properly set
+      await new Promise(resolve => setTimeout(resolve, 500))
+
+      console.log('📍 Cookie should be set, redirecting now...')
       setLoading(false)
+
       if (returnUrl && returnUrl.startsWith('/')) {
         console.log('📍 Redirecting to:', returnUrl)
         window.location.href = returnUrl
