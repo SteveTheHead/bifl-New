@@ -1,11 +1,7 @@
-import { createClient } from '@/utils/supabase/server'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
-import { db } from '@/db/drizzle'
-import { user as userTable } from '@/db/schema'
-import { eq } from 'drizzle-orm'
 
 export async function POST(request: NextRequest) {
   try {
@@ -93,15 +89,17 @@ export async function POST(request: NextRequest) {
       avatarUrl
     })
 
-    // Update user's image field in Better Auth database
+    // Update user's image field using Better Auth API to update both DB and session
     try {
-      const result = await db
-        .update(userTable)
-        .set({ image: avatarUrl })
-        .where(eq(userTable.id, userId))
-        .returning()
+      // Use Better Auth's update-user endpoint to update session cookie
+      const updateResponse = await auth.api.updateUser({
+        body: {
+          image: avatarUrl
+        },
+        headers: await headers()
+      })
 
-      console.log('✅ Database updated with new avatar:', result)
+      console.log('✅ Better Auth session and database updated with new avatar')
     } catch (updateError) {
       console.error('❌ Update user image error:', updateError)
       return NextResponse.json({
@@ -135,16 +133,17 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
     }
 
-    const userId = session.user.id
-
-    // Remove avatar URL from user
+    // Remove avatar URL from user using Better Auth API (empty string instead of null)
     try {
-      await db
-        .update(userTable)
-        .set({ image: null })
-        .where(eq(userTable.id, userId))
+      await auth.api.updateUser({
+        body: {
+          image: ''
+        },
+        headers: await headers()
+      })
+      console.log('✅ Avatar removed and session updated')
     } catch (updateError) {
-      console.error('Update user error:', updateError)
+      console.error('❌ Remove avatar error:', updateError)
       return NextResponse.json({
         error: 'Failed to remove avatar'
       }, { status: 500 })
