@@ -51,6 +51,23 @@ export const auth = betterAuth({
           from: 'Buy It For Life <onboarding@resend.dev>',
           to: user.email,
           subject: 'Verify your email address',
+          text: `Welcome to Buy It For Life!
+
+Hi there,
+
+Thanks for signing up! Please verify your email address to get started with discovering products that last a lifetime.
+
+Click here to verify your email: ${url}
+
+Or copy and paste this link into your browser:
+${url}
+
+This link will expire in 24 hours.
+
+If you didn't create an account, you can safely ignore this email.
+
+Buy It For Life - Products That Last
+${appUrl}`,
           html: `
             <!DOCTYPE html>
             <html>
