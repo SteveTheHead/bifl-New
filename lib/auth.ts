@@ -29,8 +29,12 @@ const polarClient = new Polar({
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const auth = betterAuth({
-  trustedOrigins: [`${process.env.NEXT_PUBLIC_APP_URL}`],
-  allowedDevOrigins: [`${process.env.NEXT_PUBLIC_APP_URL}`],
+  trustedOrigins: [
+    'https://www.buyitforlifeproducts.com',
+    'https://buyitforlifeproducts.com',
+    'http://localhost:3000'
+  ],
+  allowedDevOrigins: ['http://localhost:3000'],
   cookieCache: {
     enabled: true,
     maxAge: 5 * 60, // Cache duration in seconds
@@ -43,7 +47,7 @@ export const auth = betterAuth({
 
       try {
         await resend.emails.send({
-          from: 'Buy It For Life <onboarding@resend.dev>',
+          from: 'Buy It For Life <hello@send.buyitforlifeproducts.com>',
           to: user.email,
           subject: 'Verify your email address',
           html: `
