@@ -146,11 +146,13 @@ export function AvatarUpload({ currentAvatarUrl, userName, onAvatarUpdate }: Ava
         <div className="relative">
           {displayImageUrl ? (
             <Image
+              key={displayImageUrl}
               src={displayImageUrl}
               alt="Avatar"
               width={80}
               height={80}
               className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
+              unoptimized
             />
           ) : (
             <div className="w-20 h-20 rounded-full bg-brand-teal flex items-center justify-center border-2 border-gray-200">
@@ -283,11 +285,13 @@ export function Avatar({ src, name, size = 'md', className = '' }: AvatarProps) 
   if (src) {
     return (
       <Image
+        key={src}
         src={src}
         alt={name || 'User avatar'}
         width={size === 'sm' ? 32 : size === 'md' ? 40 : size === 'lg' ? 48 : 64}
         height={size === 'sm' ? 32 : size === 'md' ? 40 : size === 'lg' ? 48 : 64}
         className={baseClasses}
+        unoptimized
       />
     )
   }

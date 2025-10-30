@@ -84,16 +84,26 @@ export async function POST(request: NextRequest) {
       .from('user-uploads')
       .getPublicUrl(filePath)
 
-    const avatarUrl = urlData.publicUrl
+    // Add cache-busting query parameter to force browser to reload
+    const avatarUrl = `${urlData.publicUrl}?v=${Date.now()}`
+
+    console.log('🖼️ Avatar upload successful:', {
+      userId,
+      fileName,
+      avatarUrl
+    })
 
     // Update user's image field in Better Auth database
     try {
-      await db
+      const result = await db
         .update(userTable)
         .set({ image: avatarUrl })
         .where(eq(userTable.id, userId))
+        .returning()
+
+      console.log('✅ Database updated with new avatar:', result)
     } catch (updateError) {
-      console.error('Update user image error:', updateError)
+      console.error('❌ Update user image error:', updateError)
       return NextResponse.json({
         error: 'Failed to update user avatar'
       }, { status: 500 })
