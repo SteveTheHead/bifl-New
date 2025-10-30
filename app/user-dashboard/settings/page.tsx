@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, User } from 'lucide-react'
 import { AvatarUpload } from '@/components/user/avatar-upload'
-import { useSession, authClient } from '@/lib/auth-client'
+import { useSession } from '@/lib/auth-client'
 
 export default function AccountSettingsPage() {
   const router = useRouter()
@@ -48,8 +48,8 @@ export default function AccountSettingsPage() {
 
       if (response.ok) {
         setMessage('Profile updated successfully!')
-        // Refresh the session to get updated data
-        await authClient.$fetch('/api/auth/get-session')
+        // Reload page to refresh session after 1 second
+        setTimeout(() => window.location.reload(), 1000)
       } else {
         setMessage(data.error || 'Failed to update profile')
       }
@@ -62,8 +62,10 @@ export default function AccountSettingsPage() {
   }
 
   const handleAvatarUpdate = async (avatarUrl: string | null) => {
-    // Refresh the session to get the updated avatar
-    await authClient.$fetch('/api/auth/get-session')
+    // Reload the page to refresh the session
+    // This is necessary due to a known Better Auth limitation where useSession()
+    // doesn't automatically update after server-side profile changes
+    window.location.reload()
   }
 
   if (isPending) {
