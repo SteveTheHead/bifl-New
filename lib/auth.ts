@@ -29,6 +29,7 @@ const polarClient = new Polar({
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const auth = betterAuth({
+  baseURL: process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com',
   trustedOrigins: [
     'https://www.buyitforlifeproducts.com',
     'https://buyitforlifeproducts.com',
