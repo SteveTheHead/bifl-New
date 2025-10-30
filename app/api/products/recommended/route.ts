@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server'
 import { Database } from '@/utils/supabase/types'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { sb } from '@/lib/supabase-utils'
+import { auth } from '@/lib/auth'
+import { headers } from 'next/headers'
 
 type SupabaseClientType = SupabaseClient<Database>
 type Review = Database['public']['Tables']['reviews']['Row']
@@ -12,14 +14,16 @@ export async function GET() {
   try {
     const supabase = await createClient()
 
-    // Check if user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    // Check if user is authenticated with Better Auth
+    const session = await auth.api.getSession({
+      headers: await headers()
+    })
 
     let recommendedProducts = []
 
-    if (user && !authError && user.email) {
+    if (session?.user?.email) {
       // Get user's personalized recommendations
-      recommendedProducts = await getPersonalizedRecommendations(supabase, user.email)
+      recommendedProducts = await getPersonalizedRecommendations(supabase, session.user.email)
     }
 
     // If no personalized recommendations or user not logged in, fall back to top-rated
@@ -29,7 +33,7 @@ export async function GET() {
 
     return NextResponse.json({
       products: recommendedProducts,
-      personalized: user ? true : false
+      personalized: session?.user ? true : false
     })
 
   } catch (error) {

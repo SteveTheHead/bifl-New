@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
 
     // Generate unique filename
     const fileExt = file.name.split('.').pop()
-    const fileName = `${user.id}-${Date.now()}.${fileExt}`
+    const fileName = `${userId}-${Date.now()}.${fileExt}`
     const filePath = `avatars/${fileName}`
 
 

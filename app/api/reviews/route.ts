@@ -1,25 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import { sb } from '@/lib/supabase-utils'
+import { auth } from '@/lib/auth'
+import { headers } from 'next/headers'
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
+    // Check authentication with Better Auth
+    const session = await auth.api.getSession({
+      headers: await headers()
+    })
 
-    // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
+    if (!session?.user) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
     }
 
     const body = await request.json()
 
-    // Add user_id to the review data
+    // Add user_id and user_email to the review data
     const reviewData = {
       ...body,
-      user_id: user.id
+      user_id: session.user.id,
+      user_email: session.user.email
     }
 
+    const supabase = await createClient()
     const { error, data } = await sb.insert(supabase, 'reviews', [reviewData])
 
 
