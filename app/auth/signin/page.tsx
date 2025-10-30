@@ -34,16 +34,12 @@ export default function SignInPage() {
     const password = formData.get('password') as string
 
     try {
-      console.log('🔐 Attempting sign in for:', email)
       const { data, error } = await authClient.signIn.email({
         email,
         password,
       })
 
-      console.log('📥 Sign in response:', { data, error })
-
       if (error) {
-        console.error('❌ Sign in error:', error)
         if (error.message?.includes('verify') || error.message?.includes('verification')) {
           setError('Please verify your email before signing in. Check your inbox for the verification link.')
         } else if (error.message?.includes('credentials') || error.message?.includes('Invalid')) {
@@ -56,24 +52,16 @@ export default function SignInPage() {
       }
 
       // Success! Wait a moment for cookie to be set, then redirect
-      console.log('✅ Sign in successful! Session:', data)
-      console.log('⏳ Waiting for cookie to be set...')
-
-      // Wait 500ms for cookie to be properly set
       await new Promise(resolve => setTimeout(resolve, 500))
 
-      console.log('📍 Cookie should be set, redirecting now...')
       setLoading(false)
 
       if (returnUrl && returnUrl.startsWith('/')) {
-        console.log('📍 Redirecting to:', returnUrl)
         window.location.href = returnUrl
       } else {
-        console.log('📍 Redirecting to: /user-dashboard')
         window.location.href = '/user-dashboard'
       }
     } catch (err: any) {
-      console.error('💥 Sign in exception:', err)
       setError(err.message || 'An unexpected error occurred')
       setLoading(false)
     }

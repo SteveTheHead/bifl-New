@@ -5,25 +5,14 @@ import { headers } from 'next/headers'
 // This endpoint checks if the user is authenticated using Better Auth
 export async function GET(request: NextRequest) {
   try {
-    console.log('🔐 API /user/auth: Checking session...')
-
     // Get session from Better Auth
     const session = await auth.api.getSession({
       headers: await headers()
     })
 
-    console.log('📦 API /user/auth: Session result:', session ? {
-      userId: session.user.id,
-      email: session.user.email,
-      hasSession: true
-    } : { hasSession: false })
-
     if (!session) {
-      console.log('❌ API /user/auth: No session found')
       return NextResponse.json({ user: null })
     }
-
-    console.log('✅ API /user/auth: Returning user data for:', session.user.email)
 
     // Return user data from the session
     return NextResponse.json({
@@ -41,7 +30,7 @@ export async function GET(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('💥 API /user/auth: Error checking session:', error)
+    console.error('Error checking session:', error)
     return NextResponse.json({ user: null })
   }
 }

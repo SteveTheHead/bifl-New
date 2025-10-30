@@ -82,22 +82,9 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  // Protect user dashboard routes with Supabase auth
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith('/auth') &&
-    !request.nextUrl.pathname.startsWith('/api') &&
-    request.nextUrl.pathname !== '/' &&
-    !request.nextUrl.pathname.startsWith('/products') &&
-    !request.nextUrl.pathname.startsWith('/admin-setup') &&
-    !request.nextUrl.pathname.startsWith('/admin') &&
-    request.nextUrl.pathname.startsWith('/user-dashboard')
-  ) {
-    // no user, redirect to auth page for protected routes
-    const url = request.nextUrl.clone()
-    url.pathname = '/auth/signin'
-    return NextResponse.redirect(url)
-  }
+  // NOTE: User dashboard authentication is now handled client-side by Better Auth
+  // We removed the Supabase auth check here since we're using Better Auth
+  // The dashboard page itself will redirect if not authenticated
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
   // creating a new response object with NextResponse.next() make sure to:

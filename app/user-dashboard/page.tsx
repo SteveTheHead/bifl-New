@@ -44,8 +44,6 @@ export default function UserDashboardPage() {
   const router = useRouter()
   const { data: session, isPending } = useSession()
 
-  console.log('🔍 Dashboard: useSession result:', { session, isPending })
-
   const { favorites, loading: favoritesLoading } = useFavorites()
   const { recentlyViewed, loading: recentlyViewedLoading } = useRecentlyViewed()
   const [stats, setStats] = useState<DashboardStats>({
@@ -61,10 +59,7 @@ export default function UserDashboardPage() {
   // Redirect if not authenticated
   useEffect(() => {
     if (!isPending && !session?.user) {
-      console.log('❌ Dashboard: No session, redirecting to signin')
       router.push('/auth/signin')
-    } else if (session?.user) {
-      console.log('✅ Dashboard: User authenticated:', session.user.email)
     }
   }, [session, isPending, router])
 
