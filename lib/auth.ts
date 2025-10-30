@@ -116,7 +116,7 @@ ${appUrl}`,
   },
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: true,
+    requireEmailVerification: false, // Temporarily disabled for testing
   },
   database: drizzleAdapter(db, {
     provider: "pg",
