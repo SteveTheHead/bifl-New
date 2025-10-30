@@ -5,24 +5,28 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, User } from 'lucide-react'
 import { AvatarUpload } from '@/components/user/avatar-upload'
-
-interface User {
-  id: string
-  email: string
-  user_metadata?: {
-    name?: string
-    avatar_url?: string
-  }
-}
+import { useSession, authClient } from '@/lib/auth-client'
 
 export default function AccountSettingsPage() {
   const router = useRouter()
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const { data: session, isPending } = useSession()
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
+
+  // Initialize name from session
+  useEffect(() => {
+    if (session?.user?.name) {
+      setName(session.user.name)
+    }
+  }, [session?.user?.name])
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!isPending && !session?.user) {
+      router.push('/auth/signin')
+    }
+  }, [session, isPending, router])
 
   const handleSaveProfile = async () => {
     if (!name.trim()) {
@@ -44,12 +48,8 @@ export default function AccountSettingsPage() {
 
       if (response.ok) {
         setMessage('Profile updated successfully!')
-        // Reload user data to reflect changes
-        const userResponse = await fetch('/api/user/auth')
-        const userData = await userResponse.json()
-        if (userData.user) {
-          setUser(userData.user)
-        }
+        // Refresh the session to get updated data
+        await authClient.$fetch('/api/auth/get-session')
       } else {
         setMessage(data.error || 'Failed to update profile')
       }
@@ -61,33 +61,12 @@ export default function AccountSettingsPage() {
     }
   }
 
-  useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const response = await fetch('/api/user/auth')
-        const data = await response.json()
+  const handleAvatarUpdate = async (avatarUrl: string | null) => {
+    // Refresh the session to get the updated avatar
+    await authClient.$fetch('/api/auth/get-session')
+  }
 
-        if (data.user) {
-          setUser(data.user)
-          setEmail(data.user.email || '')
-          setName(data.user.user_metadata?.name || '')
-        } else {
-          // No authenticated user, redirect to sign in
-          router.push('/auth/signin')
-          return
-        }
-      } catch (error) {
-        console.error('Error loading user:', error)
-        router.push('/auth/signin')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadUser()
-  }, [])
-
-  if (loading) {
+  if (isPending) {
     return (
       <div className="min-h-screen bg-brand-cream flex items-center justify-center">
         <div className="text-center">
@@ -98,7 +77,7 @@ export default function AccountSettingsPage() {
     )
   }
 
-  if (!user) {
+  if (!session?.user) {
     return null // Will redirect
   }
 
@@ -144,8 +123,9 @@ export default function AccountSettingsPage() {
           </div>
 
           <AvatarUpload
-            currentAvatarUrl={user?.user_metadata?.avatar_url}
-            userName={user?.user_metadata?.name || user?.email}
+            currentAvatarUrl={session.user.image}
+            userName={session.user.name || session.user.email || 'User'}
+            onAvatarUpdate={handleAvatarUpdate}
           />
         </div>
 
@@ -176,7 +156,7 @@ export default function AccountSettingsPage() {
               </label>
               <input
                 type="email"
-                value={email}
+                value={session.user.email || ''}
                 disabled
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm bg-gray-50 text-gray-500"
                 placeholder="Enter your email"
