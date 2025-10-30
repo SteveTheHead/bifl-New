@@ -54,19 +54,25 @@ export default function UserDashboardPage() {
   const [isPersonalized, setIsPersonalized] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  // Check authentication with Supabase
+  // Check authentication with Better Auth
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        console.log('🔍 Dashboard: Checking authentication...')
         const response = await fetch('/api/user/auth')
+        console.log('📡 Dashboard: Auth API response status:', response.status)
         const data = await response.json()
+        console.log('📥 Dashboard: Auth API data:', data)
 
         if (data.user) {
+          console.log('✅ Dashboard: User authenticated:', data.user.email)
           setSession({ user: data.user })
         } else {
+          console.log('❌ Dashboard: No user found, redirecting to signin')
           redirect('/auth/signin')
         }
       } catch (error) {
+        console.error('💥 Dashboard: Auth check error:', error)
         redirect('/auth/signin')
       } finally {
         setIsPending(false)
