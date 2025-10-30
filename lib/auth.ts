@@ -54,7 +54,7 @@ export const auth = betterAuth({
 
       try {
         await resend.emails.send({
-          from: 'Buy It For Life <onboarding@resend.dev>',
+          from: 'Buy It For Life <hello@buyitforlifeproducts.com>',
           to: user.email,
           subject: 'Verify your email address',
           text: `Welcome to Buy It For Life!
