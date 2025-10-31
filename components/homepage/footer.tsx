@@ -40,6 +40,14 @@ export default function FooterSection() {
               </li>
               <li>
                 <Link
+                  href="/what-is-buy-it-for-life"
+                  className="text-brand-gray hover:text-brand-teal transition-colors duration-150"
+                >
+                  What is BIFL?
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/how-it-works"
                   className="text-brand-gray hover:text-brand-teal transition-colors duration-150"
                 >
