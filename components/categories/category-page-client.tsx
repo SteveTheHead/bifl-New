@@ -175,7 +175,7 @@ export function CategoryPageClient({
       "aggregateRating": product.bifl_total_score ? {
         "@type": "AggregateRating",
         "ratingValue": product.bifl_total_score,
-        "reviewCount": product.review_count || 1,
+        "reviewCount": 1, // Default to 1 to satisfy Google schema requirements
         "bestRating": 10,
         "worstRating": 0
       } : undefined
