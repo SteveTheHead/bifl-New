@@ -14,6 +14,7 @@ interface ProductSchemaProps {
     priceCurrency: string
     availability: string
     url: string
+    priceValidUntil?: string
   }
 }
 
@@ -42,6 +43,7 @@ export function ProductStructuredData({ product }: { product: ProductSchemaProps
         priceCurrency: product.offers.priceCurrency,
         availability: `https://schema.org/${product.offers.availability}`,
         url: product.offers.url,
+        ...(product.offers.priceValidUntil && { priceValidUntil: product.offers.priceValidUntil }),
       },
     }),
   }

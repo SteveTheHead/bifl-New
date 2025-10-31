@@ -41,15 +41,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
           description: productData.description || productData.excerpt || '',
           image: productData.featured_image_url || `${baseUrl}/logo.png`,
           brand: productData.brand?.name || 'Unknown',
-          aggregateRating: productData.star_rating && productData.review_count ? {
+          aggregateRating: productData.star_rating ? {
             ratingValue: productData.star_rating,
-            reviewCount: productData.review_count,
+            reviewCount: productData.review_count || 1, // Default to 1 if we have a rating but no review count
           } : undefined,
           offers: productData.price ? {
             price: productData.price,
             priceCurrency: 'USD',
             availability: 'InStock',
             url: productData.affiliate_link || `${baseUrl}/products/${productData.slug}`,
+            priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 1 year from now
           } : undefined,
         }}
       />

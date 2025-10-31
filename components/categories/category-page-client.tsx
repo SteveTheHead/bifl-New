@@ -168,11 +168,14 @@ export function CategoryPageClient({
       "offers": product.price ? {
         "@type": "Offer",
         "price": product.price,
-        "priceCurrency": "USD"
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock",
+        "priceValidUntil": new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
       } : undefined,
       "aggregateRating": product.bifl_total_score ? {
         "@type": "AggregateRating",
         "ratingValue": product.bifl_total_score,
+        "reviewCount": product.review_count || 1,
         "bestRating": 10,
         "worstRating": 0
       } : undefined
