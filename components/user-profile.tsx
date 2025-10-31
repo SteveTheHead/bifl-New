@@ -60,13 +60,29 @@ export default function UserProfile({ mini }: { mini?: boolean }) {
   }, [fetchUserData]);
 
   const handleSignOut = async () => {
-    await authClient.signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          router.push("/sign-in"); // redirect to login page
+    try {
+      setLoading(true);
+      // Clear user state immediately
+      setUserInfo(null);
+
+      await authClient.signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            // Force a full page reload to clear all cached state
+            window.location.href = "/sign-in";
+          },
+          onError: (ctx) => {
+            console.error('Sign out error:', ctx.error);
+            // Still redirect even if sign out fails, but log the error
+            window.location.href = "/sign-in";
+          },
         },
-      },
-    });
+      });
+    } catch (error) {
+      console.error('Sign out error:', error);
+      // Force redirect anyway to prevent stuck state
+      window.location.href = "/sign-in";
+    }
   };
 
   if (error) {
