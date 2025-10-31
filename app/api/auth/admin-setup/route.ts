@@ -5,7 +5,7 @@ import { sb } from '@/lib/supabase-utils'
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json()
+    const { email, password, setupSecret } = await request.json()
 
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
@@ -18,6 +18,29 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = await createClient()
+
+    // SECURITY CHECK: Block setup if admins already exist (unless setup secret is provided)
+    try {
+      const { data: existingAdmins, error: checkError } = await supabase
+        .from('admin_users')
+        .select('id')
+        .limit(1)
+
+      // If no error and admins exist, require setup secret
+      if (!checkError && existingAdmins && existingAdmins.length > 0) {
+        const ADMIN_SETUP_SECRET = process.env.ADMIN_SETUP_SECRET
+
+        if (!ADMIN_SETUP_SECRET || setupSecret !== ADMIN_SETUP_SECRET) {
+          console.warn('Unauthorized admin setup attempt - admins already exist')
+          return NextResponse.json(
+            { error: 'Admin setup is disabled. Admin accounts already exist.' },
+            { status: 403 }
+          )
+        }
+      }
+    } catch (error) {
+      console.error('Error checking for existing admins:', error)
+    }
 
     // First, ensure the admin_users table exists
     try {
