@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useRef, useEffect } from 'react'
 import { Menu, X, Search, User, LogOut } from 'lucide-react'
-import { logout } from '@/app/auth/actions'
+import { authClient } from '@/lib/auth-client'
 import { AISearch } from '../search/ai-search'
 import { useAuth } from '@/lib/contexts/auth-context'
 
@@ -14,7 +14,7 @@ export function Navbar() {
   const [isClient, setIsClient] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
 
-  const { user, loading } = useAuth()
+  const { user, loading, refreshAuth } = useAuth()
 
   // Fix hydration mismatch
   useEffect(() => {
@@ -24,12 +24,16 @@ export function Navbar() {
   const handleSignOut = async () => {
     try {
       setShowUserMenu(false)
-      await logout()
+
+      // Sign out using Better Auth
+      await authClient.signOut()
+
       // Force a page refresh to ensure all client-side state is cleared
-      window.location.href = '/auth/signin'
+      window.location.href = '/sign-in'
     } catch (error) {
-      // Redirect on error
-      window.location.href = '/auth/signin'
+      console.error('Sign out error:', error)
+      // Force redirect anyway to prevent stuck state
+      window.location.href = '/sign-in'
     }
   }
 
