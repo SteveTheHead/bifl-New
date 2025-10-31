@@ -42,7 +42,7 @@ export default function UserProfile({ mini }: { mini?: boolean }) {
       const result = await authClient.getSession();
 
       if (!result.data?.user) {
-        router.push("/sign-in");
+        router.push("/auth/signin");
         return;
       }
 
@@ -69,19 +69,19 @@ export default function UserProfile({ mini }: { mini?: boolean }) {
         fetchOptions: {
           onSuccess: () => {
             // Force a full page reload to clear all cached state
-            window.location.href = "/sign-in";
+            window.location.href = "/auth/signin";
           },
           onError: (ctx) => {
             console.error('Sign out error:', ctx.error);
             // Still redirect even if sign out fails, but log the error
-            window.location.href = "/sign-in";
+            window.location.href = "/auth/signin";
           },
         },
       });
     } catch (error) {
       console.error('Sign out error:', error);
       // Force redirect anyway to prevent stuck state
-      window.location.href = "/sign-in";
+      window.location.href = "/auth/signin";
     }
   };
 

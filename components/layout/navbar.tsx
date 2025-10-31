@@ -29,11 +29,11 @@ export function Navbar() {
       await authClient.signOut()
 
       // Force a page refresh to ensure all client-side state is cleared
-      window.location.href = '/sign-in'
+      window.location.href = '/auth/signin'
     } catch (error) {
       console.error('Sign out error:', error)
       // Force redirect anyway to prevent stuck state
-      window.location.href = '/sign-in'
+      window.location.href = '/auth/signin'
     }
   }
 
