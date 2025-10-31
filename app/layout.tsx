@@ -12,7 +12,7 @@ import FooterSection from "@/components/homepage/footer";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://buyitforlife.com'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com'),
   title: "BIFL - Buy It For Life Product Directory",
   description:
     "Discover durable, long-lasting products that are built to last. Expert reviews and ratings for quality items worth investing in.",

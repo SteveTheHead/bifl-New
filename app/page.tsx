@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Buy It For Life - Expert Reviews of Durable Products That Last',
     description: 'Discover 327+ expertly reviewed products built to last. Comprehensive BIFL ratings on durability, repairability, and warranty.',
-    url: process.env.NEXT_PUBLIC_APP_URL || 'https://buyitforlife.com',
+    url: process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com',
     siteName: 'Buy It For Life',
     images: [
       {
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
   },
 
   alternates: {
-    canonical: process.env.NEXT_PUBLIC_APP_URL || 'https://buyitforlife.com',
+    canonical: process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com',
   },
 
   robots: {

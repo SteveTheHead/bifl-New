@@ -59,7 +59,7 @@ export function ProductStructuredData({ product }: { product: ProductSchemaProps
 }
 
 export function BreadcrumbStructuredData({ items }: { items: Array<{ name: string; url: string }> }) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://buyitforlife.com'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com'
 
   const schema = {
     '@context': 'https://schema.org',
@@ -83,7 +83,7 @@ export function BreadcrumbStructuredData({ items }: { items: Array<{ name: strin
 }
 
 export function OrganizationStructuredData() {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://buyitforlife.com'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com'
 
   const schema = {
     '@context': 'https://schema.org',

@@ -30,7 +30,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     .eq('is_active', true)
     .order('display_order', { ascending: true })
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://buyitforlife.com'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com'
 
   return (
     <>
@@ -90,7 +90,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params
   const product = await getProductBySlug(slug)
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://buyitforlife.com'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com'
 
   if (!product) {
     return {

@@ -55,7 +55,7 @@ export async function generateMetadata({ params, searchParams }: CategoryPagePro
   const description = (category as any).description ||
     `Discover the ${productCount || 'best'} highest-rated ${categoryName.toLowerCase()} products built to last a lifetime. Expert reviews, AI-generated buying guides, and detailed BIFL ratings. Find durable, repairable ${categoryName.toLowerCase()} with strong warranties.`
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://buyitforlife.com'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com'
   const canonicalUrl = `${baseUrl}/categories/${slug}`
 
   // Check if this is a filtered/sorted view - if so, prevent indexing

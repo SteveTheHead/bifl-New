@@ -15,7 +15,7 @@ export async function generateMetadata({ searchParams }: ProductsPageProps): Pro
   const { search } = await searchParams
   const hasSearch = !!search
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://buyitforlife.com'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com'
 
   return {
     title: 'All Products - Buy It For Life',
