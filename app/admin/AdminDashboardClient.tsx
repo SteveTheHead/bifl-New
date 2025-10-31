@@ -13,7 +13,9 @@ import {
   ShoppingBag,
   Brain,
   MessageSquare,
-  LayoutGrid
+  LayoutGrid,
+  LogOut,
+  Users
 } from 'lucide-react'
 
 interface AdminSession {
@@ -53,6 +55,23 @@ export default function AdminDashboardClient({ session }: AdminDashboardClientPr
     }
   }
 
+  const handleSignOut = async () => {
+    try {
+      const response = await fetch('/api/admin/signout', {
+        method: 'POST'
+      })
+
+      if (response.ok) {
+        // Redirect to admin signin page
+        window.location.href = '/admin/signin'
+      } else {
+        console.error('Sign out failed')
+      }
+    } catch (error) {
+      console.error('Sign out error:', error)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -83,6 +102,13 @@ export default function AdminDashboardClient({ session }: AdminDashboardClientPr
                     {(session?.name || session?.email || 'A').charAt(0).toUpperCase()}
                   </span>
                 </div>
+                <button
+                  onClick={handleSignOut}
+                  className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  title="Sign Out"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
               </div>
             </div>
           </div>
@@ -166,7 +192,7 @@ export default function AdminDashboardClient({ session }: AdminDashboardClientPr
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-3 mb-6">
           <Link
             href="/admin/products/new"
             className="bg-white rounded-lg p-4 shadow-sm border border-gray-200/60 hover:shadow-md hover:border-brand-teal/30 transition-all group"
@@ -268,6 +294,21 @@ export default function AdminDashboardClient({ session }: AdminDashboardClientPr
               <div>
                 <p className="font-medium text-gray-900 text-sm">AI Content</p>
                 <p className="text-xs text-gray-500">Generate</p>
+              </div>
+            </div>
+          </Link>
+
+          <Link
+            href="/admin/users"
+            className="bg-white rounded-lg p-4 shadow-sm border border-gray-200/60 hover:shadow-md hover:border-cyan-500/30 transition-all group"
+          >
+            <div className="flex flex-col items-center text-center space-y-2">
+              <div className="p-2 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg group-hover:scale-110 transition-transform">
+                <Users className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <p className="font-medium text-gray-900 text-sm">Users</p>
+                <p className="text-xs text-gray-500">Manage</p>
               </div>
             </div>
           </Link>
