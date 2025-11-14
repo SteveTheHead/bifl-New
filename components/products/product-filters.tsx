@@ -122,7 +122,17 @@ export function ProductFilters({ onFiltersChange, categories, allCategories, pro
 
     setSearch(urlSearch)
     setSelectedCategories(categoryIds)
-  }, [searchParams])
+
+    // When navigating to clean URL (Clear All), reset all other filters too
+    if (!urlSearch && !urlCategories) {
+      setSelectedBrands([])
+      setSelectedBadges([])
+      setSelectedScoreRanges([])
+      setSelectedCountries([])
+      setSortBy('score-desc')
+      setPriceRange(initialPriceRange)
+    }
+  }, [searchParams, initialPriceRange])
 
   // Calculate price range from currently filtered products (excluding price filter)
   const filteredProductsForPriceCalc = useMemo(() => {
