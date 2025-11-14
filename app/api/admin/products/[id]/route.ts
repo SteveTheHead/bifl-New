@@ -17,6 +17,10 @@ export async function GET(
       .single()
 
     if (error) {
+      // Handle PGRST116 error (no rows returned) gracefully
+      if (error.code === 'PGRST116') {
+        return NextResponse.json({ error: 'Product not found' }, { status: 404 })
+      }
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 

@@ -112,13 +112,15 @@ export async function getProductById(id: string) {
     const { data, error } = await query.single()
 
     if (error) {
-      // Log more detailed error information
-      console.error('Error fetching product:',
-        `ID/Slug: ${id}, `,
-        `Code: ${error.code}, `,
-        `Message: ${error.message}, `,
-        `Details: ${JSON.stringify(error.details)}`
-      )
+      // Only log errors that aren't "not found" (PGRST116 is expected when product doesn't exist)
+      if (error.code !== 'PGRST116') {
+        console.error('Error fetching product:',
+          `ID/Slug: ${id}, `,
+          `Code: ${error.code}, `,
+          `Message: ${error.message}, `,
+          `Details: ${JSON.stringify(error.details)}`
+        )
+      }
       return null
     }
 

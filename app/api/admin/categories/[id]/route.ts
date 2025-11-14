@@ -26,7 +26,16 @@ export async function GET(
       .eq('id', categoryId)
       .single()
 
-    if (error) throw error
+    if (error) {
+      // Handle PGRST116 error (no rows returned) gracefully
+      if (error.code === 'PGRST116') {
+        return NextResponse.json(
+          { error: 'Category not found' },
+          { status: 404 }
+        )
+      }
+      throw error
+    }
 
     if (!category) {
       return NextResponse.json(
@@ -77,8 +86,21 @@ export async function PUT(
       .eq('id', categoryId)
       .single()
 
+    if (fetchError) {
+      // Handle PGRST116 error (no rows returned) gracefully
+      if (fetchError.code === 'PGRST116') {
+        return NextResponse.json(
+          { error: 'Category not found' },
+          { status: 404 }
+        )
+      }
+      return NextResponse.json(
+        { error: 'Failed to fetch category' },
+        { status: 500 }
+      )
+    }
 
-    if (fetchError || !existingCategory) {
+    if (!existingCategory) {
       return NextResponse.json(
         { error: 'Category not found' },
         { status: 404 }
