@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useSearchParams } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { ProductFilters } from './product-filters'
 import BadgeDisplay from '@/components/BadgeDisplay'
@@ -374,6 +375,9 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
   // Mobile filter drawer state
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false)
 
+  // Watch URL params for changes (client-side navigation)
+  const searchParams = useSearchParams()
+
   // Calculate the actual min and max price from all products
   const priceRange = useMemo((): [number, number] => {
     const prices = initialProducts
@@ -400,12 +404,16 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
 
   // Update filters when URL parameters change (e.g., clicking category links)
   useEffect(() => {
+    const urlSearch = searchParams.get('search') || ''
+    const urlCategories = searchParams.get('categories')
+    const categoryIds = urlCategories ? urlCategories.split(',').filter(Boolean) : []
+
     setFilters(prev => ({
       ...prev,
-      search: initialSearch,
-      categories: initialCategories
+      search: urlSearch,
+      categories: categoryIds
     }))
-  }, [initialSearch, initialCategories])
+  }, [searchParams])
 
   // Stable callback for filter changes
   const handleFiltersChange = useCallback((newFilters: typeof filters) => {
