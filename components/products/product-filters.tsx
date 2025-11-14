@@ -114,6 +114,16 @@ export function ProductFilters({ onFiltersChange, categories, allCategories, pro
   const [showBrandDropdown, setShowBrandDropdown] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
+  // Sync internal state with URL params (for category header links and Clear All)
+  useEffect(() => {
+    const urlSearch = searchParams.get('search') || ''
+    const urlCategories = searchParams.get('categories')
+    const categoryIds = urlCategories ? urlCategories.split(',').filter(Boolean) : []
+
+    setSearch(urlSearch)
+    setSelectedCategories(categoryIds)
+  }, [searchParams])
+
   // Calculate price range from currently filtered products (excluding price filter)
   const filteredProductsForPriceCalc = useMemo(() => {
     if (!products || products.length === 0) return []

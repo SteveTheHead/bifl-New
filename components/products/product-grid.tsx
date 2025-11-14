@@ -775,8 +775,8 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
               <button
                 onClick={() => {
                   // Navigate to clean URL to clear all filters
+                  // The URL change will trigger useEffect to update filters from URL params
                   router.push('/products')
-                  setResetTrigger(prev => prev + 1)
                 }}
                 className="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors text-sm font-medium"
               >
@@ -855,8 +855,8 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
               <button
                 onClick={() => {
                   // Navigate to clean URL to clear all filters
+                  // The URL change will trigger useEffect to update filters from URL params
                   router.push('/products')
-                  setResetTrigger(prev => prev + 1)
                 }}
                 className="inline-flex items-center px-6 py-3 bg-brand-teal text-white rounded-lg hover:bg-brand-teal/90 transition-colors font-medium"
               >
