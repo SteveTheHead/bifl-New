@@ -374,7 +374,7 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false)
 
   // Calculate the actual min and max price from all products
-  const priceRange = useMemo(() => {
+  const priceRange = useMemo((): [number, number] => {
     const prices = initialProducts
       .map(p => parseFloat(p.price?.toString() || '0'))
       .filter(p => !isNaN(p) && p > 0)
