@@ -106,7 +106,7 @@ export function CategoryNav() {
           </div>
 
           {/* Desktop: Category Links - Single Row (no Categories button) */}
-          <div className="hidden lg:flex items-center gap-1 flex-1 justify-start">
+          <div className="hidden lg:flex items-center gap-1 flex-1 justify-center">
             {categories.map((category) => (
               <Link
                 key={category.id}

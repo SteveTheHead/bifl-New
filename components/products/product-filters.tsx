@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
 import { Search } from 'lucide-react'
 
 interface Product {
@@ -95,9 +94,11 @@ interface FilterProps {
   categories: Category[]
   allCategories?: Category[]
   products: Product[]
+  currentPriceRange?: [number, number]
+  resetTrigger?: number
 }
 
-export function ProductFilters({ onFiltersChange, categories, allCategories, products }: FilterProps) {
+export function ProductFilters({ onFiltersChange, categories, allCategories, products, currentPriceRange, resetTrigger }: FilterProps) {
   const searchParams = useSearchParams()
   const router = useRouter()
   const pathname = usePathname()
@@ -234,6 +235,31 @@ export function ProductFilters({ onFiltersChange, categories, allCategories, pro
       Math.max(prev[1], priceStats.max)  // Expand to include higher prices if needed
     ])
   }, [priceStats.min, priceStats.max])
+
+  // Sync price range when parent resets filters (only when it matches initial range)
+  useEffect(() => {
+    if (currentPriceRange &&
+        currentPriceRange[0] === initialPriceRange[0] &&
+        currentPriceRange[1] === initialPriceRange[1] &&
+        (priceRange[0] !== initialPriceRange[0] || priceRange[1] !== initialPriceRange[1])) {
+      // Only reset if current price range doesn't match initial but incoming does (filter reset)
+      setPriceRange(currentPriceRange)
+    }
+  }, [currentPriceRange, initialPriceRange, priceRange])
+
+  // Reset all internal state when resetTrigger changes
+  useEffect(() => {
+    if (resetTrigger !== undefined && resetTrigger > 0) {
+      setSearch('')
+      setSelectedCategories([])
+      setSelectedBrands([])
+      setSelectedBadges([])
+      setSelectedScoreRanges([])
+      setSelectedCountries([])
+      setPriceRange(initialPriceRange)
+      setSortBy('score-desc')
+    }
+  }, [resetTrigger, initialPriceRange])
 
   // Update parent when filters change
   useEffect(() => {
@@ -735,13 +761,12 @@ export function ProductFilters({ onFiltersChange, categories, allCategories, pro
           </div>
 
           {/* Clear Filters */}
-          <Button
+          <button
             onClick={clearAllFilters}
-            variant="outline"
-            className="w-full"
+            className="w-full px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors font-medium"
           >
             Clear All Filters
-          </Button>
+          </button>
         </div>
       </div>
     </aside>

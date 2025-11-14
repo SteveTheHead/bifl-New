@@ -395,6 +395,7 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
 
   const [displayCount, setDisplayCount] = useState(48)
   const [pageSize, setPageSize] = useState(48)
+  const [resetTrigger, setResetTrigger] = useState(0)
 
   // Stable callback for filter changes
   const handleFiltersChange = useCallback((newFilters: typeof filters) => {
@@ -553,7 +554,7 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
     }
 
     // Category filter (include subcategories)
-    if (filters.categories.length > 0) {
+    if (filters.categories && filters.categories.length > 0) {
       // Build a list of all category IDs including subcategories
       const categoryIdsToMatch: string[] = []
       filters.categories.forEach(categoryId => {
@@ -571,14 +572,14 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
     }
 
     // Brand filter
-    if (filters.brands.length > 0) {
+    if (filters.brands && filters.brands.length > 0) {
       filtered = filtered.filter(product =>
         filters.brands.includes(product.brand_name || '')
       )
     }
 
     // Badge filter
-    if (filters.badges.length > 0) {
+    if (filters.badges && filters.badges.length > 0) {
       filtered = filtered.filter(product => {
         const productBadges = product.bifl_certification || calculateBadges(product)
         return filters.badges.some(badge => productBadges.includes(badge))
@@ -586,7 +587,7 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
     }
 
     // Score range filter
-    if (filters.scoreRanges.length > 0) {
+    if (filters.scoreRanges && filters.scoreRanges.length > 0) {
       filtered = filtered.filter(product => {
         const score = product.bifl_total_score || 0
         return filters.scoreRanges.some(range => {
@@ -603,7 +604,7 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
     }
 
     // Country filter
-    if (filters.countries.length > 0) {
+    if (filters.countries && filters.countries.length > 0) {
       filtered = filtered.filter(product =>
         filters.countries.includes((product as any).country_of_origin)
       )
@@ -612,12 +613,14 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
     // Price range filter
     // IMPORTANT: Always include products with null/0 prices to avoid hiding products with missing data
     // Bug fix: Previously filtered out 6 products with null prices
-    filtered = filtered.filter(product => {
-      if (!product.price) return true // Include products without prices
-      const price = parseFloat(product.price.toString())
-      if (isNaN(price) || price === 0) return true // Include products with invalid or zero prices
-      return price >= filters.priceRange[0] && price <= filters.priceRange[1]
-    })
+    if (filters.priceRange && filters.priceRange.length === 2) {
+      filtered = filtered.filter(product => {
+        if (!product.price) return true // Include products without prices
+        const price = parseFloat(product.price.toString())
+        if (isNaN(price) || price === 0) return true // Include products with invalid or zero prices
+        return price >= filters.priceRange[0] && price <= filters.priceRange[1]
+      })
+    }
 
     // Sort products
     // IMPORTANT: When there's an active search, prioritize search relevancy over sortBy
@@ -706,6 +709,8 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
             categories={categories}
             allCategories={allCategories || categories}
             products={initialProducts}
+            currentPriceRange={filters.priceRange}
+            resetTrigger={resetTrigger}
           />
         </div>
       </div>
@@ -718,11 +723,58 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
             categories={categories}
             allCategories={allCategories || categories}
             products={initialProducts}
+            currentPriceRange={filters.priceRange}
+            resetTrigger={resetTrigger}
           />
         </div>
 
         {/* Product Grid Container - Full width on mobile, 9 cols on desktop */}
         <div className="col-span-12 lg:col-span-9">
+        {/* Active Filters Indicator */}
+        {(() => {
+          const hasActiveFilters =
+            (filters.search && filters.search !== '') ||
+            (filters.categories && filters.categories.length > 0) ||
+            (filters.brands && filters.brands.length > 0) ||
+            (filters.badges && filters.badges.length > 0) ||
+            (filters.scoreRanges && filters.scoreRanges.length > 0) ||
+            (filters.countries && filters.countries.length > 0) ||
+            (filters.priceRange && priceRange && (filters.priceRange[0] !== priceRange[0] || filters.priceRange[1] !== priceRange[1]))
+
+          return hasActiveFilters ? (
+            <div className="mb-4 p-4 bg-teal-50 border-2 border-teal-400 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <p className="text-sm text-gray-900 flex-1">
+                <span className="font-semibold">Filters active:</span>
+                {filters.search && <span className="ml-2">Search: "{filters.search}"</span>}
+                {filters.categories && filters.categories.length > 0 && <span className="ml-2">• {filters.categories.length} {filters.categories.length === 1 ? 'category' : 'categories'}</span>}
+                {filters.brands && filters.brands.length > 0 && <span className="ml-2">• {filters.brands.length} {filters.brands.length === 1 ? 'brand' : 'brands'}</span>}
+                {filters.badges && filters.badges.length > 0 && <span className="ml-2">• {filters.badges.length} {filters.badges.length === 1 ? 'badge' : 'badges'}</span>}
+                {filters.scoreRanges && filters.scoreRanges.length > 0 && <span className="ml-2">• Score filter</span>}
+                {filters.countries && filters.countries.length > 0 && <span className="ml-2">• {filters.countries.length} {filters.countries.length === 1 ? 'country' : 'countries'}</span>}
+                {filters.priceRange && priceRange && (filters.priceRange[0] !== priceRange[0] || filters.priceRange[1] !== priceRange[1]) && <span className="ml-2">• Price range</span>}
+              </p>
+              <button
+                onClick={() => {
+                  setFilters({
+                    search: '',
+                    categories: [],
+                    brands: [],
+                    badges: [],
+                    scoreRanges: [],
+                    countries: [],
+                    priceRange: priceRange,
+                    sortBy: filters.sortBy || 'score-desc'
+                  })
+                  setResetTrigger(prev => prev + 1)
+                }}
+                className="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors text-sm font-medium"
+              >
+                <X className="w-4 h-4 mr-1" />
+                Clear All
+              </button>
+            </div>
+          ) : null
+        })()}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
             <p className="text-brand-gray text-sm sm:text-base">
@@ -786,9 +838,28 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
                 <div className="w-10 h-10 bg-brand-teal/20 rounded-full"></div>
               </div>
               <h3 className="text-2xl font-bold text-brand-dark mb-3">No products found</h3>
-              <p className="text-brand-gray max-w-md mx-auto">
+              <p className="text-brand-gray max-w-md mx-auto mb-6">
                 Try adjusting your filters or search terms to find more products.
               </p>
+              <button
+                onClick={() => {
+                  setFilters({
+                    search: '',
+                    categories: [],
+                    brands: [],
+                    badges: [],
+                    scoreRanges: [],
+                    countries: [],
+                    priceRange: priceRange,
+                    sortBy: 'score-desc'
+                  })
+                  setResetTrigger(prev => prev + 1)
+                }}
+                className="inline-flex items-center px-6 py-3 bg-brand-teal text-white rounded-lg hover:bg-brand-teal/90 transition-colors font-medium"
+              >
+                <X className="w-4 h-4 mr-2" />
+                Clear All Filters
+              </button>
             </CardContent>
           </Card>
         )}

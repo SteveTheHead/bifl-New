@@ -62,17 +62,17 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     return (
       <div className="bg-brand-cream text-brand-dark">
         {/* Hero Section */}
-        <section className="bg-white text-center py-20 border-b border-gray-200">
+        <section className="bg-white text-center py-8 border-b border-gray-200">
           <div className="container mx-auto px-4">
-            <h1 className="text-5xl font-bold tracking-tight mb-4">All BIFL Products</h1>
-            <p className="text-lg text-brand-gray max-w-2xl mx-auto">
+            <h1 className="text-4xl font-bold tracking-tight mb-2">All BIFL Products</h1>
+            <p className="text-base text-brand-gray max-w-2xl mx-auto">
               Explore our full database of durable, high-quality products. Filter by category or BIFL score to find exactly what you need.
             </p>
           </div>
         </section>
 
         {/* Product Grid Section */}
-        <section className="py-16">
+        <section className="py-8">
           <div className="container mx-auto px-12">
             <ProductGrid
               initialProducts={products || []}
