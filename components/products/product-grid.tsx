@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { ProductFilters } from './product-filters'
 import BadgeDisplay from '@/components/BadgeDisplay'
@@ -377,6 +377,7 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
 
   // Watch URL params for changes (client-side navigation)
   const searchParams = useSearchParams()
+  const router = useRouter()
 
   // Calculate the actual min and max price from all products
   const priceRange = useMemo((): [number, number] => {
@@ -773,16 +774,8 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
               </p>
               <button
                 onClick={() => {
-                  setFilters({
-                    search: '',
-                    categories: [],
-                    brands: [],
-                    badges: [],
-                    scoreRanges: [],
-                    countries: [],
-                    priceRange: priceRange,
-                    sortBy: filters.sortBy || 'score-desc'
-                  })
+                  // Navigate to clean URL to clear all filters
+                  router.push('/products')
                   setResetTrigger(prev => prev + 1)
                 }}
                 className="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors text-sm font-medium"
@@ -861,16 +854,8 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
               </p>
               <button
                 onClick={() => {
-                  setFilters({
-                    search: '',
-                    categories: [],
-                    brands: [],
-                    badges: [],
-                    scoreRanges: [],
-                    countries: [],
-                    priceRange: priceRange,
-                    sortBy: 'score-desc'
-                  })
+                  // Navigate to clean URL to clear all filters
+                  router.push('/products')
                   setResetTrigger(prev => prev + 1)
                 }}
                 className="inline-flex items-center px-6 py-3 bg-brand-teal text-white rounded-lg hover:bg-brand-teal/90 transition-colors font-medium"
