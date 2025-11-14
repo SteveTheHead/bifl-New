@@ -367,9 +367,10 @@ interface ProductGridProps {
   categories: Category[]
   allCategories?: Category[]
   initialSearch?: string
+  initialCategories?: string[]
 }
 
-export function ProductGrid({ initialProducts, categories, allCategories, initialSearch = '' }: ProductGridProps) {
+export function ProductGrid({ initialProducts, categories, allCategories, initialSearch = '', initialCategories = [] }: ProductGridProps) {
   // Mobile filter drawer state
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false)
 
@@ -384,7 +385,7 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
 
   const [filters, setFilters] = useState({
     search: initialSearch,
-    categories: [] as string[],
+    categories: initialCategories,
     brands: [] as string[],
     badges: [] as string[],
     scoreRanges: [] as string[],
@@ -396,6 +397,15 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
   const [displayCount, setDisplayCount] = useState(48)
   const [pageSize, setPageSize] = useState(48)
   const [resetTrigger, setResetTrigger] = useState(0)
+
+  // Update filters when URL parameters change (e.g., clicking category links)
+  useEffect(() => {
+    setFilters(prev => ({
+      ...prev,
+      search: initialSearch,
+      categories: initialCategories
+    }))
+  }, [initialSearch, initialCategories])
 
   // Stable callback for filter changes
   const handleFiltersChange = useCallback((newFilters: typeof filters) => {

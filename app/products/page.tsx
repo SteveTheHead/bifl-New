@@ -7,7 +7,7 @@ import { ProductGrid } from '@/components/products/product-grid'
 export const revalidate = 1800 // Revalidate every 30 minutes
 
 interface ProductsPageProps {
-  searchParams: Promise<{ search?: string }>
+  searchParams: Promise<{ search?: string; categories?: string }>
 }
 
 // Generate metadata dynamically to handle search queries
@@ -48,7 +48,11 @@ export async function generateMetadata({ searchParams }: ProductsPageProps): Pro
 }
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
-  const { search } = await searchParams
+  const { search, categories } = await searchParams
+
+  // Parse categories from URL parameter (comma-separated if multiple, or single ID)
+  const initialCategoryIds = categories ? categories.split(',').filter(Boolean) : []
+
   try {
     // Get products and taxonomy data
     // Note: In dev mode this may be slow, but production with caching will be fast
@@ -79,6 +83,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
               categories={mainCategories || []}
               allCategories={allCategories || []}
               initialSearch={search || ''}
+              initialCategories={initialCategoryIds}
             />
           </div>
         </section>
