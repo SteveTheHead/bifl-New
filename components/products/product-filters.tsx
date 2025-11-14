@@ -114,26 +114,6 @@ export function ProductFilters({ onFiltersChange, categories, allCategories, pro
   const [showBrandDropdown, setShowBrandDropdown] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  // Sync internal state with URL params (for category header links and Clear All)
-  useEffect(() => {
-    const urlSearch = searchParams.get('search') || ''
-    const urlCategories = searchParams.get('categories')
-    const categoryIds = urlCategories ? urlCategories.split(',').filter(Boolean) : []
-
-    setSearch(urlSearch)
-    setSelectedCategories(categoryIds)
-
-    // When navigating to clean URL (Clear All), reset all other filters too
-    if (!urlSearch && !urlCategories) {
-      setSelectedBrands([])
-      setSelectedBadges([])
-      setSelectedScoreRanges([])
-      setSelectedCountries([])
-      setSortBy('score-desc')
-      setPriceRange(initialPriceRange)
-    }
-  }, [searchParams, initialPriceRange])
-
   // Calculate price range from currently filtered products (excluding price filter)
   const filteredProductsForPriceCalc = useMemo(() => {
     if (!products || products.length === 0) return []
@@ -230,23 +210,30 @@ export function ProductFilters({ onFiltersChange, categories, allCategories, pro
 
   const [priceRange, setPriceRange] = useState<[number, number]>(initialPriceRange)
 
-  // Initialize filters from URL parameters
+  // Sync internal state with URL params (for category header links and Clear All)
   useEffect(() => {
-    const searchParam = searchParams.get('search')
-    if (searchParam) {
-      setSearch(searchParam)
-    }
-
+    const urlSearch = searchParams.get('search') || ''
+    const urlCategories = searchParams.get('categories')
+    const categoryIds = urlCategories ? urlCategories.split(',').filter(Boolean) : []
     const badgeParam = searchParams.get('badge')
+
+    setSearch(urlSearch)
+    setSelectedCategories(categoryIds)
+
     if (badgeParam) {
       setSelectedBadges([badgeParam])
     }
 
-    const categoriesParam = searchParams.get('categories')
-    if (categoriesParam) {
-      setSelectedCategories([categoriesParam])
+    // When navigating to clean URL (Clear All), reset all other filters too
+    if (!urlSearch && !urlCategories && !badgeParam) {
+      setSelectedBrands([])
+      setSelectedBadges([])
+      setSelectedScoreRanges([])
+      setSelectedCountries([])
+      setSortBy('score-desc')
+      setPriceRange(initialPriceRange)
     }
-  }, [searchParams])
+  }, [searchParams, initialPriceRange])
 
   // Update price range when priceStats change (expand range if needed to show all filtered products)
   useEffect(() => {
