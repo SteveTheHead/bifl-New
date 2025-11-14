@@ -57,7 +57,8 @@ export function AddToCompareButton({
 
   const getVariantClasses = () => {
     if (inCompare) {
-      return 'bg-brand-dark text-white border-brand-dark hover:bg-brand-darker'
+      // Ensure good contrast - dark background with white text
+      return 'bg-gray-800 text-white border-gray-800 hover:bg-red-600 hover:border-red-600'
     }
 
     if (disabled) {

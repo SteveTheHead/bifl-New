@@ -145,9 +145,6 @@ export default async function HomePage() {
               <Link href="/products?badge=Lifetime%20Warranty" className="inline-block">
                 <BadgeDisplay certification="Lifetime Warranty" size="sm" />
               </Link>
-              <Link href="/products?badge=BIFL%20Approved" className="inline-block">
-                <BadgeDisplay certification="BIFL Approved" size="sm" />
-              </Link>
               <Link href="/products?badge=Repair%20Friendly" className="inline-block">
                 <BadgeDisplay certification="Repair Friendly" size="sm" />
               </Link>
