@@ -297,9 +297,9 @@ function SimpleProductCard({ product }: { product: Product }) {
 
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 text-center transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
-      <div className="relative mb-4">
+      <Link href={`/products/${product.slug}`} className="relative mb-4 block group/image">
         <Image
-          className="w-full h-56 object-contain"
+          className="w-full h-56 object-contain group-hover/image:scale-105 transition-transform duration-300"
           src={product.featured_image_url || '/placeholder-product.png'}
           alt={product.name || 'Product'}
           width={400}
@@ -310,7 +310,7 @@ function SimpleProductCard({ product }: { product: Product }) {
           size="xs"
           overlay={true}
         />
-      </div>
+      </Link>
       <h3 className="text-xl font-semibold">{product.name}</h3>
       <p className="text-brand-gray mb-4">{product.brand_name}</p>
       <div className="flex justify-center items-center gap-3 mb-6">

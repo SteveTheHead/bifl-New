@@ -79,13 +79,14 @@ export default function AdminReviews() {
   const [session, setSession] = useState<{name?: string; email?: string; isAdmin?: boolean} | null>(null)
   const [loading, setLoading] = useState(true)
   const [reviews, setReviews] = useState<Review[]>([])
+  const [counts, setCounts] = useState({ pending: 0, approved: 0, rejected: 0, all: 0 })
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending')
   const [selectedReview, setSelectedReview] = useState<Review | null>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
 
   const checkSession = useCallback(async () => {
     try {
-      const response = await fetch('/api/auth/simple-session')
+      const response = await fetch('/api/admin/session')
       const data = await response.json()
 
       if (data.isAuthenticated && data.user?.isAdmin) {
@@ -105,6 +106,9 @@ export default function AdminReviews() {
       const response = await fetch(`/api/admin/reviews?filter=${filter}`)
       const data = await response.json()
       setReviews(data.reviews || [])
+      if (data.counts) {
+        setCounts(data.counts)
+      }
     } catch (error) {
       console.error('Failed to fetch reviews:', error)
     }
@@ -210,10 +214,10 @@ export default function AdminReviews() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
           <div className="flex border-b border-gray-200">
             {[
-              { key: 'pending', label: 'Pending', count: reviews.filter(r => r.status === 'pending').length },
-              { key: 'approved', label: 'Approved', count: reviews.filter(r => r.status === 'approved').length },
-              { key: 'rejected', label: 'Rejected', count: reviews.filter(r => r.status === 'rejected').length },
-              { key: 'all', label: 'All', count: reviews.length }
+              { key: 'pending', label: 'Pending', count: counts.pending },
+              { key: 'approved', label: 'Approved', count: counts.approved },
+              { key: 'rejected', label: 'Rejected', count: counts.rejected },
+              { key: 'all', label: 'All', count: counts.all }
             ].map((tab) => (
               <button
                 key={tab.key}

@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react'
 import { SiAmazon, SiReddit, SiGoogle } from 'react-icons/si'
 import { useState, useEffect } from 'react'
 import { useRecentlyViewed } from '@/lib/hooks/use-recently-viewed'
@@ -234,8 +234,8 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-12 xl:gap-16 items-start">
 
-          {/* Product Information - Left Column */}
-          <div className="lg:col-span-2 space-y-10">
+          {/* Product Information - Right Column */}
+          <div className="lg:col-span-2 space-y-10 order-1 lg:order-2">
             {/* Product Header */}
             <section>
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">{product.name}</h1>
@@ -518,12 +518,14 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
             </div>
           </div>
 
-          {/* Product Sidebar - Right Column */}
-          <div className="lg:col-span-1 space-y-4 sm:space-y-6 lg:space-y-8 lg:sticky lg:top-24">
-            {/* BIFL Score Card */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center">
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <span className="text-lg font-bold">BIFL Total Score:</span>
+          {/* Product Sidebar - Left Column (Image & Scores) */}
+          <div className="lg:col-span-1 space-y-4 lg:sticky lg:top-24 order-2 lg:order-1">
+
+            {/* Compact Product Image & Score Overview */}
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+              {/* BIFL Score Badge */}
+              <div className="flex items-center justify-center gap-2 mb-3">
+                <span className="text-sm font-bold">BIFL Score:</span>
                 <div
                   className={scoreBadge.className}
                   data-score={scoreBadge.dataScore}
@@ -538,48 +540,52 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                   </div>
                 </div>
               </div>
-              <div className="bg-white rounded-lg p-4 border border-gray-100">
+
+              {/* Compact Product Image */}
+              <div className="bg-white rounded-lg p-2 border border-gray-100">
                 {product.featured_image_url ? (
                   <Image
                     src={product.featured_image_url}
                     alt={product.name || 'Product'}
-                    width={400}
-                    height={400}
-                    className="w-full h-56 object-contain"
+                    width={300}
+                    height={200}
+                    className="w-full h-36 object-contain"
                   />
                 ) : (
-                  <div className="w-full h-56 bg-white rounded-lg flex items-center justify-center">
+                  <div className="w-full h-36 bg-white rounded-lg flex items-center justify-center">
                     <span className="text-gray-500">No image available</span>
                   </div>
                 )}
               </div>
 
               {/* Badges */}
-              <div className="mt-4 flex justify-center">
+              <div className="mt-3 flex justify-center">
                 <BadgeDisplay product={product} size="xs" overlay={false} className="!flex !flex-row !gap-2" />
               </div>
 
-              <div className="mt-6 flex flex-col space-y-3">
+              <div className="mt-4 flex flex-col space-y-3">
                 {product.affiliate_link && (
                   <a
                     href={product.affiliate_link}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => trackAffiliateClick(product.id, product.name, product.affiliate_link!)}
-                    className="flex items-center justify-between w-full border border-gray-200 rounded-lg px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                    className="flex items-center justify-between w-full rounded-lg px-4 py-3 text-white font-bold transition-all shadow-md hover:shadow-lg hover:brightness-110 active:scale-[0.98]"
+                    style={{ backgroundColor: '#4A9D93' }}
                   >
-                    <div className="flex items-center">
-                      <div className="w-8 h-8 bg-orange-500 rounded mr-3 flex items-center justify-center text-white">
-                        <SiAmazon className="w-5 h-5" />
-                      </div>
-                      <span>Amazon</span>
+                    <div className="flex items-center gap-2.5">
+                      <SiAmazon className="w-5 h-5 flex-shrink-0" />
+                      <span className="leading-none">Buy on Amazon</span>
                     </div>
-                    <span className="font-bold">${product.price || '—'}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg leading-none">${product.price || '—'}</span>
+                      <ArrowRight className="w-4 h-4 flex-shrink-0" />
+                    </div>
                   </a>
                 )}
 
                 {/* Action Buttons */}
-                <div className="flex gap-3">
+                <div className="flex gap-3 justify-center">
                   <FavoriteButtonWithText
                     productId={product.id}
                     className="justify-center py-1 px-2 text-xs"
@@ -601,25 +607,14 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
               </div>
             </div>
 
-            {/* Product Scorecard */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-              <h3 className="text-xl font-bold mb-6">Product Scorecard</h3>
-              <div className="space-y-4">
+            {/* Detailed Product Scorecard */}
+            <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+              <h3 className="text-lg font-bold mb-4 text-center">Product Scorecard</h3>
+              <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="font-bold">BIFL TOTAL SCORE</span>
+                  <span className="text-sm font-bold">Durability Score</span>
                   <div
-                    className={scoreBadge.className}
-                    data-score={scoreBadge.dataScore}
-                  >
-                    <span className="text-sm font-bold">
-                      {totalScore.toFixed(1)}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="font-bold">Durability Score</span>
-                  <div
-                    className={getScoreBadgeStyle(product.durability_score || 0).className}
+                    className={`${getScoreBadgeStyle(product.durability_score || 0).className} !py-0.5`}
                     data-score={getScoreBadgeStyle(product.durability_score || 0).dataScore}
                   >
                     <span className="text-sm font-bold">
@@ -628,9 +623,9 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="font-bold">Repairability Score</span>
+                  <span className="text-sm font-bold">Repairability Score</span>
                   <div
-                    className={getScoreBadgeStyle(product.repairability_score || 0).className}
+                    className={`${getScoreBadgeStyle(product.repairability_score || 0).className} !py-0.5`}
                     data-score={getScoreBadgeStyle(product.repairability_score || 0).dataScore}
                   >
                     <span className="text-sm font-bold">
@@ -639,9 +634,9 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="font-bold">Social Score</span>
+                  <span className="text-sm font-bold">Social Score</span>
                   <div
-                    className={getScoreBadgeStyle(product.social_score || 0).className}
+                    className={`${getScoreBadgeStyle(product.social_score || 0).className} !py-0.5`}
                     data-score={getScoreBadgeStyle(product.social_score || 0).dataScore}
                   >
                     <span className="text-sm font-bold">
@@ -650,9 +645,9 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="font-bold">Warranty Score</span>
+                  <span className="text-sm font-bold">Warranty Score</span>
                   <div
-                    className={getScoreBadgeStyle(product.warranty_score || 0).className}
+                    className={`${getScoreBadgeStyle(product.warranty_score || 0).className} !py-0.5`}
                     data-score={getScoreBadgeStyle(product.warranty_score || 0).dataScore}
                   >
                     <span className="text-sm font-bold">
@@ -661,23 +656,21 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                   </div>
                 </div>
               </div>
-              <div className="mt-6 border-t border-gray-200 pt-6">
-                <p className="text-xs text-brand-gray text-center mb-4">
-                  Based on <span className="font-bold text-brand-dark">199</span> reviews
-                </p>
-                <div className="flex justify-center items-center space-x-6 text-2xl text-brand-gray">
-                  <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white">
-                    <SiAmazon className="w-5 h-5" />
+
+              <div className="mt-5 pt-5 border-t border-gray-200">
+                <div className="flex justify-center items-center space-x-4">
+                  <div className="w-7 h-7 bg-orange-500 rounded-lg flex items-center justify-center text-white">
+                    <SiAmazon className="w-4 h-4" />
                   </div>
-                  <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center text-white">
-                    <SiReddit className="w-5 h-5" />
+                  <div className="w-7 h-7 bg-red-500 rounded-lg flex items-center justify-center text-white">
+                    <SiReddit className="w-4 h-4" />
                   </div>
-                  <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center text-white">
-                    <SiGoogle className="w-5 h-5" />
+                  <div className="w-7 h-7 bg-blue-500 rounded-lg flex items-center justify-center text-white">
+                    <SiGoogle className="w-4 h-4" />
                   </div>
                 </div>
-                <p className="text-xs text-brand-gray mt-6 leading-relaxed">
-                  We rate products using a 10-point scoring system focused on what matters most: durability, reliability, and repairability. Our scores are built from a wide net of sources: Amazon reviews, Reddit threads, expert opinions, brand sites, Google reviews, and what people are actually saying online.
+                <p className="text-xs text-brand-gray mt-4 leading-relaxed text-center">
+                  We rate products using a 10-point scoring system focused on what matters most: durability, reliability, and repairability.
                 </p>
               </div>
             </div>

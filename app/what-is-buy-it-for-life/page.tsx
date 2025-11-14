@@ -2,7 +2,6 @@ import { Metadata } from 'next'
 import Link from "next/link"
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
-import { FeedbackButton } from "@/components/feedback-button"
 
 export const metadata: Metadata = {
   title: 'What is Buy It For Life? | BIFL Philosophy & Movement',
@@ -46,8 +45,6 @@ export default function WhatIsBuyItForLife() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleStructuredData) }}
       />
-
-      <FeedbackButton />
 
       {/* Hero Section */}
       <section className="relative py-24 overflow-hidden bg-gradient-to-br from-brand-cream via-white to-brand-cream">

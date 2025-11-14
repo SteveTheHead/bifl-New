@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import BadgeDisplay from '@/components/BadgeDisplay'
 import { OrganizationStructuredData } from '@/components/seo/structured-data'
 import { NewsletterSection } from '@/components/homepage/newsletter-section'
-import { FeedbackButton } from '@/components/feedback-button'
+import { HeroProductCarousel } from '@/components/homepage/hero-product-carousel'
 
 // Enable dynamic rendering (required because we use Supabase cookies)
 export const dynamic = 'force-dynamic'
@@ -89,7 +89,7 @@ export default async function HomePage() {
       <OrganizationStructuredData />
 
       {/* Hero Section */}
-      <section className="relative h-[400px] sm:h-[500px] md:h-[600px] lg:h-[700px] overflow-hidden">
+      <section className="relative h-[500px] sm:h-[550px] md:h-[600px] lg:h-[650px] overflow-hidden">
         <div className="absolute inset-0">
           <Image
             src="/images/categories/hero Picture 1.png"
@@ -98,11 +98,13 @@ export default async function HomePage() {
             className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-black/50"></div>
+          <div className="absolute inset-0 bg-black/60"></div>
         </div>
 
         <div className="relative z-10 container mx-auto px-4 sm:px-6 h-full flex items-center">
-          <div className="max-w-4xl">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 w-full items-center">
+            {/* Left Column - Content */}
+            <div className="max-w-2xl">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-serif font-bold text-white mb-4 sm:mb-6 leading-tight">
               Buy Better. <span className="text-yellow-500">Once.</span>
             </h1>
@@ -150,18 +152,31 @@ export default async function HomePage() {
                 <BadgeDisplay certification="Repair Friendly" size="sm" />
               </Link>
             </div>
-
-            <Link
-              href="/products"
-              className="inline-flex items-center text-white px-4 sm:px-6 py-3 rounded-lg text-sm sm:text-base font-semibold hover:bg-opacity-90 transform hover:scale-105 transition-all duration-300 shadow-lg min-h-[44px]"
-              style={{ backgroundColor: '#4A9D93' }}
-            >
-              Browse The Directory
-              <svg className="w-4 h-4 sm:w-5 sm:h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
           </div>
+
+          {/* Right Column - Product Carousel */}
+          <div className="hidden lg:block">
+            <div className="relative bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-5 max-w-sm mx-auto">
+              {featuredProducts && featuredProducts.length > 0 && (
+                <HeroProductCarousel products={featuredProducts.slice(0, 6)} />
+              )}
+            </div>
+
+            {/* Browse Products Button */}
+            <div className="text-center mt-6">
+              <Link
+                href="/products"
+                className="inline-flex items-center text-white px-6 py-3 rounded-lg text-base font-semibold hover:bg-opacity-90 transform hover:scale-105 transition-all duration-300 shadow-lg"
+                style={{ backgroundColor: '#4A9D93' }}
+              >
+                Browse Products
+                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+          </div>
+        </div>
         </div>
 
       </section>
@@ -233,7 +248,7 @@ export default async function HomePage() {
           {/* Learn More Button */}
           <div className="text-center mt-12">
             <Link
-              href="/methodology"
+              href="/how-it-works"
               className="inline-flex items-center text-white px-6 py-3 rounded-lg text-base font-semibold hover:bg-opacity-90 transform hover:scale-105 transition-all duration-300 shadow-lg"
               style={{ backgroundColor: '#4A9D93' }}
             >
@@ -414,9 +429,6 @@ export default async function HomePage() {
 
       {/* Newsletter Section */}
       <NewsletterSection />
-
-      {/* Feedback Button - Fixed position */}
-      <FeedbackButton />
 
     </div>
   )

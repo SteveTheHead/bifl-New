@@ -534,7 +534,7 @@ export async function getFeaturedCurations() {
     .limit(6)
 
   if (error) {
-    console.error('Error fetching featured curations:', error)
+    // Silently return empty array - curations feature may not be set up yet
     return []
   }
 

@@ -8,9 +8,7 @@ interface FeedbackModalProps {
 }
 
 export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
-  const [feedbackType, setFeedbackType] = useState<string>('')
-  const [subject, setSubject] = useState<string>('')
-  const [details, setDetails] = useState<string>('')
+  const [feedback, setFeedback] = useState<string>('')
   const [contactName, setContactName] = useState<string>('')
   const [contactEmail, setContactEmail] = useState<string>('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
@@ -20,9 +18,9 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
     e.preventDefault()
 
     // Validation
-    if (!feedbackType || !subject || !details) {
+    if (!feedback || feedback.trim().length === 0) {
       setStatus('error')
-      setMessage('Please fill in all required fields')
+      setMessage('Please provide your feedback')
       return
     }
 
@@ -35,9 +33,9 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          feedback_type: feedbackType,
-          subject,
-          details,
+          feedback_type: 'general_idea',
+          subject: 'User Feedback',
+          details: feedback,
           contact_name: contactName || null,
           contact_email: contactEmail || null,
         }),
@@ -51,9 +49,7 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
 
         // Reset form after 2 seconds and close modal
         setTimeout(() => {
-          setFeedbackType('')
-          setSubject('')
-          setDetails('')
+          setFeedback('')
           setContactName('')
           setContactEmail('')
           setStatus('idle')
@@ -97,96 +93,20 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
 
         <div className="p-6">
           <p className="text-brand-gray mb-6">
-            Our goal is to build the most trusted resource for durable goods, and your feedback is a critical part of that process.
+            Share bugs, product suggestions, data corrections, or general ideas. Your feedback helps us build the most trusted resource for durable goods.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Feedback Type Radio Buttons */}
-            <div>
-              <label className="block text-brand-dark font-semibold mb-3">
-                What is your feedback about? <span className="text-red-500">*</span>
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <label className={`flex items-center space-x-3 cursor-pointer p-3 rounded-lg border-2 transition-colors ${
-                  feedbackType === 'website_bug' ? 'border-brand-teal bg-brand-teal/5' : 'border-gray-200 hover:border-brand-teal'
-                }`}>
-                  <input
-                    type="radio"
-                    name="feedback_type"
-                    value="website_bug"
-                    checked={feedbackType === 'website_bug'}
-                    onChange={(e) => setFeedbackType(e.target.value)}
-                    className="text-brand-teal focus:ring-brand-teal"
-                  />
-                  <span className="text-brand-dark font-medium">Website Bug</span>
-                </label>
-                <label className={`flex items-center space-x-3 cursor-pointer p-3 rounded-lg border-2 transition-colors ${
-                  feedbackType === 'product_suggestion' ? 'border-brand-teal bg-brand-teal/5' : 'border-gray-200 hover:border-brand-teal'
-                }`}>
-                  <input
-                    type="radio"
-                    name="feedback_type"
-                    value="product_suggestion"
-                    checked={feedbackType === 'product_suggestion'}
-                    onChange={(e) => setFeedbackType(e.target.value)}
-                    className="text-brand-teal focus:ring-brand-teal"
-                  />
-                  <span className="text-brand-dark font-medium">Product Suggestion</span>
-                </label>
-                <label className={`flex items-center space-x-3 cursor-pointer p-3 rounded-lg border-2 transition-colors ${
-                  feedbackType === 'data_correction' ? 'border-brand-teal bg-brand-teal/5' : 'border-gray-200 hover:border-brand-teal'
-                }`}>
-                  <input
-                    type="radio"
-                    name="feedback_type"
-                    value="data_correction"
-                    checked={feedbackType === 'data_correction'}
-                    onChange={(e) => setFeedbackType(e.target.value)}
-                    className="text-brand-teal focus:ring-brand-teal"
-                  />
-                  <span className="text-brand-dark font-medium">Data Correction</span>
-                </label>
-                <label className={`flex items-center space-x-3 cursor-pointer p-3 rounded-lg border-2 transition-colors ${
-                  feedbackType === 'general_idea' ? 'border-brand-teal bg-brand-teal/5' : 'border-gray-200 hover:border-brand-teal'
-                }`}>
-                  <input
-                    type="radio"
-                    name="feedback_type"
-                    value="general_idea"
-                    checked={feedbackType === 'general_idea'}
-                    onChange={(e) => setFeedbackType(e.target.value)}
-                    className="text-brand-teal focus:ring-brand-teal"
-                  />
-                  <span className="text-brand-dark font-medium">General Idea</span>
-                </label>
-              </div>
-            </div>
-
-            {/* Subject Field */}
+            {/* Single Feedback Textarea */}
             <div>
               <label className="block text-brand-dark font-semibold mb-2">
-                Subject <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                placeholder="e.g., Incorrect warranty information for Brand X"
-                disabled={status === 'loading' || status === 'success'}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-              />
-            </div>
-
-            {/* Details Textarea */}
-            <div>
-              <label className="block text-brand-dark font-semibold mb-2">
-                Details <span className="text-red-500">*</span>
+                Your Feedback <span className="text-red-500">*</span>
               </label>
               <textarea
-                rows={5}
-                value={details}
-                onChange={(e) => setDetails(e.target.value)}
-                placeholder="Please provide as much detail as possible. If suggesting a product, tell us why you think it's BIFL!"
+                rows={6}
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+                placeholder="Tell us about a bug, suggest a product, correct our data, or share any ideas you have..."
                 disabled={status === 'loading' || status === 'success'}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent resize-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
               ></textarea>

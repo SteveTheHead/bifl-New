@@ -7,6 +7,7 @@ import { Menu, X, Search, User, LogOut } from 'lucide-react'
 import { authClient } from '@/lib/auth-client'
 import { AISearch } from '../search/ai-search'
 import { useAuth } from '@/lib/contexts/auth-context'
+import { CategoryNav } from './category-nav'
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -51,7 +52,8 @@ export function Navbar() {
   }, [showUserMenu])
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <div className="sticky top-0 z-50">
+    <nav className="bg-white border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -249,5 +251,7 @@ export function Navbar() {
         )}
       </div>
     </nav>
+    <CategoryNav />
+    </div>
   )
 }

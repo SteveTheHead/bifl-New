@@ -8,12 +8,26 @@ export async function PATCH(
   try {
     const { reviewId } = await params
 
-    // Simple admin check - in production you'd want more robust auth
+    // Check admin session cookie
     const cookieHeader = request.headers.get('cookie') || ''
-    const isAdmin = cookieHeader.includes('admin-session=admin-authenticated')
+    const adminSessionMatch = cookieHeader.match(/admin-session=([^;]+)/)
 
-    if (!isAdmin) {
+    if (!adminSessionMatch) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    try {
+      const adminSession = JSON.parse(decodeURIComponent(adminSessionMatch[1]))
+
+      // Check if session is still valid (24 hours)
+      const sessionAge = Date.now() - (adminSession.loginTime || 0)
+      const maxAge = 24 * 60 * 60 * 1000 // 24 hours in milliseconds
+
+      if (sessionAge > maxAge) {
+        return NextResponse.json({ error: 'Session expired' }, { status: 401 })
+      }
+    } catch (parseError) {
+      return NextResponse.json({ error: 'Invalid session' }, { status: 401 })
     }
 
     const body = await request.json()

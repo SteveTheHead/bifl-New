@@ -36,9 +36,9 @@ export function ProductCard({ product, variant = 'vertical' }: ProductCardProps)
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 transition-all duration-300 hover:shadow-md hover:border-brand-teal/30">
         <div className="flex gap-4">
           {/* Image */}
-          <div className="relative w-32 h-32 flex-shrink-0">
+          <Link href={`/products/${product.slug || product.id}`} className="relative w-32 h-32 flex-shrink-0 group/image">
             <img
-              className="w-full h-full object-contain rounded-lg"
+              className="w-full h-full object-contain rounded-lg group-hover/image:scale-105 transition-transform duration-300"
               src={product.featured_image_url || '/placeholder-product.png'}
               alt={product.name || 'Product'}
             />
@@ -47,7 +47,7 @@ export function ProductCard({ product, variant = 'vertical' }: ProductCardProps)
               size="xs"
               overlay={true}
             />
-          </div>
+          </Link>
 
           {/* Content */}
           <div className="flex-1 min-w-0">
@@ -128,9 +128,9 @@ export function ProductCard({ product, variant = 'vertical' }: ProductCardProps)
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-brand-teal/30 hover:-translate-y-1">
       {/* Image */}
-      <div className="relative aspect-square p-4">
+      <Link href={`/products/${product.slug || product.id}`} className="relative aspect-square p-4 block group/image">
         <img
-          className="w-full h-full object-contain"
+          className="w-full h-full object-contain group-hover/image:scale-105 transition-transform duration-300"
           src={product.featured_image_url || '/placeholder-product.png'}
           alt={product.name || 'Product'}
         />
@@ -146,7 +146,7 @@ export function ProductCard({ product, variant = 'vertical' }: ProductCardProps)
             </span>
           </div>
         )}
-      </div>
+      </Link>
 
       {/* Content */}
       <div className="p-4">

@@ -112,7 +112,7 @@ export default function EditProductPage() {
 
   const checkSession = useCallback(async () => {
     try {
-      const response = await fetch('/api/auth/simple-session')
+      const response = await fetch('/api/admin/session')
       const data = await response.json()
 
       if (data.isAuthenticated && data.user?.isAdmin) {

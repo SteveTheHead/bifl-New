@@ -190,14 +190,14 @@ export function SimilarProductsCarousel({ currentProductId, categoryId }: Simila
                     <p className="text-brand-gray mb-4">{product.brand_name || 'Unknown Brand'}</p>
 
                     {/* Product Image */}
-                    <div className="relative w-full h-32 sm:h-36 lg:h-40 bg-white rounded-lg mb-3 overflow-hidden flex-shrink-0 border border-gray-100">
+                    <Link href={`/products/${product.slug}`} className="relative w-full h-32 sm:h-36 lg:h-40 bg-white rounded-lg mb-3 overflow-hidden flex-shrink-0 border border-gray-100 block group/image">
                       {product.featured_image_url ? (
                         <Image
                           src={product.featured_image_url}
                           alt={product.name}
                           width={300}
                           height={160}
-                          className="w-full h-full object-contain p-2"
+                          className="w-full h-full object-contain p-2 group-hover/image:scale-105 transition-transform duration-300"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
@@ -210,7 +210,7 @@ export function SimilarProductsCarousel({ currentProductId, categoryId }: Simila
                         overlay={true}
                       />
                       <FavoriteIcon productId={product.id} />
-                    </div>
+                    </Link>
 
                     {/* BIFL Score */}
                     <div className="flex items-center justify-center space-x-2 mb-4 flex-shrink-0">

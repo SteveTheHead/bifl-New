@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/utils/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { sb } from '@/lib/supabase-utils'
 import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
@@ -17,14 +17,17 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
 
-    // Add user_id and user_email to the review data
+    // Add user_email to the review data (reviews table uses user_email, not user_id)
     const reviewData = {
       ...body,
-      user_id: session.user.id,
       user_email: session.user.email
     }
 
-    const supabase = await createClient()
+    // Log the data being sent to help debug
+    console.log('Review data being inserted:', JSON.stringify(reviewData, null, 2))
+
+    // Use admin client to bypass RLS
+    const supabase = createAdminClient()
     const { error, data } = await sb.insert(supabase, 'reviews', [reviewData])
 
 

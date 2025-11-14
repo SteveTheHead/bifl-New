@@ -3,14 +3,26 @@ import { createClient } from '@supabase/supabase-js'
 
 export async function GET(request: NextRequest) {
   try {
-
-    // Simple admin check - in production you'd want more robust auth
+    // Check admin session cookie
     const cookieHeader = request.headers.get('cookie') || ''
-    const isAdmin = cookieHeader.includes('admin-session=admin-authenticated')
+    const adminSessionMatch = cookieHeader.match(/admin-session=([^;]+)/)
 
-
-    if (!isAdmin) {
+    if (!adminSessionMatch) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    try {
+      const adminSession = JSON.parse(decodeURIComponent(adminSessionMatch[1]))
+
+      // Check if session is still valid (24 hours)
+      const sessionAge = Date.now() - (adminSession.loginTime || 0)
+      const maxAge = 24 * 60 * 60 * 1000 // 24 hours in milliseconds
+
+      if (sessionAge > maxAge) {
+        return NextResponse.json({ error: 'Session expired' }, { status: 401 })
+      }
+    } catch (parseError) {
+      return NextResponse.json({ error: 'Invalid session' }, { status: 401 })
     }
 
     const { searchParams } = new URL(request.url)
@@ -46,13 +58,27 @@ export async function GET(request: NextRequest) {
 
     const { data, error } = await query
 
-
     if (error) {
       console.error('Admin Reviews API: Error fetching reviews:', error)
       return NextResponse.json({ error: error.message }, { status: 400 })
     }
 
-    return NextResponse.json({ reviews: data || [] })
+    // Get counts for all statuses
+    const { data: countData } = await supabase
+      .from('reviews')
+      .select('status', { count: 'exact', head: false })
+
+    const counts = {
+      pending: countData?.filter(r => r.status === 'pending').length || 0,
+      approved: countData?.filter(r => r.status === 'approved').length || 0,
+      rejected: countData?.filter(r => r.status === 'rejected').length || 0,
+      all: countData?.length || 0
+    }
+
+    return NextResponse.json({
+      reviews: data || [],
+      counts
+    })
 
   } catch (err) {
     console.error('API: Error:', err)

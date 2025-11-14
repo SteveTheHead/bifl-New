@@ -1,14 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import Image from "next/image";
-import { FeedbackButton } from "@/components/feedback-button";
+import { FeedbackModal } from "@/components/feedback-modal";
 
 export default function HowItWorks() {
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+
   return (
     <div className="min-h-screen">
-      <FeedbackButton />
       {/* The Process Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-6">
@@ -376,6 +378,30 @@ export default function HowItWorks() {
           </div>
         </div>
       </section>
+
+      {/* Help Us Improve Section */}
+      <section className="py-16 bg-brand-cream">
+        <div className="container mx-auto px-6">
+          <div className="border border-gray-200 rounded-2xl p-8 bg-white text-center max-w-3xl mx-auto">
+            <h2 className="text-3xl font-bold mb-2">Help Us Improve</h2>
+            <p className="text-brand-gray mb-6 max-w-xl mx-auto">
+              This site is for you. Help us make it better. We&apos;re constantly refining the way we score and present BIFL products. If something&apos;s missing, broken, or off — we want to hear from you.
+            </p>
+            <button
+              onClick={() => setIsFeedbackModalOpen(true)}
+              className="bg-gray-700 text-white font-bold py-3 px-8 rounded-lg hover:bg-gray-600 transition-colors"
+            >
+              Leave Us Feedback
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Feedback Modal */}
+      <FeedbackModal
+        isOpen={isFeedbackModalOpen}
+        onClose={() => setIsFeedbackModalOpen(false)}
+      />
     </div>
   );
 }
