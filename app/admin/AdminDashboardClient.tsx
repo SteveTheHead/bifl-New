@@ -74,51 +74,44 @@ export default function AdminDashboardClient({ session }: AdminDashboardClientPr
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 relative overflow-hidden">
-      {/* Animated Background Pattern */}
-      <div className="absolute inset-0 opacity-[0.03]" style={{
+    <div className="min-h-screen bg-gray-50 relative overflow-hidden">
+      {/* Subtle Background Pattern */}
+      <div className="absolute inset-0 opacity-[0.015]" style={{
         backgroundImage: `radial-gradient(circle at 1px 1px, rgb(0 0 0) 1px, transparent 0)`,
         backgroundSize: '40px 40px'
       }}></div>
 
-      {/* Background Gradient Orbs */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-brand-teal/20 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl"></div>
-
-      {/* Header with Glassmorphism */}
-      <header className="bg-white/70 backdrop-blur-xl shadow-sm border-b border-white/20 sticky top-0 z-10">
+      {/* Header - Clean Minimal */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-brand-teal via-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-brand-teal/20">
-                  <span className="text-white font-bold">B</span>
+                <div className="w-9 h-9 bg-gray-900 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">B</span>
                 </div>
-                <div>
-                  <h1 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Admin Dashboard</h1>
-                  <p className="text-xs text-gray-500">Welcome back</p>
-                </div>
+                <h1 className="text-lg font-semibold text-gray-900">Admin Dashboard</h1>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <Link
                 href="/"
-                className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 font-medium bg-white/60 hover:bg-white/80 backdrop-blur-sm rounded-lg transition-all border border-gray-200/50"
+                className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 font-medium hover:bg-gray-50 rounded-lg transition-colors"
               >
                 View Site
               </Link>
-              <div className="flex items-center space-x-3 pl-4 border-l border-gray-200/50">
-                <div className="text-sm text-gray-700 font-medium">
+              <div className="flex items-center space-x-3 pl-4 border-l border-gray-200">
+                <div className="text-sm text-gray-600">
                   {session?.name || session?.email}
                 </div>
-                <div className="w-9 h-9 bg-gradient-to-br from-brand-teal to-blue-600 rounded-full flex items-center justify-center ring-2 ring-white/50">
-                  <span className="text-white font-semibold text-sm">
+                <div className="w-8 h-8 bg-gray-900 rounded-full flex items-center justify-center">
+                  <span className="text-white font-medium text-xs">
                     {(session?.name || session?.email || 'A').charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <button
                   onClick={handleSignOut}
-                  className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50/80 rounded-lg transition-all backdrop-blur-sm"
+                  className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                   title="Sign Out"
                 >
                   <LogOut className="w-4 h-4" />
@@ -130,98 +123,97 @@ export default function AdminDashboardClient({ session }: AdminDashboardClientPr
       </header>
 
       <div className="max-w-7xl mx-auto px-6 py-8 relative z-0">
-        {/* Stats Grid with Glassmorphism */}
+        {/* Stats Grid - Minimal */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-          <div className="bg-white/60 backdrop-blur-lg rounded-2xl p-5 border border-white/40 shadow-xl shadow-brand-teal/5 hover:shadow-2xl hover:shadow-brand-teal/10 transition-all duration-300 hover:-translate-y-1 group">
+          <div className="bg-white rounded-lg p-4 border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Products</p>
-                <p className="text-2xl font-bold bg-gradient-to-br from-gray-900 to-gray-600 bg-clip-text text-transparent">{stats.totalProducts}</p>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Products</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.totalProducts}</p>
               </div>
-              <div className="p-3 bg-gradient-to-br from-brand-teal to-blue-600 rounded-xl shadow-lg shadow-brand-teal/30 group-hover:scale-110 transition-transform">
-                <Package className="w-5 h-5 text-white" />
+              <div className="p-2 bg-gray-100 rounded-lg">
+                <Package className="w-5 h-5 text-gray-600" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white/60 backdrop-blur-lg rounded-2xl p-5 border border-white/40 shadow-xl shadow-blue-500/5 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-1 group">
+          <div className="bg-white rounded-lg p-4 border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Categories</p>
-                <p className="text-2xl font-bold bg-gradient-to-br from-gray-900 to-gray-600 bg-clip-text text-transparent">{stats.totalCategories}</p>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Categories</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.totalCategories}</p>
               </div>
-              <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform">
-                <Tag className="w-5 h-5 text-white" />
+              <div className="p-2 bg-gray-100 rounded-lg">
+                <Tag className="w-5 h-5 text-gray-600" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white/60 backdrop-blur-lg rounded-2xl p-5 border border-white/40 shadow-xl shadow-purple-500/5 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300 hover:-translate-y-1 group">
+          <div className="bg-white rounded-lg p-4 border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Brands</p>
-                <p className="text-2xl font-bold bg-gradient-to-br from-gray-900 to-gray-600 bg-clip-text text-transparent">{stats.totalBrands}</p>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Brands</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.totalBrands}</p>
               </div>
-              <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform">
-                <Building2 className="w-5 h-5 text-white" />
+              <div className="p-2 bg-gray-100 rounded-lg">
+                <Building2 className="w-5 h-5 text-gray-600" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white/60 backdrop-blur-lg rounded-2xl p-5 border border-white/40 shadow-xl shadow-yellow-500/5 hover:shadow-2xl hover:shadow-yellow-500/10 transition-all duration-300 hover:-translate-y-1 group">
+          <div className="bg-white rounded-lg p-4 border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Reviews</p>
-                <p className="text-2xl font-bold bg-gradient-to-br from-gray-900 to-gray-600 bg-clip-text text-transparent">{stats.totalReviews}</p>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Reviews</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.totalReviews}</p>
               </div>
-              <div className="p-3 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl shadow-lg shadow-yellow-500/30 group-hover:scale-110 transition-transform">
-                <Star className="w-5 h-5 text-white" />
+              <div className="p-2 bg-gray-100 rounded-lg">
+                <Star className="w-5 h-5 text-gray-600" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white/60 backdrop-blur-lg rounded-2xl p-5 border border-white/40 shadow-xl shadow-green-500/5 hover:shadow-2xl hover:shadow-green-500/10 transition-all duration-300 hover:-translate-y-1 group">
+          <div className="bg-white rounded-lg p-4 border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">BIFL Score</p>
-                <p className="text-2xl font-bold bg-gradient-to-br from-gray-900 to-gray-600 bg-clip-text text-transparent">{stats.avgBiflScore.toFixed(1)}</p>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">BIFL Score</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.avgBiflScore.toFixed(1)}</p>
               </div>
-              <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg shadow-green-500/30 group-hover:scale-110 transition-transform">
-                <BarChart3 className="w-5 h-5 text-white" />
+              <div className="p-2 bg-gray-100 rounded-lg">
+                <BarChart3 className="w-5 h-5 text-gray-600" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white/60 backdrop-blur-lg rounded-2xl p-5 border border-white/40 shadow-xl shadow-cyan-500/5 hover:shadow-2xl hover:shadow-cyan-500/10 transition-all duration-300 hover:-translate-y-1 group">
+          <div className="bg-white rounded-lg p-4 border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">This Week</p>
-                <p className="text-2xl font-bold bg-gradient-to-br from-gray-900 to-gray-600 bg-clip-text text-transparent">{stats.newProductsThisWeek}</p>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">This Week</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.newProductsThisWeek}</p>
               </div>
-              <div className="p-3 bg-gradient-to-br from-brand-teal to-cyan-600 rounded-xl shadow-lg shadow-cyan-500/30 group-hover:scale-110 transition-transform">
-                <TrendingUp className="w-5 h-5 text-white" />
+              <div className="p-2 bg-gray-100 rounded-lg">
+                <TrendingUp className="w-5 h-5 text-gray-600" />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Bento Box Grid - Modern Asymmetric Layout */}
+        {/* Quick Actions Grid - Minimal Bento */}
         <div className="mb-8">
-          <h2 className="text-lg font-bold text-gray-900 mb-4 px-1">Quick Actions</h2>
-          <div className="grid grid-cols-4 md:grid-cols-8 lg:grid-cols-12 gap-4 auto-rows-[140px]">
-            {/* Featured: Add Product - Larger card */}
+          <h2 className="text-base font-semibold text-gray-900 mb-4">Quick Actions</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+            {/* Add Product */}
             <Link
               href="/admin/products/new"
-              className="col-span-2 row-span-2 bg-gradient-to-br from-brand-teal via-blue-500 to-purple-600 backdrop-blur-xl rounded-3xl p-6 shadow-2xl shadow-brand-teal/20 hover:shadow-brand-teal/40 transition-all duration-300 hover:scale-[1.02] group relative overflow-hidden"
+              className="bg-white rounded-lg p-4 border border-gray-200 hover:border-gray-900 hover:shadow-sm transition-all group"
             >
-              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <div className="relative h-full flex flex-col justify-between">
-                <div className="p-3 bg-white/20 backdrop-blur-sm rounded-2xl w-fit group-hover:scale-110 transition-transform">
-                  <Plus className="w-7 h-7 text-white" />
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="p-3 bg-gray-900 rounded-lg group-hover:bg-gray-800 transition-colors">
+                  <Plus className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <p className="font-bold text-white text-xl mb-1">Add Product</p>
-                  <p className="text-sm text-white/80">Create new product entry</p>
+                  <p className="font-medium text-gray-900 text-sm">Add Product</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Create new</p>
                 </div>
               </div>
             </Link>
@@ -229,15 +221,15 @@ export default function AdminDashboardClient({ session }: AdminDashboardClientPr
             {/* Curations */}
             <Link
               href="/admin/curations"
-              className="col-span-2 bg-white/60 backdrop-blur-lg rounded-2xl p-5 border border-white/40 shadow-xl hover:shadow-2xl hover:border-pink-500/40 transition-all duration-300 hover:-translate-y-1 group"
+              className="bg-white rounded-lg p-4 border border-gray-200 hover:border-gray-900 hover:shadow-sm transition-all group"
             >
-              <div className="h-full flex flex-col justify-between">
-                <div className="p-3 bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl w-fit shadow-lg shadow-pink-500/30 group-hover:scale-110 transition-transform">
-                  <LayoutGrid className="w-5 h-5 text-white" />
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="p-3 bg-gray-100 rounded-lg group-hover:bg-gray-900 transition-colors">
+                  <LayoutGrid className="w-5 h-5 text-gray-600 group-hover:text-white transition-colors" />
                 </div>
                 <div>
-                  <p className="font-bold text-gray-900 text-base">Curations</p>
-                  <p className="text-xs text-gray-600">Product collections</p>
+                  <p className="font-medium text-gray-900 text-sm">Curations</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Collections</p>
                 </div>
               </div>
             </Link>
@@ -245,15 +237,15 @@ export default function AdminDashboardClient({ session }: AdminDashboardClientPr
             {/* Categories */}
             <Link
               href="/admin/categories"
-              className="col-span-2 bg-white/60 backdrop-blur-lg rounded-2xl p-5 border border-white/40 shadow-xl hover:shadow-2xl hover:border-blue-500/40 transition-all duration-300 hover:-translate-y-1 group"
+              className="bg-white rounded-lg p-4 border border-gray-200 hover:border-gray-900 hover:shadow-sm transition-all group"
             >
-              <div className="h-full flex flex-col justify-between">
-                <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl w-fit shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform">
-                  <Tag className="w-5 h-5 text-white" />
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="p-3 bg-gray-100 rounded-lg group-hover:bg-gray-900 transition-colors">
+                  <Tag className="w-5 h-5 text-gray-600 group-hover:text-white transition-colors" />
                 </div>
                 <div>
-                  <p className="font-bold text-gray-900 text-base">Categories</p>
-                  <p className="text-xs text-gray-600">Organize products</p>
+                  <p className="font-medium text-gray-900 text-sm">Categories</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Organize</p>
                 </div>
               </div>
             </Link>
@@ -261,15 +253,15 @@ export default function AdminDashboardClient({ session }: AdminDashboardClientPr
             {/* Brands */}
             <Link
               href="/admin/brands"
-              className="col-span-2 bg-white/60 backdrop-blur-lg rounded-2xl p-5 border border-white/40 shadow-xl hover:shadow-2xl hover:border-purple-500/40 transition-all duration-300 hover:-translate-y-1 group"
+              className="bg-white rounded-lg p-4 border border-gray-200 hover:border-gray-900 hover:shadow-sm transition-all group"
             >
-              <div className="h-full flex flex-col justify-between">
-                <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl w-fit shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform">
-                  <Building2 className="w-5 h-5 text-white" />
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="p-3 bg-gray-100 rounded-lg group-hover:bg-gray-900 transition-colors">
+                  <Building2 className="w-5 h-5 text-gray-600 group-hover:text-white transition-colors" />
                 </div>
                 <div>
-                  <p className="font-bold text-gray-900 text-base">Brands</p>
-                  <p className="text-xs text-gray-600">Manage brands</p>
+                  <p className="font-medium text-gray-900 text-sm">Brands</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Manage</p>
                 </div>
               </div>
             </Link>
@@ -277,32 +269,31 @@ export default function AdminDashboardClient({ session }: AdminDashboardClientPr
             {/* Reviews */}
             <Link
               href="/admin/reviews"
-              className="col-span-2 bg-white/60 backdrop-blur-lg rounded-2xl p-5 border border-white/40 shadow-xl hover:shadow-2xl hover:border-yellow-500/40 transition-all duration-300 hover:-translate-y-1 group"
+              className="bg-white rounded-lg p-4 border border-gray-200 hover:border-gray-900 hover:shadow-sm transition-all group"
             >
-              <div className="h-full flex flex-col justify-between">
-                <div className="p-3 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl w-fit shadow-lg shadow-yellow-500/30 group-hover:scale-110 transition-transform">
-                  <Star className="w-5 h-5 text-white" />
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="p-3 bg-gray-100 rounded-lg group-hover:bg-gray-900 transition-colors">
+                  <Star className="w-5 h-5 text-gray-600 group-hover:text-white transition-colors" />
                 </div>
                 <div>
-                  <p className="font-bold text-gray-900 text-base">Reviews</p>
-                  <p className="text-xs text-gray-600">Moderate content</p>
+                  <p className="font-medium text-gray-900 text-sm">Reviews</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Moderate</p>
                 </div>
               </div>
             </Link>
 
-            {/* AI Content - Tall card */}
+            {/* AI Content */}
             <Link
               href="/admin/ai-content"
-              className="col-span-2 row-span-2 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-600 backdrop-blur-xl rounded-3xl p-6 shadow-2xl shadow-purple-500/20 hover:shadow-purple-500/40 transition-all duration-300 hover:scale-[1.02] group relative overflow-hidden"
+              className="bg-white rounded-lg p-4 border border-gray-200 hover:border-gray-900 hover:shadow-sm transition-all group"
             >
-              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <div className="relative h-full flex flex-col justify-between">
-                <div className="p-3 bg-white/20 backdrop-blur-sm rounded-2xl w-fit group-hover:scale-110 transition-transform">
-                  <Brain className="w-7 h-7 text-white" />
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="p-3 bg-gray-100 rounded-lg group-hover:bg-gray-900 transition-colors">
+                  <Brain className="w-5 h-5 text-gray-600 group-hover:text-white transition-colors" />
                 </div>
                 <div>
-                  <p className="font-bold text-white text-xl mb-1">AI Content</p>
-                  <p className="text-sm text-white/80">Generate with AI</p>
+                  <p className="font-medium text-gray-900 text-sm">AI Content</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Generate</p>
                 </div>
               </div>
             </Link>
@@ -310,15 +301,15 @@ export default function AdminDashboardClient({ session }: AdminDashboardClientPr
             {/* Feedback */}
             <Link
               href="/admin/feedback"
-              className="col-span-2 bg-white/60 backdrop-blur-lg rounded-2xl p-5 border border-white/40 shadow-xl hover:shadow-2xl hover:border-emerald-500/40 transition-all duration-300 hover:-translate-y-1 group"
+              className="bg-white rounded-lg p-4 border border-gray-200 hover:border-gray-900 hover:shadow-sm transition-all group"
             >
-              <div className="h-full flex flex-col justify-between">
-                <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl w-fit shadow-lg shadow-emerald-500/30 group-hover:scale-110 transition-transform">
-                  <MessageSquare className="w-5 h-5 text-white" />
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="p-3 bg-gray-100 rounded-lg group-hover:bg-gray-900 transition-colors">
+                  <MessageSquare className="w-5 h-5 text-gray-600 group-hover:text-white transition-colors" />
                 </div>
                 <div>
-                  <p className="font-bold text-gray-900 text-base">Feedback</p>
-                  <p className="text-xs text-gray-600">User feedback</p>
+                  <p className="font-medium text-gray-900 text-sm">Feedback</p>
+                  <p className="text-xs text-gray-500 mt-0.5">User input</p>
                 </div>
               </div>
             </Link>
@@ -326,15 +317,15 @@ export default function AdminDashboardClient({ session }: AdminDashboardClientPr
             {/* Users */}
             <Link
               href="/admin/users"
-              className="col-span-2 bg-white/60 backdrop-blur-lg rounded-2xl p-5 border border-white/40 shadow-xl hover:shadow-2xl hover:border-cyan-500/40 transition-all duration-300 hover:-translate-y-1 group"
+              className="bg-white rounded-lg p-4 border border-gray-200 hover:border-gray-900 hover:shadow-sm transition-all group"
             >
-              <div className="h-full flex flex-col justify-between">
-                <div className="p-3 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl w-fit shadow-lg shadow-cyan-500/30 group-hover:scale-110 transition-transform">
-                  <Users className="w-5 h-5 text-white" />
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="p-3 bg-gray-100 rounded-lg group-hover:bg-gray-900 transition-colors">
+                  <Users className="w-5 h-5 text-gray-600 group-hover:text-white transition-colors" />
                 </div>
                 <div>
-                  <p className="font-bold text-gray-900 text-base">Users</p>
-                  <p className="text-xs text-gray-600">Manage users</p>
+                  <p className="font-medium text-gray-900 text-sm">Users</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Manage</p>
                 </div>
               </div>
             </Link>
@@ -342,82 +333,88 @@ export default function AdminDashboardClient({ session }: AdminDashboardClientPr
             {/* Subscribers */}
             <Link
               href="/admin/subscribers"
-              className="col-span-2 bg-white/60 backdrop-blur-lg rounded-2xl p-5 border border-white/40 shadow-xl hover:shadow-2xl hover:border-green-500/40 transition-all duration-300 hover:-translate-y-1 group"
+              className="bg-white rounded-lg p-4 border border-gray-200 hover:border-gray-900 hover:shadow-sm transition-all group"
             >
-              <div className="h-full flex flex-col justify-between">
-                <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl w-fit shadow-lg shadow-green-500/30 group-hover:scale-110 transition-transform">
-                  <Mail className="w-5 h-5 text-white" />
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="p-3 bg-gray-100 rounded-lg group-hover:bg-gray-900 transition-colors">
+                  <Mail className="w-5 h-5 text-gray-600 group-hover:text-white transition-colors" />
                 </div>
                 <div>
-                  <p className="font-bold text-gray-900 text-base">Subscribers</p>
-                  <p className="text-xs text-gray-600">Newsletter list</p>
+                  <p className="font-medium text-gray-900 text-sm">Subscribers</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Newsletter</p>
+                </div>
+              </div>
+            </Link>
+
+            {/* All Products */}
+            <Link
+              href="/admin/products"
+              className="bg-white rounded-lg p-4 border border-gray-200 hover:border-gray-900 hover:shadow-sm transition-all group"
+            >
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="p-3 bg-gray-100 rounded-lg group-hover:bg-gray-900 transition-colors">
+                  <Package className="w-5 h-5 text-gray-600 group-hover:text-white transition-colors" />
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900 text-sm">All Products</p>
+                  <p className="text-xs text-gray-500 mt-0.5">View all</p>
                 </div>
               </div>
             </Link>
           </div>
         </div>
 
-        {/* Main Content Sections with Glassmorphism */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Main Content Sections - Minimal */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Recent Products */}
-          <div className="bg-white/60 backdrop-blur-lg rounded-2xl border border-white/40 shadow-xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-white/40 bg-gradient-to-r from-brand-teal/5 to-transparent">
+          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+            <div className="px-5 py-3 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <div className="p-2 bg-gradient-to-br from-brand-teal to-blue-600 rounded-lg">
-                    <ShoppingBag className="w-4 h-4 text-white" />
-                  </div>
-                  <h2 className="text-base font-bold text-gray-900">Recent Products</h2>
-                </div>
+                <h2 className="text-sm font-semibold text-gray-900">Recent Products</h2>
                 <Link
                   href="/admin/products"
-                  className="text-xs text-brand-teal hover:text-brand-teal/80 font-semibold transition-colors"
+                  className="text-xs text-gray-600 hover:text-gray-900 font-medium transition-colors"
                 >
                   View All →
                 </Link>
               </div>
             </div>
-            <div className="p-6">
-              <div className="text-center py-12">
-                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center">
-                  <ShoppingBag className="w-8 h-8 text-gray-400" />
+            <div className="p-5">
+              <div className="text-center py-8">
+                <div className="w-12 h-12 mx-auto mb-3 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <ShoppingBag className="w-6 h-6 text-gray-400" />
                 </div>
-                <p className="text-sm font-medium text-gray-600 mb-3">No recent products</p>
+                <p className="text-sm text-gray-600 mb-3">No recent products</p>
                 <Link
                   href="/admin/products/new"
-                  className="inline-flex items-center px-4 py-2 text-xs text-white font-semibold bg-gradient-to-r from-brand-teal to-blue-600 rounded-lg hover:shadow-lg hover:shadow-brand-teal/30 transition-all"
+                  className="inline-flex items-center px-3 py-1.5 text-xs text-white font-medium bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
                 >
                   <Plus className="w-3 h-3 mr-1" />
-                  Add your first product
+                  Add product
                 </Link>
               </div>
             </div>
           </div>
 
           {/* Pending Reviews */}
-          <div className="bg-white/60 backdrop-blur-lg rounded-2xl border border-white/40 shadow-xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-white/40 bg-gradient-to-r from-yellow-500/5 to-transparent">
+          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+            <div className="px-5 py-3 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <div className="p-2 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg">
-                    <Star className="w-4 h-4 text-white" />
-                  </div>
-                  <h2 className="text-base font-bold text-gray-900">Pending Reviews</h2>
-                </div>
+                <h2 className="text-sm font-semibold text-gray-900">Pending Reviews</h2>
                 <Link
                   href="/admin/reviews"
-                  className="text-xs text-brand-teal hover:text-brand-teal/80 font-semibold transition-colors"
+                  className="text-xs text-gray-600 hover:text-gray-900 font-medium transition-colors"
                 >
                   View All →
                 </Link>
               </div>
             </div>
-            <div className="p-6">
-              <div className="text-center py-12">
-                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center">
-                  <Star className="w-8 h-8 text-gray-400" />
+            <div className="p-5">
+              <div className="text-center py-8">
+                <div className="w-12 h-12 mx-auto mb-3 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <Star className="w-6 h-6 text-gray-400" />
                 </div>
-                <p className="text-sm font-medium text-gray-600">No pending reviews</p>
+                <p className="text-sm text-gray-600">No pending reviews</p>
               </div>
             </div>
           </div>
