@@ -110,7 +110,7 @@ export default async function HomePage() {
             </h1>
 
             <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8 max-w-3xl leading-relaxed">
-              Thoroughly researched BIFL products that have proven their worth through years of real-world testing. Every recommendation backed by community feedback and unbiased research.
+              Buy It For Life products verified for durability, repairability, and real-world performance. Every recommendation backed by years of actual use from real owners.
             </p>
 
             <div className="flex flex-wrap items-center gap-3 sm:gap-4 md:gap-6 lg:gap-8 mb-6 sm:mb-8">
@@ -118,13 +118,13 @@ export default async function HomePage() {
                 <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="#4A9D93" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
-                <span className="text-white font-medium text-sm sm:text-base">Community-verified</span>
+                <span className="text-white font-medium text-sm sm:text-base">Community-Verified</span>
               </div>
               <div className="flex items-center space-x-2">
                 <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="#4A9D93" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
-                <span className="text-white font-medium text-sm sm:text-base">Years of Real World Testing</span>
+                <span className="text-white font-medium text-sm sm:text-base">Real User Experience</span>
               </div>
               <div className="flex items-center space-x-2">
                 <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="#4A9D93" viewBox="0 0 20 20">
@@ -182,21 +182,21 @@ export default async function HomePage() {
       <section className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-serif font-bold text-brand-dark mb-6">Our Research Methodology</h2>
+            <h2 className="text-4xl font-serif font-bold text-brand-dark mb-6">Our Curation Process</h2>
             <p className="text-xl text-brand-gray max-w-3xl mx-auto">
-              We research and evaluate products extensively - but only the ones that truly prove their worth make it to our recommendations.
+              We collect and verify real-world user experiences - but only products that truly prove their worth make it to our recommendations.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
-            {/* Multi-Source Research */}
+            {/* Multi-Source Verification */}
             <div className="bg-brand-cream p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
               <div className="w-16 h-16 bg-transparent rounded-full flex items-center justify-center mb-6">
                 <svg className="w-8 h-8" fill="none" stroke="#4A9D93" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-brand-dark mb-4">Multi-Source Research</h3>
+              <h3 className="text-xl font-semibold text-brand-dark mb-4">Multi-Source Verification</h3>
               <p className="text-brand-gray">
                 We verify every product through manufacturer warranties, long-term user reviews, repair policies, and material quality analysis. No single source decides - the data does.
               </p>
@@ -224,7 +224,7 @@ export default async function HomePage() {
               </div>
               <h3 className="text-xl font-semibold text-brand-dark mb-4">Quality First, Always</h3>
               <p className="text-brand-gray">
-                Every product is evaluated on merit alone - durability, repairability, and real-world performance. We research everything we can, but only recommend products that truly earn it. Affiliate earnings simply help keep this research free.
+                Every product is evaluated on merit alone - durability, repairability, and real-world performance. We curate and verify everything we can, but only recommend products that truly earn it. Affiliate earnings simply help keep this service free.
               </p>
             </div>
 
@@ -381,7 +381,7 @@ export default async function HomePage() {
             <div className="text-center mb-8 sm:mb-12 md:mb-16">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-brand-dark mb-4 sm:mb-6">Curated Collections</h2>
               <p className="text-base sm:text-lg md:text-xl text-brand-gray max-w-3xl mx-auto px-4">
-                Expertly curated collections for every occasion, from holiday gifts to seasonal essentials.
+                Community-verified collections for every occasion, from holiday gifts to seasonal essentials.
               </p>
             </div>
 

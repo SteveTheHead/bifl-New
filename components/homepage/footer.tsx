@@ -9,7 +9,7 @@ export default function FooterSection() {
           <div className="md:col-span-2">
             <h3 className="text-xl font-bold text-brand-dark mb-3">Buy It For Life</h3>
             <p className="text-brand-gray mb-4 max-w-md">
-              Expert reviews of durable, long-lasting products. We help you find quality items worth buying once.
+              Community-verified durable, long-lasting products. We help you find quality items worth buying once.
             </p>
             <p className="text-sm text-brand-gray">
               © {new Date().getFullYear()} BuyItForLifeProducts.com. All rights reserved.
