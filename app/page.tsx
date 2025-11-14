@@ -14,13 +14,13 @@ export const revalidate = 3600 // Revalidate every hour
 
 // SEO Metadata
 export const metadata: Metadata = {
-  title: 'Buy It For Life - Expert Reviews of Durable Products That Last',
-  description: 'Discover 327+ expertly reviewed products built to last. Comprehensive BIFL ratings on durability, repairability, and warranty. Find quality items worth buying once.',
+  title: 'Buy It For Life - Community-Verified Durable Products That Last',
+  description: 'Discover 327+ community-verified products built to last. Comprehensive BIFL ratings on durability, repairability, and warranty. Find quality items worth buying once.',
   keywords: ['buy it for life', 'BIFL', 'durable products', 'lifetime warranty', 'quality products', 'sustainable shopping', 'long-lasting products'],
 
   openGraph: {
-    title: 'Buy It For Life - Expert Reviews of Durable Products That Last',
-    description: 'Discover 327+ expertly reviewed products built to last. Comprehensive BIFL ratings on durability, repairability, and warranty.',
+    title: 'Buy It For Life - Community-Verified Durable Products That Last',
+    description: 'Discover 327+ community-verified products built to last. Comprehensive BIFL ratings on durability, repairability, and warranty.',
     url: process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com',
     siteName: 'Buy It For Life',
     images: [
@@ -37,8 +37,8 @@ export const metadata: Metadata = {
 
   twitter: {
     card: 'summary_large_image',
-    title: 'Buy It For Life - Expert Reviews of Durable Products',
-    description: 'Discover 327+ expertly reviewed products built to last. Comprehensive BIFL ratings on durability, repairability, and warranty.',
+    title: 'Buy It For Life - Community-Verified Durable Products',
+    description: 'Discover 327+ community-verified products built to last. Comprehensive BIFL ratings on durability, repairability, and warranty.',
     images: ['/images/categories/hero Picture 1.png'],
   },
 

@@ -19,12 +19,12 @@ export async function generateMetadata({ searchParams }: ProductsPageProps): Pro
 
   return {
     title: 'All Products - Buy It For Life',
-    description: 'Browse 327+ expertly reviewed BIFL products. Filter by category, durability score, and price. Find quality items built to last a lifetime with comprehensive ratings.',
+    description: 'Browse 327+ community-verified BIFL products. Filter by category, durability score, and price. Find quality items built to last a lifetime with comprehensive ratings.',
     keywords: ['BIFL products', 'durable products', 'buy it for life catalog', 'quality products', 'long-lasting items'],
 
     openGraph: {
       title: 'All Products - Buy It For Life',
-      description: 'Browse 327+ expertly reviewed BIFL products. Filter by category, durability score, and price.',
+      description: 'Browse 327+ community-verified BIFL products. Filter by category, durability score, and price.',
       url: `${baseUrl}/products`,
       siteName: 'Buy It For Life',
       type: 'website',
@@ -33,7 +33,7 @@ export async function generateMetadata({ searchParams }: ProductsPageProps): Pro
     twitter: {
       card: 'summary',
       title: 'All Products - Buy It For Life',
-      description: 'Browse 327+ expertly reviewed BIFL products. Filter by category, durability score, and price.',
+      description: 'Browse 327+ community-verified BIFL products. Filter by category, durability score, and price.',
     },
 
     alternates: {
