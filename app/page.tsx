@@ -77,11 +77,35 @@ function getScoreLabel(score: number) {
 export default async function HomePage() {
   try {
     // Get categories, featured products, and featured curations from database
-    const [categories, featuredProducts, featuredCurations] = await Promise.all([
-      getCategories(),
-      getFeaturedProducts(),
-      getFeaturedCurations()
-    ])
+    console.log('[Homepage] Starting data fetch...')
+
+    let categories, featuredProducts, featuredCurations
+
+    try {
+      categories = await getCategories()
+      console.log('[Homepage] Categories loaded:', categories?.length || 0)
+    } catch (catErr) {
+      console.error('[Homepage] Categories error:', catErr)
+      categories = []
+    }
+
+    try {
+      featuredProducts = await getFeaturedProducts()
+      console.log('[Homepage] Featured products loaded:', featuredProducts?.length || 0)
+    } catch (prodErr) {
+      console.error('[Homepage] Featured products error:', prodErr)
+      featuredProducts = []
+    }
+
+    try {
+      featuredCurations = await getFeaturedCurations()
+      console.log('[Homepage] Curations loaded:', featuredCurations?.length || 0)
+    } catch (curErr) {
+      console.error('[Homepage] Curations error:', curErr)
+      featuredCurations = []
+    }
+
+    console.log('[Homepage] All data loaded successfully')
 
   return (
     <div className="bg-brand-cream font-sans">
