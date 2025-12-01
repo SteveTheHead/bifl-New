@@ -38,8 +38,13 @@ export async function GET(
       return NextResponse.json({ faqs: defaultFAQs })
     }
 
-    // If no FAQs exist for this product, return clean generated FAQs
+    // If no FAQs exist in product_faqs table, check for FAQs in the products table columns
     if (!faqs || faqs.length === 0) {
+      const productFAQs = getProductTableFAQs(product)
+      if (productFAQs.length > 0) {
+        return NextResponse.json({ faqs: productFAQs })
+      }
+      // Fall back to generated FAQs only if no FAQs exist anywhere
       const defaultFAQs = generateDefaultFAQs(product)
       return NextResponse.json({ faqs: defaultFAQs })
     }
@@ -50,6 +55,30 @@ export async function GET(
     console.error('API Error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
+}
+
+// Extract FAQs from the products table columns (faq_1_q, faq_1_a, etc.)
+function getProductTableFAQs(product: Product) {
+  const faqs = []
+
+  for (let i = 1; i <= 5; i++) {
+    const questionKey = `faq_${i}_q` as keyof Product
+    const answerKey = `faq_${i}_a` as keyof Product
+
+    const question = product[questionKey] as string | null
+    const answer = product[answerKey] as string | null
+
+    if (question && answer) {
+      faqs.push({
+        id: String(i),
+        question: question,
+        answer: answer,
+        display_order: i
+      })
+    }
+  }
+
+  return faqs
 }
 
 function generateDefaultFAQs(product: Product) {
