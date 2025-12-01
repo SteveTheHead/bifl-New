@@ -63,8 +63,8 @@ export default function HowItWorks() {
       <section className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-serif font-bold text-brand-dark mb-6">The Process</h2>
-            <h3 className="text-2xl font-semibold text-brand-dark mb-4">How We Actually Figure Out What's Built to Last</h3>
+            <h1 className="text-4xl font-serif font-bold text-brand-dark mb-6">How It Works</h1>
+            <h2 className="text-2xl font-semibold text-brand-dark mb-4">How We Actually Figure Out What's Built to Last</h2>
             <p className="text-xl text-brand-gray max-w-4xl mx-auto">
               We don&apos;t guess. We don&apos;t rely on opinions alone. We systematically dig through the internet&apos;s
               collective wisdom about durable goods, using research techniques and algorithms

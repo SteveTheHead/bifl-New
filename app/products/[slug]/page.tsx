@@ -40,7 +40,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           name: productData.name,
           description: productData.description || productData.excerpt || '',
           image: productData.featured_image_url || `${baseUrl}/logo.png`,
-          brand: productData.brand?.name || 'Unknown',
+          brand: productData.brands?.name || 'Unknown',
           aggregateRating: productData.star_rating ? {
             ratingValue: productData.star_rating,
             reviewCount: productData.review_count || 1, // Default to 1 if we have a rating but no review count
@@ -63,7 +63,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         items={[
           { name: 'Home', url: baseUrl },
           { name: 'Products', url: `${baseUrl}/products` },
-          ...(productData.category ? [{ name: productData.category.name, url: `${baseUrl}/categories/${productData.category.slug}` }] : []),
+          ...(productData.categories ? [{ name: productData.categories.name, url: `${baseUrl}/categories/${productData.categories.slug}` }] : []),
           { name: productData.name, url: `${baseUrl}/products/${productData.slug}` },
         ]}
       />
@@ -105,15 +105,19 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
   const productData = product as any
   const biflScore = productData.bifl_total_score || 0
-  const brandName = productData.brand?.name || 'Unknown Brand'
-  const categoryName = productData.category?.name || ''
+  const brandName = productData.brands?.name || 'Unknown Brand'
+  const categoryName = productData.categories?.name || ''
 
   // Create SEO-optimized title
   const title = `${productData.name} Review - BIFL Score ${biflScore}/10 | Buy It For Life`
 
   // Create SEO-optimized description
   const verdictSnippet = productData.verdict_summary?.substring(0, 100) || ''
-  const description = `${productData.name} by ${brandName} - BIFL Score: ${biflScore}/10. ${verdictSnippet} Expert review of durability, repairability, and warranty.`
+  const fullDescription = `${productData.name} by ${brandName} - BIFL Score: ${biflScore}/10. ${verdictSnippet} Expert review of durability, repairability, and warranty.`
+  // Truncate at word boundary to avoid cut-off words
+  const description = fullDescription.length <= 160
+    ? fullDescription
+    : fullDescription.substring(0, 157).replace(/\s+\S*$/, '') + '...'
 
   // Keywords
   const keywords = [
