@@ -10,6 +10,7 @@ import BadgeDisplay from '@/components/BadgeDisplay'
 import { AddToCompareButton } from '@/components/compare/add-to-compare-button'
 import { FavoriteButton } from '@/components/favorites/favorite-button'
 import { SlidersHorizontal, X } from 'lucide-react'
+import { trackProductSearch } from '@/lib/analytics'
 
 interface Product {
   id: string
@@ -341,6 +342,7 @@ function SimpleProductCard({ product }: { product: Product }) {
         <div className="flex justify-center items-center gap-2">
           <FavoriteButton
             productId={product.id}
+            productName={product.name}
             variant="small"
             className="border border-gray-300 bg-white hover:bg-gray-50"
           />
@@ -408,6 +410,11 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
     const urlSearch = searchParams.get('search') || ''
     const urlCategories = searchParams.get('categories')
     const categoryIds = urlCategories ? urlCategories.split(',').filter(Boolean) : []
+
+    // Track search event when a new search term is entered
+    if (urlSearch && urlSearch.trim()) {
+      trackProductSearch(urlSearch.trim())
+    }
 
     setFilters(prev => ({
       ...prev,

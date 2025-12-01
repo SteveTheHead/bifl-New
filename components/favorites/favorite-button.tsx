@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react'
 import { Heart } from 'lucide-react'
 import { useFavorites } from '@/lib/hooks/use-favorites'
+import { trackAddToFavorites, trackRemoveFromFavorites } from '@/lib/analytics'
 
 interface FavoriteButtonProps {
   productId: string
+  productName?: string
   variant?: 'default' | 'large' | 'small'
   showText?: boolean
   className?: string
@@ -13,6 +15,7 @@ interface FavoriteButtonProps {
 
 export function FavoriteButton({
   productId,
+  productName = '',
   variant = 'default',
   showText = false,
   className = ''
@@ -46,9 +49,19 @@ export function FavoriteButton({
       return
     }
 
+    // Track before toggling so we know current state
+    const wasAlreadyFavorite = isFavorite(productId)
+
     setIsLoading(true)
     await toggleFavorite(productId)
     setIsLoading(false)
+
+    // Track the action after successful toggle
+    if (wasAlreadyFavorite) {
+      trackRemoveFromFavorites(productId, productName)
+    } else {
+      trackAddToFavorites(productId, productName)
+    }
   }
 
   const isFav = isFavorite(productId)

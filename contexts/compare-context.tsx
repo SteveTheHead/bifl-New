@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { useLocalStorage } from '@/lib/hooks/use-local-storage'
+import { trackProductCompare } from '@/lib/analytics'
 
 interface Product {
   id: string
@@ -46,6 +47,8 @@ export function CompareProvider({ children }: CompareProviderProps) {
       // Auto-open modal when we have 2+ products
       if (newProducts.length >= 2) {
         setShowCompareModal(true)
+        // Track comparison when modal opens
+        trackProductCompare(newProducts.map(p => p.id))
       }
     }
   }

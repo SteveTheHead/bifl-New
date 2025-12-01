@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { trackNewsletterSignup } from '@/lib/analytics'
 
 export function NewsletterSection() {
   const [email, setEmail] = useState('')
@@ -33,6 +34,7 @@ export function NewsletterSection() {
         setStatus('success')
         setMessage('🎉 Thanks for subscribing! Check your email for confirmation.')
         setEmail('')
+        trackNewsletterSignup()
       } else {
         setStatus('error')
         setMessage(data.message || 'Something went wrong. Please try again.')

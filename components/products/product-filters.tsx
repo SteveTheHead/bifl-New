@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Search } from 'lucide-react'
+import { trackFilterUsage } from '@/lib/analytics'
 
 interface Product {
   id: string
@@ -296,7 +297,11 @@ export function ProductFilters({ onFiltersChange, categories, allCategories, pro
     }
   }, [])
 
-  const toggleCategory = (categoryId: string) => {
+  const toggleCategory = (categoryId: string, categoryName?: string) => {
+    const isAdding = !selectedCategories.includes(categoryId)
+    if (isAdding) {
+      trackFilterUsage('category', categoryName || categoryId)
+    }
     setSelectedCategories(prev =>
       prev.includes(categoryId)
         ? prev.filter(id => id !== categoryId)
@@ -305,6 +310,10 @@ export function ProductFilters({ onFiltersChange, categories, allCategories, pro
   }
 
   const toggleBrand = (brandId: string) => {
+    const isAdding = !selectedBrands.includes(brandId)
+    if (isAdding) {
+      trackFilterUsage('brand', brandId)
+    }
     setSelectedBrands(prev =>
       prev.includes(brandId)
         ? prev.filter(id => id !== brandId)
@@ -313,6 +322,10 @@ export function ProductFilters({ onFiltersChange, categories, allCategories, pro
   }
 
   const toggleBadge = (badge: string) => {
+    const isAdding = !selectedBadges.includes(badge)
+    if (isAdding) {
+      trackFilterUsage('badge', badge)
+    }
     setSelectedBadges(prev =>
       prev.includes(badge)
         ? prev.filter(b => b !== badge)
@@ -321,6 +334,10 @@ export function ProductFilters({ onFiltersChange, categories, allCategories, pro
   }
 
   const toggleScoreRange = (range: string) => {
+    const isAdding = !selectedScoreRanges.includes(range)
+    if (isAdding) {
+      trackFilterUsage('score_range', range)
+    }
     setSelectedScoreRanges(prev =>
       prev.includes(range)
         ? prev.filter(r => r !== range)
@@ -329,6 +346,10 @@ export function ProductFilters({ onFiltersChange, categories, allCategories, pro
   }
 
   const toggleCountry = (country: string) => {
+    const isAdding = !selectedCountries.includes(country)
+    if (isAdding) {
+      trackFilterUsage('country', country)
+    }
     setSelectedCountries(prev =>
       prev.includes(country)
         ? prev.filter(c => c !== country)
@@ -512,7 +533,7 @@ export function ProductFilters({ onFiltersChange, categories, allCategories, pro
                       <input
                         type="checkbox"
                         checked={selectedCategories.includes(category.id)}
-                        onChange={() => toggleCategory(category.id)}
+                        onChange={() => toggleCategory(category.id, category.name)}
                         className="w-4 h-4 text-brand-teal border-gray-300 rounded focus:ring-brand-teal"
                       />
                       <span>{category.name}</span>

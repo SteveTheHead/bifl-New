@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { FAQStructuredData, BreadcrumbStructuredData, ArticleStructuredData, ItemListStructuredData } from '@/components/seo/structured-data'
+import { GuideViewTracker } from '@/components/analytics/guide-view-tracker'
 
 interface Product {
   id: string
@@ -225,6 +226,9 @@ export default async function BuyingGuidePage({ params }: { params: Promise<{ sl
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Analytics Tracking */}
+      <GuideViewTracker guideSlug={guide.slug} guideTitle={guide.title} />
+
       {/* Structured Data for SEO */}
       {guide.faqs && guide.faqs.length > 0 && (
         <FAQStructuredData faqs={guide.faqs} />

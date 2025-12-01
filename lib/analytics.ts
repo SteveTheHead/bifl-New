@@ -83,6 +83,13 @@ export const trackCategoryView = (categoryName: string) => {
   })
 }
 
+export const trackGuideView = (guideSlug: string, guideTitle: string) => {
+  event('view_guide', {
+    guide_slug: guideSlug,
+    guide_title: guideTitle,
+  })
+}
+
 export const trackSignIn = (method: string) => {
   event('login', {
     method: method,
@@ -92,5 +99,11 @@ export const trackSignIn = (method: string) => {
 export const trackSignUp = (method: string) => {
   event('sign_up', {
     method: method,
+  })
+}
+
+export const trackNewsletterSignup = () => {
+  event('newsletter_signup', {
+    location: 'homepage',
   })
 }
