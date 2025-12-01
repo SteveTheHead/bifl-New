@@ -29,7 +29,8 @@ export async function getProducts(limit = 20, offset = 0) {
       repairability_score,
       warranty_score,
       sustainability_score,
-      social_score
+      social_score,
+      created_at
     `)
     .eq('status', 'published')
     .order('bifl_total_score', { ascending: false })
@@ -545,4 +546,31 @@ export async function getFeaturedCurations() {
     ...curation,
     product_count: curation.curation_products?.length || 0
   })) || []
+}
+
+// Buying guide queries
+export async function getPublishedGuides(limit = 6) {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('buying_guides')
+    .select(`
+      id,
+      slug,
+      title,
+      meta_description,
+      featured_image_url,
+      published_at,
+      categories (name, slug)
+    `)
+    .eq('is_published', true)
+    .order('published_at', { ascending: false })
+    .limit(limit)
+
+  if (error) {
+    console.error('Error fetching guides:', error)
+    return []
+  }
+
+  return data || []
 }

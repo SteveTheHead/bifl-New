@@ -3,7 +3,6 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import BadgeDisplay from '@/components/BadgeDisplay'
 import { FAQStructuredData, BreadcrumbStructuredData } from '@/components/seo/structured-data'
 
 interface Product {
@@ -22,6 +21,10 @@ interface Product {
   bifl_certification: string[] | null
   brand?: { name: string; slug: string }
   display_order: number
+  pros: string[] | null
+  cons: string[] | null
+  warranty_years: number | null
+  country_of_origin: string | null
 }
 
 interface BuyingCriteria {
@@ -50,11 +53,24 @@ interface BuyingGuide {
   products: Product[]
 }
 
+// Labels based on display order - can be customized per guide
+const PRODUCT_LABELS: Record<number, { label: string; color: string }> = {
+  1: { label: 'Best Overall', color: 'bg-teal-600' },
+  2: { label: 'Best for Travel', color: 'bg-blue-600' },
+  3: { label: 'Best Eco-Friendly', color: 'bg-green-600' },
+  4: { label: 'Best Tactical', color: 'bg-gray-700' },
+  5: { label: 'Best Urban', color: 'bg-purple-600' },
+  6: { label: 'Best Lightweight', color: 'bg-orange-500' },
+  7: { label: 'Best for Business', color: 'bg-slate-600' },
+  8: { label: 'Best for Work', color: 'bg-amber-600' },
+  9: { label: 'Best Budget', color: 'bg-emerald-600' },
+}
+
 async function getBuyingGuide(slug: string): Promise<BuyingGuide | null> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
     const response = await fetch(`${baseUrl}/api/guides/${slug}`, {
-      next: { revalidate: 3600 }
+      cache: 'no-store'
     })
 
     if (!response.ok) {
@@ -103,50 +119,20 @@ export async function generateMetadata(
   }
 }
 
-function getScoreBadgeStyle(score: number) {
-  return {
-    className: "score-field px-3 py-1 rounded-full transform transition-all duration-300",
-    dataScore: score.toString()
-  }
-}
-
-function getScoreLabel(score: number) {
-  if (score >= 9.0) return "Legend"
-  if (score >= 8.0) return "Excellent"
-  if (score >= 7.0) return "Good"
-  if (score >= 6.0) return "Fair"
-  return "Poor"
-}
-
-function getCriteriaIcon(icon: string) {
-  const icons: Record<string, React.ReactNode> = {
-    fabric: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
-      </svg>
-    ),
-    stitch: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4l4 4m0-4l-4 4m12-4l4 4m0-4l-4 4M4 16l4 4m0-4l-4 4m12-4l4 4m0-4l-4 4" />
-      </svg>
-    ),
-    zipper: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m-4-8l4-4 4 4" />
-      </svg>
-    ),
-    repair: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-      </svg>
-    ),
-    warranty: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-      </svg>
-    ),
-  }
-  return icons[icon] || icons.fabric
+function ScoreBar({ label, score, maxScore = 10 }: { label: string; score: number | null; maxScore?: number }) {
+  const percentage = score ? (score / maxScore) * 100 : 0
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-sm text-brand-gray w-28 flex-shrink-0">{label}</span>
+      <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div
+          className="h-full bg-teal-500 rounded-full transition-all duration-500"
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
+      <span className="text-sm font-semibold text-brand-dark w-8 text-right">{score?.toFixed(1) || '-'}</span>
+    </div>
+  )
 }
 
 export default async function BuyingGuidePage({ params }: { params: Promise<{ slug: string }> }) {
@@ -160,7 +146,7 @@ export default async function BuyingGuidePage({ params }: { params: Promise<{ sl
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com'
 
   return (
-    <div className="min-h-screen bg-brand-cream">
+    <div className="min-h-screen bg-white">
       {/* Structured Data */}
       {guide.faqs && guide.faqs.length > 0 && (
         <FAQStructuredData faqs={guide.faqs} />
@@ -174,150 +160,46 @@ export default async function BuyingGuidePage({ params }: { params: Promise<{ sl
       />
 
       {/* Hero Section */}
-      <section className="relative bg-brand-dark py-16 md:py-24">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/60"></div>
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="bg-gray-900 py-12 md:py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl">
             <Link
               href="/products"
-              className="text-white/80 hover:text-white transition-colors mb-6 inline-flex items-center"
+              className="text-white/70 hover:text-white transition-colors mb-4 inline-flex items-center text-sm"
             >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              Back to Products
+              All Products
             </Link>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-white mb-6">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white mb-4">
               {guide.title}
             </h1>
             {guide.published_at && (
-              <p className="text-white/70 text-sm">
-                Updated {new Date(guide.published_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+              <p className="text-white/60 text-sm">
+                Updated {new Date(guide.published_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
               </p>
             )}
           </div>
         </div>
       </section>
 
-      {/* Intro Content */}
-      {guide.intro_content && (
-        <section className="py-12 md:py-16 bg-white">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl mx-auto">
-              <div className="prose prose-lg max-w-none text-brand-gray">
-                {guide.intro_content.split('\n\n').map((paragraph, index) => (
-                  <p key={index} className="mb-6 leading-relaxed">
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Buying Criteria Section */}
-      {guide.buying_criteria && guide.buying_criteria.length > 0 && (
-        <section className="py-12 md:py-16 bg-brand-cream">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-serif font-bold text-brand-dark mb-4">
-                What to Look For
-              </h2>
-              <p className="text-lg text-brand-gray max-w-2xl mx-auto">
-                Key factors we evaluate when selecting BIFL-worthy backpacks
-              </p>
-            </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-              {guide.buying_criteria.map((criteria, index) => (
-                <div
-                  key={index}
-                  className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
-                >
-                  <div className="w-14 h-14 bg-brand-teal/10 rounded-lg flex items-center justify-center mb-4 text-brand-teal">
-                    {getCriteriaIcon(criteria.icon)}
-                  </div>
-                  <h3 className="text-xl font-semibold text-brand-dark mb-3">
-                    {criteria.title}
-                  </h3>
-                  <p className="text-brand-gray leading-relaxed">
-                    {criteria.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Products Section */}
+      {/* Quick Jump Navigation */}
       {guide.products && guide.products.length > 0 && (
-        <section className="py-12 md:py-16 bg-white">
+        <section className="bg-gray-50 border-b border-gray-200 py-4 sticky top-16 z-40">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-serif font-bold text-brand-dark mb-4">
-                Our Top Picks
-              </h2>
-              <p className="text-lg text-brand-gray max-w-2xl mx-auto">
-                {guide.products.length} community-verified products that meet our BIFL standards
-              </p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-              {guide.products.map((product, index) => {
-                const totalScore = product.bifl_total_score || 0
-
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              <span className="text-sm font-medium text-brand-gray flex-shrink-0">Jump to:</span>
+              {guide.products.slice(0, 6).map((product, index) => {
+                const labelInfo = PRODUCT_LABELS[index + 1] || { label: `#${index + 1}`, color: 'bg-gray-500' }
                 return (
-                  <Link key={product.id} href={`/products/${product.slug}`}>
-                    <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col border border-gray-100">
-                      <div className="relative">
-                        {index < 3 && (
-                          <div className="absolute top-3 left-3 z-10 bg-brand-dark text-white text-xs font-bold px-2 py-1 rounded">
-                            #{index + 1}
-                          </div>
-                        )}
-                        <Image
-                          src={product.featured_image_url || '/placeholder-product.png'}
-                          alt={product.name}
-                          width={400}
-                          height={224}
-                          className="w-full h-56 object-contain"
-                        />
-                        <BadgeDisplay
-                          product={product}
-                          size="sm"
-                          overlay={true}
-                          className="top-3 right-3"
-                        />
-                      </div>
-                      <div className="p-6 text-center flex-1 flex flex-col">
-                        <h3 className="text-xl font-semibold text-brand-dark mb-2">{product.name}</h3>
-                        {product.brand && (
-                          <p className="text-brand-gray mb-2">{product.brand.name}</p>
-                        )}
-                        <div className="mt-auto">
-                          <div className="flex justify-center items-center gap-3 mb-4">
-                            <span className="text-sm font-medium text-brand-gray">BIFL Score:</span>
-                            <div
-                              className={`${getScoreBadgeStyle(totalScore).className} hover:scale-105`}
-                              data-score={getScoreBadgeStyle(totalScore).dataScore}
-                            >
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm font-bold tracking-wide">
-                                  {totalScore.toFixed(1)}
-                                </span>
-                                <span className="text-xs font-medium opacity-90">
-                                  {getScoreLabel(totalScore)}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="w-full text-white font-semibold py-2 px-6 rounded-lg transition-opacity cursor-pointer hover:opacity-90" style={{ backgroundColor: '#4A9D93' }}>
-                            View Details
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
+                  <a
+                    key={product.id}
+                    href={`#product-${index + 1}`}
+                    className="flex-shrink-0 px-3 py-1.5 bg-white border border-gray-200 rounded-full text-sm font-medium text-brand-dark hover:bg-gray-100 hover:border-gray-300 transition-colors"
+                  >
+                    {labelInfo.label}
+                  </a>
                 )
               })}
             </div>
@@ -325,26 +207,212 @@ export default async function BuyingGuidePage({ params }: { params: Promise<{ sl
         </section>
       )}
 
-      {/* FAQ Section */}
-      {guide.faqs && guide.faqs.length > 0 && (
-        <section className="py-12 md:py-16 bg-brand-cream">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl mx-auto">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-serif font-bold text-brand-dark mb-4">
-                  Frequently Asked Questions
-                </h2>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <div className="max-w-4xl mx-auto">
+          {/* Intro Content */}
+          {guide.intro_content && (
+            <div className="prose prose-lg max-w-none mb-12">
+              {guide.intro_content.split('\n\n').map((paragraph, index) => (
+                <p key={index} className="text-brand-gray leading-relaxed mb-4">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+          )}
+
+          {/* Products List - Tom's Guide Style */}
+          {guide.products && guide.products.length > 0 && (
+            <div className="space-y-12">
+              {guide.products.map((product, index) => {
+                const labelInfo = PRODUCT_LABELS[index + 1] || { label: `Pick #${index + 1}`, color: 'bg-gray-600' }
+                const pros = Array.isArray(product.pros) ? product.pros : []
+                const cons = Array.isArray(product.cons) ? product.cons : []
+
+                return (
+                  <article
+                    key={product.id}
+                    id={`product-${index + 1}`}
+                    className="scroll-mt-32 border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm"
+                  >
+                    {/* Product Header */}
+                    <div className="bg-gray-50 border-b border-gray-200 px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <span className={`${labelInfo.color} text-white text-sm font-bold px-3 py-1 rounded-full`}>
+                          {labelInfo.label}
+                        </span>
+                        <span className="text-sm text-brand-gray">#{index + 1} in our guide</span>
+                      </div>
+                    </div>
+
+                    <div className="p-6">
+                      {/* Main Content Grid */}
+                      <div className="grid md:grid-cols-2 gap-8">
+                        {/* Left: Image */}
+                        <div className="relative">
+                          <div className="aspect-square bg-gray-50 rounded-lg overflow-hidden">
+                            <Image
+                              src={product.featured_image_url || '/placeholder-product.png'}
+                              alt={product.name}
+                              width={400}
+                              height={400}
+                              className="w-full h-full object-contain p-4"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Right: Info */}
+                        <div>
+                          <h2 className="text-2xl font-bold text-brand-dark mb-1">
+                            {product.brand?.name} {product.name}
+                          </h2>
+
+                          {/* Specs Table */}
+                          <div className="mt-4 space-y-2">
+                            <div className="flex justify-between py-2 border-b border-gray-100">
+                              <span className="text-sm text-brand-gray">Price</span>
+                              <span className="text-sm font-semibold text-brand-dark">
+                                {product.price ? `$${product.price}` : 'Check price'}
+                              </span>
+                            </div>
+                            <div className="flex justify-between py-2 border-b border-gray-100">
+                              <span className="text-sm text-brand-gray">BIFL Score</span>
+                              <span className="text-sm font-bold text-teal-600">
+                                {product.bifl_total_score?.toFixed(1) || '-'} / 10
+                              </span>
+                            </div>
+                            <div className="flex justify-between py-2 border-b border-gray-100">
+                              <span className="text-sm text-brand-gray">Warranty</span>
+                              <span className="text-sm font-semibold text-brand-dark">
+                                {product.warranty_years === 99 ? 'Lifetime' : product.warranty_years ? `${product.warranty_years} years` : '-'}
+                              </span>
+                            </div>
+                            <div className="flex justify-between py-2 border-b border-gray-100">
+                              <span className="text-sm text-brand-gray">Made in</span>
+                              <span className="text-sm font-semibold text-brand-dark">
+                                {product.country_of_origin || '-'}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* CTA Button */}
+                          <div className="mt-6">
+                            <Link
+                              href={`/products/${product.slug}`}
+                              className="block w-full text-center bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                            >
+                              View Full Details
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Pros & Cons */}
+                      {(pros.length > 0 || cons.length > 0) && (
+                        <div className="mt-8 grid md:grid-cols-2 gap-6">
+                          {/* Pros */}
+                          {pros.length > 0 && (
+                            <div className="bg-green-50 rounded-lg p-5">
+                              <h3 className="font-bold text-green-800 mb-3 flex items-center gap-2">
+                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                </svg>
+                                Pros
+                              </h3>
+                              <ul className="space-y-2">
+                                {pros.map((pro, i) => (
+                                  <li key={i} className="flex items-start gap-2 text-sm text-green-900">
+                                    <svg className="w-4 h-4 mt-0.5 flex-shrink-0 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                    {pro}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
+                          {/* Cons */}
+                          {cons.length > 0 && (
+                            <div className="bg-red-50 rounded-lg p-5">
+                              <h3 className="font-bold text-red-800 mb-3 flex items-center gap-2">
+                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                </svg>
+                                Cons
+                              </h3>
+                              <ul className="space-y-2">
+                                {cons.map((con, i) => (
+                                  <li key={i} className="flex items-start gap-2 text-sm text-red-900">
+                                    <svg className="w-4 h-4 mt-0.5 flex-shrink-0 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                    </svg>
+                                    {con}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Score Breakdown */}
+                      <div className="mt-8 bg-gray-50 rounded-lg p-5">
+                        <h3 className="font-bold text-brand-dark mb-4">BIFL Score Breakdown</h3>
+                        <div className="space-y-3">
+                          <ScoreBar label="Durability" score={product.durability_score} />
+                          <ScoreBar label="Repairability" score={product.repairability_score} />
+                          <ScoreBar label="Warranty" score={product.warranty_score} />
+                          <ScoreBar label="Sustainability" score={product.sustainability_score} />
+                        </div>
+                      </div>
+
+                      {/* Excerpt/Review */}
+                      {product.excerpt && (
+                        <div className="mt-6">
+                          <h3 className="font-bold text-brand-dark mb-2">Our Take</h3>
+                          <p className="text-brand-gray leading-relaxed">{product.excerpt}</p>
+                        </div>
+                      )}
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
+          )}
+
+          {/* Buying Criteria Section */}
+          {guide.buying_criteria && guide.buying_criteria.length > 0 && (
+            <section className="mt-16 bg-gray-50 rounded-xl p-8">
+              <h2 className="text-2xl font-bold text-brand-dark mb-6">
+                What to Look For in a BIFL Backpack
+              </h2>
+              <div className="grid md:grid-cols-2 gap-6">
+                {guide.buying_criteria.map((criteria, index) => (
+                  <div key={index} className="bg-white rounded-lg p-5 border border-gray-100">
+                    <h3 className="font-semibold text-brand-dark mb-2">{criteria.title}</h3>
+                    <p className="text-sm text-brand-gray">{criteria.description}</p>
+                  </div>
+                ))}
               </div>
+            </section>
+          )}
+
+          {/* FAQ Section */}
+          {guide.faqs && guide.faqs.length > 0 && (
+            <section className="mt-16">
+              <h2 className="text-2xl font-bold text-brand-dark mb-6">
+                Frequently Asked Questions
+              </h2>
               <div className="space-y-4" itemScope itemType="https://schema.org/FAQPage">
                 {guide.faqs.map((faq, index) => (
                   <details
                     key={index}
-                    className="group bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
+                    className="group bg-gray-50 rounded-lg overflow-hidden"
                     itemScope
                     itemProp="mainEntity"
                     itemType="https://schema.org/Question"
                   >
-                    <summary className="px-6 py-4 cursor-pointer list-none flex items-center justify-between hover:bg-gray-50 transition-colors">
+                    <summary className="px-6 py-4 cursor-pointer list-none flex items-center justify-between hover:bg-gray-100 transition-colors">
                       <span className="font-semibold text-brand-dark pr-4" itemProp="name">
                         {faq.question}
                       </span>
@@ -370,32 +438,29 @@ export default async function BuyingGuidePage({ params }: { params: Promise<{ sl
                   </details>
                 ))}
               </div>
-            </div>
-          </div>
-        </section>
-      )}
+            </section>
+          )}
 
-      {/* CTA Section */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-serif font-bold text-brand-dark mb-6">
-            Ready to Buy It For Life?
-          </h2>
-          <p className="text-lg text-brand-gray mb-8 max-w-2xl mx-auto">
-            Explore our complete collection of community-verified, durable products.
-          </p>
-          <Link
-            href="/products"
-            className="inline-flex items-center px-6 py-3 rounded-lg text-base font-semibold transform hover:scale-105 hover:opacity-90 transition-all duration-300 shadow-lg"
-            style={{ backgroundColor: '#4A9D93', color: 'white' }}
-          >
-            Browse All Products
-            <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </Link>
+          {/* CTA Section */}
+          <section className="mt-16 text-center bg-gray-900 rounded-xl p-8">
+            <h2 className="text-2xl font-bold text-white mb-4">
+              Ready to Buy It For Life?
+            </h2>
+            <p className="text-white/70 mb-6">
+              Explore our complete collection of community-verified, durable products.
+            </p>
+            <Link
+              href="/products"
+              className="inline-flex items-center px-6 py-3 bg-teal-500 hover:bg-teal-600 text-white font-semibold rounded-lg transition-colors"
+            >
+              Browse All Products
+              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </section>
         </div>
-      </section>
+      </div>
     </div>
   )
 }

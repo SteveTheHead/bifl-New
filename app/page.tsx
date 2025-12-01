@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Metadata } from 'next'
-import { getCategories, getFeaturedProducts, getFeaturedCurations } from '@/lib/supabase/queries'
+import { getCategories, getFeaturedProducts, getFeaturedCurations, getPublishedGuides } from '@/lib/supabase/queries'
 import { Card, CardContent } from '@/components/ui/card'
 import BadgeDisplay from '@/components/BadgeDisplay'
 import { OrganizationStructuredData } from '@/components/seo/structured-data'
@@ -82,6 +82,7 @@ export default async function HomePage() {
     let categories: any[] = []
     let featuredProducts: any[] = []
     let featuredCurations: any[] = []
+    let publishedGuides: any[] = []
 
     try {
       categories = await getCategories()
@@ -105,6 +106,14 @@ export default async function HomePage() {
     } catch (curErr) {
       console.error('[Homepage] Curations error:', curErr)
       featuredCurations = []
+    }
+
+    try {
+      publishedGuides = await getPublishedGuides(3)
+      console.log('[Homepage] Guides loaded:', publishedGuides?.length || 0)
+    } catch (guideErr) {
+      console.error('[Homepage] Guides error:', guideErr)
+      publishedGuides = []
     }
 
     console.log('[Homepage] All data loaded successfully')
@@ -445,6 +454,83 @@ export default async function HomePage() {
                   </div>
                 </Link>
               ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Buying Guides Section */}
+      {publishedGuides && publishedGuides.length > 0 && (
+        <section className="py-12 sm:py-16 md:py-20 bg-gray-50">
+          <div className="container mx-auto px-4 sm:px-6">
+            <div className="text-center mb-8 sm:mb-12 md:mb-16">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-brand-dark mb-4 sm:mb-6">Buying Guides</h2>
+              <p className="text-base sm:text-lg md:text-xl text-brand-gray max-w-3xl mx-auto px-4">
+                In-depth guides to help you find the best buy-it-for-life products, based on research from Reddit, Amazon, YouTube, and real user experiences.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+              {publishedGuides.map((guide: any) => (
+                <Link key={guide.id} href={`/guides/${guide.slug}`}>
+                  <article className="group bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer h-full flex flex-col">
+                    {/* Image */}
+                    <div className="aspect-video bg-gray-100 relative overflow-hidden">
+                      {guide.featured_image_url ? (
+                        <Image
+                          src={guide.featured_image_url}
+                          alt={guide.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-teal-500 to-teal-700">
+                          <svg className="w-16 h-16 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                          </svg>
+                        </div>
+                      )}
+                      {guide.categories && (
+                        <span className="absolute top-3 left-3 bg-white/90 text-gray-700 text-xs font-medium px-2 py-1 rounded">
+                          {guide.categories.name}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-6 flex-1 flex flex-col">
+                      <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-teal-600 transition-colors">
+                        {guide.title}
+                      </h3>
+                      {guide.meta_description && (
+                        <p className="text-gray-600 text-sm mb-4 line-clamp-2 flex-1">
+                          {guide.meta_description}
+                        </p>
+                      )}
+                      <span className="inline-flex items-center text-teal-600 font-medium text-sm group-hover:text-teal-700">
+                        Read Guide
+                        <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </span>
+                    </div>
+                  </article>
+                </Link>
+              ))}
+            </div>
+
+            {/* View All Guides Button */}
+            <div className="text-center mt-8 sm:mt-12">
+              <Link
+                href="/guides"
+                className="inline-flex items-center text-white px-6 py-3 rounded-lg text-base font-semibold hover:bg-opacity-90 transform hover:scale-105 transition-all duration-300 shadow-lg"
+                style={{ backgroundColor: '#4A9D93' }}
+              >
+                View All Guides
+                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
             </div>
           </div>
         </section>

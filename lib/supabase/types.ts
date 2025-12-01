@@ -848,6 +848,59 @@ export interface Database {
           updated_at?: string
         }
       }
+      buying_guides: {
+        Row: {
+          id: string
+          slug: string
+          title: string
+          featured_image_url: string | null
+          meta_title: string | null
+          meta_description: string | null
+          intro_content: string | null
+          buying_criteria: Json
+          faqs: Json
+          is_published: boolean
+          published_at: string | null
+          curation_id: string | null
+          category_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          slug: string
+          title: string
+          featured_image_url?: string | null
+          meta_title?: string | null
+          meta_description?: string | null
+          intro_content?: string | null
+          buying_criteria?: Json
+          faqs?: Json
+          is_published?: boolean
+          published_at?: string | null
+          curation_id?: string | null
+          category_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          slug?: string
+          title?: string
+          featured_image_url?: string | null
+          meta_title?: string | null
+          meta_description?: string | null
+          intro_content?: string | null
+          buying_criteria?: Json
+          faqs?: Json
+          is_published?: boolean
+          published_at?: string | null
+          curation_id?: string | null
+          category_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       products_with_taxonomy: {

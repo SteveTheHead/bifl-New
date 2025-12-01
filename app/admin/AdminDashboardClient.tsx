@@ -16,7 +16,8 @@ import {
   LayoutGrid,
   LogOut,
   Users,
-  Mail
+  Mail,
+  BookOpen
 } from 'lucide-react'
 
 interface AdminSession {
@@ -243,6 +244,22 @@ export default function AdminDashboardClient({ session }: AdminDashboardClientPr
                 <div>
                   <p className="font-medium text-gray-900 text-sm">Curations</p>
                   <p className="text-xs text-gray-500 mt-0.5">Collections</p>
+                </div>
+              </div>
+            </Link>
+
+            {/* Guides */}
+            <Link
+              href="/admin/guides"
+              className="bg-white rounded-lg p-4 border border-gray-200 hover:border-gray-900 hover:shadow-sm transition-all group"
+            >
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="p-3 bg-gray-100 rounded-lg group-hover:bg-gray-900 transition-colors">
+                  <BookOpen className="w-5 h-5 text-gray-600 group-hover:text-white transition-colors" />
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900 text-sm">Guides</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Buying guides</p>
                 </div>
               </div>
             </Link>

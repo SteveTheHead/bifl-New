@@ -84,6 +84,9 @@ export function Navbar() {
             <Link href="/categories" className="text-brand-gray hover:text-brand-dark font-medium">
               Categories
             </Link>
+            <Link href="/guides" className="text-brand-gray hover:text-brand-dark font-medium">
+              Guides
+            </Link>
             <Link href="/how-it-works" className="text-brand-gray hover:text-brand-dark font-medium">
               How It Works
             </Link>
@@ -181,6 +184,13 @@ export function Navbar() {
               onClick={() => setIsOpen(false)}
             >
               Categories
+            </Link>
+            <Link
+              href="/guides"
+              className="block text-brand-gray hover:text-brand-dark font-medium py-3"
+              onClick={() => setIsOpen(false)}
+            >
+              Guides
             </Link>
             <Link
               href="/how-it-works"

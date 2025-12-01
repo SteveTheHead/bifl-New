@@ -46,6 +46,10 @@ export async function GET(
             social_score,
             bifl_certification,
             brand_id,
+            pros,
+            cons,
+            warranty_years,
+            country_of_origin,
             brands!brand_id (name, slug)
           )
         `)
