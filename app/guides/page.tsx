@@ -33,13 +33,26 @@ async function getGuides(): Promise<Guide[]> {
   }
 }
 
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com'
+
 export const metadata: Metadata = {
   title: 'Buying Guides | BIFL - Buy It For Life Products',
   description: 'Expert buying guides to help you find durable, long-lasting products. We research Reddit, Amazon, YouTube, and the entire web to find products that truly last.',
+  keywords: ['buying guides', 'BIFL guides', 'product guides', 'durable products guide', 'best products guide'],
   openGraph: {
     title: 'Buying Guides | BIFL - Buy It For Life Products',
     description: 'Expert buying guides to help you find durable, long-lasting products.',
+    url: `${baseUrl}/guides`,
+    siteName: 'Buy It For Life',
     type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Buying Guides | Buy It For Life',
+    description: 'Expert buying guides to help you find durable, long-lasting products.',
+  },
+  alternates: {
+    canonical: `${baseUrl}/guides`,
   },
 }
 

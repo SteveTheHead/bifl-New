@@ -250,6 +250,36 @@ export function ItemListStructuredData({
   )
 }
 
+// WebSite schema for homepage with sitelinks search box
+export function WebSiteStructuredData() {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com'
+
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Buy It For Life',
+    url: baseUrl,
+    description: 'Community-verified durable products that last. Comprehensive BIFL ratings on durability, repairability, and warranty.',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${baseUrl}/products?search={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  }
+
+  return (
+    <Script
+      id="website-schema"
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      strategy="afterInteractive"
+    />
+  )
+}
+
 interface ReviewSchemaProps {
   productName: string
   reviews: Array<{

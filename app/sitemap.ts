@@ -25,6 +25,42 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly',
       priority: 0.8,
     },
+    {
+      url: `${baseUrl}/guides`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/how-it-works`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/what-is-buy-it-for-life`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/privacy-policy`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/terms-of-service`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/affiliate-disclosure`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
   ]
 
   // Get all published products
@@ -54,5 +90,33 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }))
 
-  return [...staticPages, ...productPages, ...categoryPages]
+  // Get all published buying guides
+  const { data: guides } = await supabase
+    .from('buying_guides')
+    .select('slug, updated_at')
+    .eq('is_published', true)
+    .order('updated_at', { ascending: false })
+
+  const guidePages: MetadataRoute.Sitemap = (guides || []).map((guide: any) => ({
+    url: `${baseUrl}/guides/${guide.slug}`,
+    lastModified: new Date(guide.updated_at),
+    changeFrequency: 'weekly' as const,
+    priority: 0.8,
+  }))
+
+  // Get all active curations
+  const { data: curations } = await supabase
+    .from('curations')
+    .select('slug, updated_at')
+    .eq('is_active', true)
+    .order('updated_at', { ascending: false })
+
+  const curationPages: MetadataRoute.Sitemap = (curations || []).map((curation: any) => ({
+    url: `${baseUrl}/curations/${curation.slug}`,
+    lastModified: new Date(curation.updated_at),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }))
+
+  return [...staticPages, ...productPages, ...categoryPages, ...guidePages, ...curationPages]
 }

@@ -4,12 +4,60 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import Image from "next/image";
+import Script from "next/script";
 import { FeedbackModal } from "@/components/feedback-modal";
+
+// FAQ structured data for SEO
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is Buy-It-For-Life?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Buy It For Life (BIFL) refers to products that are built to last for decades or even a lifetime with proper care. These items prioritize quality, durability, and repairability over planned obsolescence."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Where Do Your Scores Come From?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Our scores are generated from thousands of data sources including manufacturer specifications, warranty information, user reviews from multiple platforms, repair forums, and community discussions. We use AI to analyze this data objectively."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I Suggest a Product?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Absolutely! We welcome product suggestions from our community. You can submit suggestions through our feedback form or contact us directly. We'll research and evaluate products based on our methodology."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if I Disagree With a Score?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We encourage feedback! Our scoring system is continuously updated as new data becomes available. If you have specific information about a product's performance, please share it with us through our data correction form."
+      }
+    }
+  ]
+}
 
 export default function HowItWorks() {
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
 
   return (
+    <>
+      <Script
+        id="faq-schema"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        strategy="afterInteractive"
+      />
     <div className="min-h-screen">
       {/* The Process Section */}
       <section className="py-20 bg-white">
@@ -403,5 +451,6 @@ export default function HowItWorks() {
         onClose={() => setIsFeedbackModalOpen(false)}
       />
     </div>
+    </>
   );
 }

@@ -4,7 +4,7 @@ import { Metadata } from 'next'
 import { getCategories, getFeaturedProducts, getFeaturedCurations, getPublishedGuides } from '@/lib/supabase/queries'
 import { Card, CardContent } from '@/components/ui/card'
 import BadgeDisplay from '@/components/BadgeDisplay'
-import { OrganizationStructuredData } from '@/components/seo/structured-data'
+import { OrganizationStructuredData, WebSiteStructuredData } from '@/components/seo/structured-data'
 import { NewsletterSection } from '@/components/homepage/newsletter-section'
 import { HeroProductCarousel } from '@/components/homepage/hero-product-carousel'
 
@@ -122,6 +122,7 @@ export default async function HomePage() {
     <div className="bg-brand-cream font-sans">
       {/* SEO Structured Data */}
       <OrganizationStructuredData />
+      <WebSiteStructuredData />
 
       {/* Hero Section */}
       <section className="relative h-[500px] sm:h-[550px] md:h-[600px] lg:h-[650px] overflow-hidden">

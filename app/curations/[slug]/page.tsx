@@ -3,6 +3,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import BadgeDisplay from '@/components/BadgeDisplay'
+import { BreadcrumbStructuredData, ItemListStructuredData } from '@/components/seo/structured-data'
+
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com'
 
 interface Product {
   id: string
@@ -74,7 +77,17 @@ export async function generateMetadata(
     openGraph: {
       title: `${curation.name} - Curated Products`,
       description: curation.description || `Explore our curated collection: ${curation.name}`,
+      url: `${baseUrl}/curations/${slug}`,
+      siteName: 'Buy It For Life',
       images: curation.featured_image_url ? [curation.featured_image_url] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${curation.name} - Curated Products`,
+      description: curation.description || `Explore our curated collection: ${curation.name}`,
+    },
+    alternates: {
+      canonical: `${baseUrl}/curations/${slug}`,
     },
   }
 }
@@ -109,7 +122,34 @@ export default async function CurationPage({ params }: { params: Promise<{ slug:
     (a, b) => a.display_order - b.display_order
   )
 
+  // Prepare products for ItemList structured data
+  const productsForSchema = sortedProducts.map((cp, index) => ({
+    name: cp.products.name,
+    url: `/products/${cp.products.slug}`,
+    image: cp.products.featured_image_url || undefined,
+    position: index + 1,
+    rating: cp.products.bifl_total_score || undefined,
+    price: cp.products.price || undefined,
+  }))
+
   return (
+    <>
+      {/* SEO Structured Data */}
+      <BreadcrumbStructuredData
+        items={[
+          { name: 'Home', url: baseUrl },
+          { name: 'Curations', url: `${baseUrl}/curations` },
+          { name: curation.name, url: `${baseUrl}/curations/${slug}` },
+        ]}
+      />
+      {productsForSchema.length > 0 && (
+        <ItemListStructuredData
+          name={curation.name}
+          description={curation.description || `Curated collection: ${curation.name}`}
+          products={productsForSchema}
+        />
+      )}
+
     <div className="min-h-screen bg-brand-cream">
       {/* Hero Section */}
       <section className="relative bg-brand-dark py-16 md:py-24">
@@ -249,5 +289,6 @@ export default async function CurationPage({ params }: { params: Promise<{ slug:
         </div>
       </section>
     </div>
+    </>
   )
 }

@@ -8,6 +8,8 @@ import { CategoryFilters } from '@/components/categories/category-filters'
 import { Filter, Grid, List, ChevronDown, ChevronUp } from 'lucide-react'
 import { BuyingGuide } from '@/lib/ai/buying-guide'
 
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com'
+
 interface Product {
   id: string
   name: string
@@ -131,7 +133,7 @@ export function CategoryPageClient({
     "@type": "CollectionPage",
     "name": `${category.name} - Buy It For Life Products`,
     "description": category.description || `Best ${category.name} products built to last`,
-    "url": `https://bifl.com/categories/${category.slug}`,
+    "url": `${baseUrl}/categories/${category.slug}`,
     "breadcrumb": {
       "@type": "BreadcrumbList",
       "itemListElement": [
@@ -139,19 +141,19 @@ export function CategoryPageClient({
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "https://bifl.com"
+          "item": baseUrl
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "Categories",
-          "item": "https://bifl.com/categories"
+          "item": `${baseUrl}/categories`
         },
         {
           "@type": "ListItem",
           "position": 3,
           "name": category.name,
-          "item": `https://bifl.com/categories/${category.slug}`
+          "item": `${baseUrl}/categories/${category.slug}`
         }
       ]
     },
@@ -163,7 +165,7 @@ export function CategoryPageClient({
         "name": product.brand_name
       },
       "description": product.excerpt || `High-quality ${category.name} product`,
-      "url": `https://bifl.com/products/${product.slug || product.id}`,
+      "url": `${baseUrl}/products/${product.slug || product.id}`,
       "image": product.featured_image_url,
       "offers": product.price ? {
         "@type": "Offer",

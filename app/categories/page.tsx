@@ -12,6 +12,8 @@ interface CategoryWithCount extends Category {
   productCount: number
 }
 
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com'
+
 export const metadata: Metadata = {
   title: 'Browse All Categories - BIFL Products',
   description: 'Explore all product categories and find the best Buy It For Life products that last a lifetime. From electronics to home goods, discover durable products with expert reviews.',
@@ -28,11 +30,11 @@ export const metadata: Metadata = {
     title: 'Browse All Categories - Buy It For Life Products',
     description: 'Explore all product categories and find the best Buy It For Life products that last a lifetime.',
     type: 'website',
-    siteName: 'BIFL Products',
-    url: 'https://bifl.com/categories',
+    siteName: 'Buy It For Life',
+    url: `${baseUrl}/categories`,
     images: [
       {
-        url: '/og-image-categories.jpg',
+        url: '/images/categories/hero Picture 1.png',
         width: 1200,
         height: 630,
         alt: 'Browse all BIFL product categories'
@@ -43,7 +45,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Browse All Categories - Buy It For Life Products',
     description: 'Explore all product categories and find the best Buy It For Life products that last a lifetime.',
-    images: ['/og-image-categories.jpg']
+    images: ['/images/categories/hero Picture 1.png']
   },
   robots: {
     index: true,
@@ -57,7 +59,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: 'https://bifl.com/categories'
+    canonical: `${baseUrl}/categories`
   }
 }
 
@@ -148,7 +150,7 @@ export default async function CategoriesPage() {
     "@type": "CollectionPage",
     "name": "Product Categories - Buy It For Life",
     "description": "Browse all product categories to find durable, long-lasting products built for life",
-    "url": "https://bifl.com/categories",
+    "url": `${baseUrl}/categories`,
     "breadcrumb": {
       "@type": "BreadcrumbList",
       "itemListElement": [
@@ -156,13 +158,13 @@ export default async function CategoriesPage() {
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "https://bifl.com"
+          "item": baseUrl
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "Categories",
-          "item": "https://bifl.com/categories"
+          "item": `${baseUrl}/categories`
         }
       ]
     },
@@ -170,7 +172,7 @@ export default async function CategoriesPage() {
       "@type": "ItemList",
       "name": category.name,
       "description": category.description || `Discover the best ${category.name} products built to last`,
-      "url": `https://bifl.com/categories/${category.slug}`,
+      "url": `${baseUrl}/categories/${category.slug}`,
       "numberOfItems": category.productCount
     }))
   }

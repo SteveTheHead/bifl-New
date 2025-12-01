@@ -12,20 +12,22 @@ import { ExitIntentFeedback } from "@/components/exit-intent-feedback";
 import FooterSection from "@/components/homepage/footer";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com'
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com'),
+  metadataBase: new URL(siteUrl),
   title: "BIFL - Buy It For Life Product Directory",
   description:
-    "Discover durable, long-lasting products that are built to last. Expert reviews and ratings for quality items worth investing in.",
+    "Discover durable, long-lasting products that are built to last. Community-verified reviews and ratings for quality items worth investing in.",
   openGraph: {
     title: "BIFL - Buy It For Life",
     description:
-      "Discover durable, long-lasting products that are built to last. Expert reviews and ratings for quality items worth investing in.",
-    url: "bifl.com",
-    siteName: "BIFL",
+      "Discover durable, long-lasting products that are built to last. Community-verified reviews and ratings for quality items worth investing in.",
+    url: siteUrl,
+    siteName: "Buy It For Life",
     images: [
       {
-        url: "https://jdj14ctwppwprnqu.public.blob.vercel-storage.com/nsk-w9fFwBBmLDLxrB896I4xqngTUEEovS.png",
+        url: "/images/categories/hero Picture 1.png",
         width: 1200,
         height: 630,
         alt: "BIFL - Buy It For Life",
