@@ -79,7 +79,9 @@ export default async function HomePage() {
     // Get categories, featured products, and featured curations from database
     console.log('[Homepage] Starting data fetch...')
 
-    let categories, featuredProducts, featuredCurations
+    let categories: any[] = []
+    let featuredProducts: any[] = []
+    let featuredCurations: any[] = []
 
     try {
       categories = await getCategories()
