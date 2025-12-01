@@ -48,6 +48,8 @@ export async function POST(request: NextRequest) {
         name,
         description,
         curation_products (
+          id,
+          product_id,
           products (
             id,
             name,
@@ -55,13 +57,12 @@ export async function POST(request: NextRequest) {
             excerpt,
             price,
             bifl_total_score,
-            primary_material,
             warranty_years,
             country_of_origin,
             use_case,
             pros,
             cons,
-            brands!brand_id (name)
+            brands (name)
           )
         )
       `)
@@ -87,11 +88,10 @@ export async function POST(request: NextRequest) {
 - ${p.name} by ${p.brands?.name || 'Unknown Brand'}
   Price: $${p.price || 'N/A'}
   BIFL Score: ${p.bifl_total_score || 'N/A'}/10
-  Material: ${p.primary_material || 'N/A'}
   Warranty: ${p.warranty_years ? `${p.warranty_years} years` : 'N/A'}
   Use Case: ${p.use_case || 'General'}
-  Pros: ${p.pros?.join(', ') || 'N/A'}
-  Cons: ${p.cons?.join(', ') || 'N/A'}
+  Pros: ${Array.isArray(p.pros) ? p.pros.join(', ') : 'N/A'}
+  Cons: ${Array.isArray(p.cons) ? p.cons.join(', ') : 'N/A'}
 `).join('\n')
 
     const title = guideTitle || curationData.name

@@ -53,17 +53,85 @@ interface BuyingGuide {
   products: Product[]
 }
 
-// Labels based on display order - can be customized per guide
-const PRODUCT_LABELS: Record<number, { label: string; color: string }> = {
-  1: { label: 'Best Overall', color: 'bg-teal-600' },
-  2: { label: 'Best for Travel', color: 'bg-blue-600' },
-  3: { label: 'Best Eco-Friendly', color: 'bg-green-600' },
-  4: { label: 'Best Tactical', color: 'bg-gray-700' },
-  5: { label: 'Best Urban', color: 'bg-purple-600' },
-  6: { label: 'Best Lightweight', color: 'bg-orange-500' },
-  7: { label: 'Best for Business', color: 'bg-slate-600' },
-  8: { label: 'Best for Work', color: 'bg-amber-600' },
-  9: { label: 'Best Budget', color: 'bg-emerald-600' },
+// Generate dynamic labels for all products at once to avoid duplicates
+function generateProductLabels(products: Product[]): Map<string, { label: string; color: string }> {
+  const labels = new Map<string, { label: string; color: string }>()
+  const usedLabels = new Set<string>()
+
+  // First product is always Top Pick
+  if (products.length > 0) {
+    labels.set(products[0].id, { label: 'Top Pick', color: 'bg-teal-600' })
+    usedLabels.add('Top Pick')
+  }
+
+  // Find best candidate for each label type among remaining products
+  const labelCriteria = [
+    {
+      label: 'Best Warranty',
+      color: 'bg-blue-600',
+      score: (p: Product) => p.warranty_years === 99 ? 100 : (p.warranty_score || 0)
+    },
+    {
+      label: 'Most Durable',
+      color: 'bg-gray-700',
+      score: (p: Product) => p.durability_score || 0
+    },
+    {
+      label: 'Crowd Favorite',
+      color: 'bg-purple-600',
+      score: (p: Product) => p.social_score || 0
+    },
+    {
+      label: 'Eco-Friendly',
+      color: 'bg-green-600',
+      score: (p: Product) => p.sustainability_score || 0
+    },
+    {
+      label: 'Easy to Repair',
+      color: 'bg-orange-500',
+      score: (p: Product) => p.repairability_score || 0
+    },
+    {
+      label: 'Best Value',
+      color: 'bg-amber-600',
+      score: (p: Product) => p.price ? (1000 - p.price) / 10 : 0 // Lower price = higher score
+    },
+  ]
+
+  // Assign each label to the best candidate that doesn't have a label yet
+  for (const criteria of labelCriteria) {
+    let bestProduct: Product | null = null
+    let bestScore = 7.0 // Minimum threshold
+
+    for (const product of products) {
+      if (labels.has(product.id)) continue // Already has a label
+      const score = criteria.score(product)
+      if (score > bestScore) {
+        bestScore = score
+        bestProduct = product
+      }
+    }
+
+    if (bestProduct) {
+      labels.set(bestProduct.id, { label: criteria.label, color: criteria.color })
+    }
+  }
+
+  // Assign "Runner Up" to any remaining products
+  let runnerUpNum = 2
+  for (const product of products) {
+    if (!labels.has(product.id)) {
+      labels.set(product.id, { label: `Pick #${runnerUpNum}`, color: 'bg-slate-600' })
+      runnerUpNum++
+    }
+  }
+
+  return labels
+}
+
+// Get label for a specific product (called during render)
+function getProductLabel(product: Product, index: number, allProducts: Product[], labelsMap: Map<string, { label: string; color: string }>): { label: string; color: string } {
+  return labelsMap.get(product.id) || { label: `Pick #${index + 1}`, color: 'bg-slate-600' }
 }
 
 async function getBuyingGuide(slug: string): Promise<BuyingGuide | null> {
@@ -143,6 +211,16 @@ export default async function BuyingGuidePage({ params }: { params: Promise<{ sl
     notFound()
   }
 
+  // Sort products by BIFL score (highest first)
+  const sortedProducts = [...(guide.products || [])].sort((a, b) => {
+    const scoreA = a.bifl_total_score || 0
+    const scoreB = b.bifl_total_score || 0
+    return scoreB - scoreA
+  })
+
+  // Generate unique labels for each product
+  const productLabels = generateProductLabels(sortedProducts)
+
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com'
 
   return (
@@ -185,13 +263,13 @@ export default async function BuyingGuidePage({ params }: { params: Promise<{ sl
       </section>
 
       {/* Quick Jump Navigation */}
-      {guide.products && guide.products.length > 0 && (
+      {sortedProducts.length > 0 && (
         <section className="bg-gray-50 border-b border-gray-200 py-4 sticky top-16 z-40">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
               <span className="text-sm font-medium text-brand-gray flex-shrink-0">Jump to:</span>
-              {guide.products.slice(0, 6).map((product, index) => {
-                const labelInfo = PRODUCT_LABELS[index + 1] || { label: `#${index + 1}`, color: 'bg-gray-500' }
+              {sortedProducts.slice(0, 6).map((product, index) => {
+                const labelInfo = getProductLabel(product, index, sortedProducts, productLabels)
                 return (
                   <a
                     key={product.id}
@@ -221,10 +299,10 @@ export default async function BuyingGuidePage({ params }: { params: Promise<{ sl
           )}
 
           {/* Products List - Tom's Guide Style */}
-          {guide.products && guide.products.length > 0 && (
+          {sortedProducts.length > 0 && (
             <div className="space-y-12">
-              {guide.products.map((product, index) => {
-                const labelInfo = PRODUCT_LABELS[index + 1] || { label: `Pick #${index + 1}`, color: 'bg-gray-600' }
+              {sortedProducts.map((product, index) => {
+                const labelInfo = getProductLabel(product, index, sortedProducts, productLabels)
                 const pros = Array.isArray(product.pros) ? product.pros : []
                 const cons = Array.isArray(product.cons) ? product.cons : []
 
@@ -384,7 +462,7 @@ export default async function BuyingGuidePage({ params }: { params: Promise<{ sl
           {guide.buying_criteria && guide.buying_criteria.length > 0 && (
             <section className="mt-16 bg-gray-50 rounded-xl p-8">
               <h2 className="text-2xl font-bold text-brand-dark mb-6">
-                What to Look For in a BIFL Backpack
+                What to Look For
               </h2>
               <div className="grid md:grid-cols-2 gap-6">
                 {guide.buying_criteria.map((criteria, index) => (
