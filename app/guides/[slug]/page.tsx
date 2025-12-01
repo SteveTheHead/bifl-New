@@ -3,7 +3,7 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import { FAQStructuredData, BreadcrumbStructuredData } from '@/components/seo/structured-data'
+import { FAQStructuredData, BreadcrumbStructuredData, ArticleStructuredData, ItemListStructuredData } from '@/components/seo/structured-data'
 
 interface Product {
   id: string
@@ -225,7 +225,7 @@ export default async function BuyingGuidePage({ params }: { params: Promise<{ sl
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Structured Data */}
+      {/* Structured Data for SEO */}
       {guide.faqs && guide.faqs.length > 0 && (
         <FAQStructuredData faqs={guide.faqs} />
       )}
@@ -236,6 +236,29 @@ export default async function BuyingGuidePage({ params }: { params: Promise<{ sl
           { name: guide.title, url: `${baseUrl}/guides/${guide.slug}` },
         ]}
       />
+      <ArticleStructuredData
+        article={{
+          headline: guide.title,
+          description: guide.meta_description || guide.intro_content?.substring(0, 160) || '',
+          image: guide.featured_image_url || undefined,
+          datePublished: guide.published_at || new Date().toISOString(),
+          url: `${baseUrl}/guides/${guide.slug}`,
+        }}
+      />
+      {sortedProducts.length > 0 && (
+        <ItemListStructuredData
+          name={guide.title}
+          description={guide.meta_description || `Top ${sortedProducts.length} products in our ${guide.title} guide`}
+          products={sortedProducts.map((product, index) => ({
+            name: `${product.brand?.name || ''} ${product.name}`.trim(),
+            url: `/products/${product.slug}`,
+            image: product.featured_image_url || undefined,
+            position: index + 1,
+            rating: product.bifl_total_score || undefined,
+            price: product.price || undefined,
+          }))}
+        />
+      )}
 
       {/* Hero Section */}
       <section className="bg-gray-900 py-12 md:py-16">

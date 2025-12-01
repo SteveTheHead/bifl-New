@@ -133,6 +133,123 @@ export function FAQStructuredData({ faqs }: { faqs: Array<{ question: string; an
   )
 }
 
+// Article schema for buying guides
+interface ArticleSchemaProps {
+  headline: string
+  description: string
+  image?: string
+  datePublished: string
+  dateModified?: string
+  url: string
+}
+
+export function ArticleStructuredData({ article }: { article: ArticleSchemaProps }) {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com'
+
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: article.headline,
+    description: article.description,
+    ...(article.image && { image: article.image }),
+    datePublished: article.datePublished,
+    dateModified: article.dateModified || article.datePublished,
+    url: article.url,
+    author: {
+      '@type': 'Organization',
+      name: 'Buy It For Life',
+      url: baseUrl,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Buy It For Life',
+      url: baseUrl,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${baseUrl}/logo.png`,
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': article.url,
+    },
+  }
+
+  return (
+    <Script
+      id="article-schema"
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      strategy="afterInteractive"
+    />
+  )
+}
+
+// ItemList schema for product rankings/listicles
+interface RankedProduct {
+  name: string
+  url: string
+  image?: string
+  position: number
+  rating?: number
+  price?: number
+}
+
+export function ItemListStructuredData({
+  name,
+  description,
+  products
+}: {
+  name: string
+  description: string
+  products: RankedProduct[]
+}) {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com'
+
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: name,
+    description: description,
+    numberOfItems: products.length,
+    itemListElement: products.map((product, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: {
+        '@type': 'Product',
+        name: product.name,
+        url: product.url.startsWith('http') ? product.url : `${baseUrl}${product.url}`,
+        ...(product.image && { image: product.image }),
+        ...(product.rating && {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: product.rating,
+            bestRating: 10,
+            worstRating: 0,
+          },
+        }),
+        ...(product.price && {
+          offers: {
+            '@type': 'Offer',
+            price: product.price,
+            priceCurrency: 'USD',
+            availability: 'https://schema.org/InStock',
+          },
+        }),
+      },
+    })),
+  }
+
+  return (
+    <Script
+      id="itemlist-schema"
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      strategy="afterInteractive"
+    />
+  )
+}
+
 interface ReviewSchemaProps {
   productName: string
   reviews: Array<{
