@@ -106,7 +106,8 @@
     "eslint-config-next": "15.3.1",
     "tailwindcss": "^4.1.7",
     "tw-animate-css": "^1.3.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "xlsx": "^0.18.5"
   },
   "description": "BIFL Product Directory - Find durable, long-lasting products with AI-accelerated development"
 }

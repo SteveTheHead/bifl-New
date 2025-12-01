@@ -1,8 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from '@/components/auth/auth-client'
-import { redirect } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
   Plus,
@@ -27,27 +26,30 @@ interface Brand {
 }
 
 export default function AdminBrandsPage() {
-  const { data: session, isPending } = useSession()
+  const router = useRouter()
   const [brands, setBrands] = useState<Brand[]>([])
   const [loading, setLoading] = useState(true)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
 
-  const isAdmin = session?.user?.email?.endsWith('@bifl.com') ||
-                 session?.user?.email === 'admin@example.com' ||
-                 session?.user?.email === 'admin@bifl.dev' ||
-                 process.env.NODE_ENV === 'development'
-
+  // Check admin session via API
   useEffect(() => {
-    if (!isPending && !isAdmin) {
-      redirect('/auth/signin')
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/admin/session')
+        const data = await response.json()
+        if (data.isAuthenticated) {
+          setIsAuthenticated(true)
+          fetchBrands()
+        } else {
+          router.push('/admin/signin')
+        }
+      } catch (error) {
+        router.push('/admin/signin')
+      }
     }
-  }, [session, isPending, isAdmin])
-
-  useEffect(() => {
-    if (isAdmin) {
-      fetchBrands()
-    }
-  }, [isAdmin])
+    checkAuth()
+  }, [router])
 
   const fetchBrands = async () => {
     try {
@@ -87,7 +89,7 @@ export default function AdminBrandsPage() {
     brand.country?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  if (isPending || !isAdmin) {
+  if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-brand-cream flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-teal"></div>

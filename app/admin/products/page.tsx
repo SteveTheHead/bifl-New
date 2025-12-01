@@ -1,8 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from '@/components/auth/auth-client'
-import { redirect } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -30,35 +29,40 @@ interface Product {
 }
 
 export default function AdminProductsPage() {
-  const { data: session, isPending } = useSession()
+  const router = useRouter()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [sortBy, setSortBy] = useState('created_at')
 
-  const isAdmin = session?.user?.email?.endsWith('@bifl.com') ||
-                 session?.user?.email === 'admin@example.com' ||
-                 session?.user?.email === 'admin@bifl.dev' ||
-                 process.env.NODE_ENV === 'development'
-
+  // Check admin session via API
   useEffect(() => {
-    if (!isPending && !isAdmin) {
-      redirect('/auth/signin')
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/admin/session')
+        const data = await response.json()
+        if (data.isAuthenticated) {
+          setIsAuthenticated(true)
+          fetchProducts()
+        } else {
+          router.push('/admin/signin')
+        }
+      } catch (error) {
+        router.push('/admin/signin')
+      }
     }
-  }, [session, isPending, isAdmin])
-
-  useEffect(() => {
-    if (isAdmin) {
-      fetchProducts()
-    }
-  }, [isAdmin])
+    checkAuth()
+  }, [router])
 
   const fetchProducts = async () => {
     try {
       setLoading(true)
+      console.log('Fetching products...')
       const response = await fetch('/api/admin/products')
       const data = await response.json()
+      console.log('Products fetched:', data.products?.length || 0)
       setProducts(data.products || [])
     } catch (error) {
       console.error('Failed to fetch products:', error)
@@ -139,7 +143,7 @@ export default function AdminProductsPage() {
       }
     })
 
-  if (isPending || !isAdmin) {
+  if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-brand-cream flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-teal"></div>

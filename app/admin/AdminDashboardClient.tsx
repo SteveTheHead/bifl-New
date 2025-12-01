@@ -40,10 +40,12 @@ export default function AdminDashboardClient({ session }: AdminDashboardClientPr
     avgBiflScore: 0,
     newProductsThisWeek: 0
   })
+  const [recentProducts, setRecentProducts] = useState<any[]>([])
 
   useEffect(() => {
-    // Fetch dashboard stats
+    // Fetch dashboard stats and recent products
     fetchDashboardStats()
+    fetchRecentProducts()
   }, [])
 
   const fetchDashboardStats = async () => {
@@ -53,6 +55,17 @@ export default function AdminDashboardClient({ session }: AdminDashboardClientPr
       setStats(data)
     } catch (error) {
       console.error('Failed to fetch stats:', error)
+    }
+  }
+
+  const fetchRecentProducts = async () => {
+    try {
+      const response = await fetch('/api/admin/products')
+      const data = await response.json()
+      // Get the 5 most recent products
+      setRecentProducts((data.products || []).slice(0, 5))
+    } catch (error) {
+      console.error('Failed to fetch recent products:', error)
     }
   }
 
@@ -380,19 +393,49 @@ export default function AdminDashboardClient({ session }: AdminDashboardClientPr
               </div>
             </div>
             <div className="p-5">
-              <div className="text-center py-8">
-                <div className="w-12 h-12 mx-auto mb-3 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <ShoppingBag className="w-6 h-6 text-gray-400" />
+              {recentProducts.length > 0 ? (
+                <div className="space-y-3">
+                  {recentProducts.map((product) => (
+                    <Link
+                      key={product.id}
+                      href={`/admin/products/${product.id}/edit`}
+                      className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                        {product.featured_image_url ? (
+                          <img src={product.featured_image_url} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <Package className="w-5 h-5 text-gray-400" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
+                        <p className="text-xs text-gray-500">{product.brand_name}</p>
+                      </div>
+                      {product.bifl_total_score && (
+                        <div className="flex items-center space-x-1 text-xs font-medium text-gray-600">
+                          <Star className="w-3 h-3" />
+                          <span>{product.bifl_total_score.toFixed(1)}</span>
+                        </div>
+                      )}
+                    </Link>
+                  ))}
                 </div>
-                <p className="text-sm text-gray-600 mb-3">No recent products</p>
-                <Link
-                  href="/admin/products/new"
-                  className="inline-flex items-center px-3 py-1.5 text-xs text-white font-medium bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
-                >
-                  <Plus className="w-3 h-3 mr-1" />
-                  Add product
-                </Link>
-              </div>
+              ) : (
+                <div className="text-center py-8">
+                  <div className="w-12 h-12 mx-auto mb-3 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <ShoppingBag className="w-6 h-6 text-gray-400" />
+                  </div>
+                  <p className="text-sm text-gray-600 mb-3">No recent products</p>
+                  <Link
+                    href="/admin/products/new"
+                    className="inline-flex items-center px-3 py-1.5 text-xs text-white font-medium bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
+                  >
+                    <Plus className="w-3 h-3 mr-1" />
+                    Add product
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
 
