@@ -17,7 +17,15 @@ import {
   LogOut,
   Users,
   Mail,
-  BookOpen
+  BookOpen,
+  Eye,
+  MousePointer,
+  Clock,
+  ArrowUpRight,
+  ArrowDownRight,
+  Globe,
+  Activity,
+  ExternalLink
 } from 'lucide-react'
 
 interface AdminSession {
@@ -32,6 +40,23 @@ interface AdminDashboardClientProps {
   session: AdminSession
 }
 
+interface AnalyticsData {
+  overview: {
+    activeUsers: number
+    activeUsersPrev: number
+    sessions: number
+    sessionsPrev: number
+    pageViews: number
+    pageViewsPrev: number
+    avgSessionDuration: number
+    bounceRate: number
+  }
+  topPages: Array<{ path: string; pageViews: number; users: number }>
+  events: Array<{ name: string; count: number }>
+  trafficSources: Array<{ source: string; sessions: number; users: number }>
+  lastUpdated: string
+}
+
 export default function AdminDashboardClient({ session }: AdminDashboardClientProps) {
   const [stats, setStats] = useState({
     totalProducts: 0,
@@ -42,11 +67,15 @@ export default function AdminDashboardClient({ session }: AdminDashboardClientPr
     newProductsThisWeek: 0
   })
   const [recentProducts, setRecentProducts] = useState<any[]>([])
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
+  const [analyticsLoading, setAnalyticsLoading] = useState(true)
+  const [analyticsError, setAnalyticsError] = useState<string | null>(null)
 
   useEffect(() => {
     // Fetch dashboard stats and recent products
     fetchDashboardStats()
     fetchRecentProducts()
+    fetchAnalytics()
   }, [])
 
   const fetchDashboardStats = async () => {
@@ -68,6 +97,35 @@ export default function AdminDashboardClient({ session }: AdminDashboardClientPr
     } catch (error) {
       console.error('Failed to fetch recent products:', error)
     }
+  }
+
+  const fetchAnalytics = async () => {
+    try {
+      setAnalyticsLoading(true)
+      setAnalyticsError(null)
+      const response = await fetch('/api/admin/analytics')
+      if (!response.ok) {
+        throw new Error('Failed to fetch analytics')
+      }
+      const data = await response.json()
+      setAnalytics(data)
+    } catch (error) {
+      console.error('Failed to fetch analytics:', error)
+      setAnalyticsError('Failed to load analytics data')
+    } finally {
+      setAnalyticsLoading(false)
+    }
+  }
+
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = Math.floor(seconds % 60)
+    return `${mins}m ${secs}s`
+  }
+
+  const getChangePercent = (current: number, previous: number) => {
+    if (previous === 0) return current > 0 ? 100 : 0
+    return ((current - previous) / previous) * 100
   }
 
   const handleSignOut = async () => {
@@ -210,6 +268,188 @@ export default function AdminDashboardClient({ session }: AdminDashboardClientPr
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Analytics Section */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-semibold text-gray-900">Site Analytics</h2>
+            <a
+              href="https://analytics.google.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-gray-500 hover:text-gray-900 flex items-center gap-1"
+            >
+              Open GA4 <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+
+          {analyticsLoading ? (
+            <div className="bg-white rounded-lg border border-gray-200 p-8">
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                <span className="ml-3 text-gray-600">Loading analytics...</span>
+              </div>
+            </div>
+          ) : analyticsError ? (
+            <div className="bg-white rounded-lg border border-gray-200 p-8">
+              <div className="text-center text-gray-500">
+                <Activity className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                <p>{analyticsError}</p>
+                <button
+                  onClick={fetchAnalytics}
+                  className="mt-2 text-sm text-gray-900 underline hover:no-underline"
+                >
+                  Try again
+                </button>
+              </div>
+            </div>
+          ) : analytics ? (
+            <>
+              {/* Analytics Stats Row */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Visitors (30d)</p>
+                      <p className="text-2xl font-bold text-gray-900">{analytics.overview.activeUsers.toLocaleString()}</p>
+                      {(() => {
+                        const change = getChangePercent(analytics.overview.activeUsers, analytics.overview.activeUsersPrev)
+                        return (
+                          <p className={`text-xs flex items-center mt-1 ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            {change >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                            {Math.abs(change).toFixed(1)}% vs prev
+                          </p>
+                        )
+                      })()}
+                    </div>
+                    <div className="p-2 bg-blue-50 rounded-lg">
+                      <Users className="w-5 h-5 text-blue-600" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Page Views (30d)</p>
+                      <p className="text-2xl font-bold text-gray-900">{analytics.overview.pageViews.toLocaleString()}</p>
+                      {(() => {
+                        const change = getChangePercent(analytics.overview.pageViews, analytics.overview.pageViewsPrev)
+                        return (
+                          <p className={`text-xs flex items-center mt-1 ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            {change >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                            {Math.abs(change).toFixed(1)}% vs prev
+                          </p>
+                        )
+                      })()}
+                    </div>
+                    <div className="p-2 bg-purple-50 rounded-lg">
+                      <Eye className="w-5 h-5 text-purple-600" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Avg. Session</p>
+                      <p className="text-2xl font-bold text-gray-900">{formatDuration(analytics.overview.avgSessionDuration)}</p>
+                    </div>
+                    <div className="p-2 bg-green-50 rounded-lg">
+                      <Clock className="w-5 h-5 text-green-600" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Bounce Rate</p>
+                      <p className="text-2xl font-bold text-gray-900">{analytics.overview.bounceRate.toFixed(1)}%</p>
+                    </div>
+                    <div className="p-2 bg-orange-50 rounded-lg">
+                      <MousePointer className="w-5 h-5 text-orange-600" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Analytics Details Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Top Pages */}
+                <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                  <div className="px-4 py-3 border-b border-gray-100">
+                    <h3 className="text-sm font-semibold text-gray-900">Top Pages (7d)</h3>
+                  </div>
+                  <div className="p-4 max-h-48 overflow-y-auto">
+                    {analytics.topPages.length > 0 ? (
+                      <div className="space-y-2">
+                        {analytics.topPages.slice(0, 5).map((page, i) => (
+                          <div key={i} className="flex items-center justify-between text-sm">
+                            <span className="text-gray-600 truncate max-w-[180px]" title={page.path}>
+                              {page.path === '/' ? 'Homepage' : page.path}
+                            </span>
+                            <span className="font-medium text-gray-900">{page.pageViews}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-500 text-center py-4">No data yet</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Key Events */}
+                <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                  <div className="px-4 py-3 border-b border-gray-100">
+                    <h3 className="text-sm font-semibold text-gray-900">Key Events (7d)</h3>
+                  </div>
+                  <div className="p-4 max-h-48 overflow-y-auto">
+                    {analytics.events.length > 0 ? (
+                      <div className="space-y-2">
+                        {analytics.events
+                          .filter(e => !['page_view', 'session_start', 'first_visit', 'scroll', 'user_engagement'].includes(e.name))
+                          .slice(0, 5)
+                          .map((event, i) => (
+                            <div key={i} className="flex items-center justify-between text-sm">
+                              <span className="text-gray-600">{event.name.replace(/_/g, ' ')}</span>
+                              <span className="font-medium text-gray-900">{event.count}</span>
+                            </div>
+                          ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-500 text-center py-4">No events yet</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Traffic Sources */}
+                <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                  <div className="px-4 py-3 border-b border-gray-100">
+                    <h3 className="text-sm font-semibold text-gray-900">Traffic Sources (7d)</h3>
+                  </div>
+                  <div className="p-4 max-h-48 overflow-y-auto">
+                    {analytics.trafficSources.length > 0 ? (
+                      <div className="space-y-2">
+                        {analytics.trafficSources.slice(0, 5).map((source, i) => (
+                          <div key={i} className="flex items-center justify-between text-sm">
+                            <span className="text-gray-600 flex items-center gap-1">
+                              <Globe className="w-3 h-3" />
+                              {source.source || '(direct)'}
+                            </span>
+                            <span className="font-medium text-gray-900">{source.sessions}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-500 text-center py-4">No data yet</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : null}
         </div>
 
         {/* Quick Actions Grid - Minimal Bento */}
