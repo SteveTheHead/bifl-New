@@ -5,6 +5,16 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { FAQStructuredData, BreadcrumbStructuredData, ArticleStructuredData, ItemListStructuredData } from '@/components/seo/structured-data'
 import { GuideViewTracker } from '@/components/analytics/guide-view-tracker'
+import { BrowseCategories } from '@/components/guides/browse-categories'
+import {
+  generateGuideTitle,
+  generateGuideDescription,
+  generateOpenGraph,
+  generateTwitterCard,
+} from '@/lib/seo/utils'
+
+// Enable ISR with hourly revalidation
+export const revalidate = 3600
 
 interface Product {
   id: string
@@ -164,26 +174,44 @@ export async function generateMetadata(
   if (!guide) {
     return {
       title: 'Guide Not Found',
+      description: 'The requested buying guide could not be found.',
     }
   }
 
+  // Use SEO utility functions for consistent, length-compliant metadata
+  const title = generateGuideTitle({
+    title: guide.title,
+    metaTitle: guide.meta_title || undefined,
+  })
+
+  const description = generateGuideDescription({
+    title: guide.title,
+    metaDescription: guide.meta_description || undefined,
+    introContent: guide.intro_content || undefined,
+  })
+
+  const guideUrl = `${baseUrl}/guides/${guide.slug}`
+
   return {
-    title: guide.meta_title || guide.title,
-    description: guide.meta_description || guide.intro_content?.substring(0, 160),
-    openGraph: {
-      title: guide.meta_title || guide.title,
-      description: guide.meta_description || guide.intro_content?.substring(0, 160) || '',
-      images: guide.featured_image_url ? [guide.featured_image_url] : [],
+    title,
+    description,
+
+    openGraph: generateOpenGraph({
+      title,
+      description,
+      url: guideUrl,
+      image: guide.featured_image_url || undefined,
       type: 'article',
-      url: `${baseUrl}/guides/${guide.slug}`,
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: guide.meta_title || guide.title,
-      description: guide.meta_description || guide.intro_content?.substring(0, 160) || '',
-    },
+    }),
+
+    twitter: generateTwitterCard({
+      title,
+      description,
+      image: guide.featured_image_url || undefined,
+    }),
+
     alternates: {
-      canonical: `${baseUrl}/guides/${guide.slug}`,
+      canonical: guideUrl,
     },
   }
 }
@@ -545,6 +573,9 @@ export default async function BuyingGuidePage({ params }: { params: Promise<{ sl
               </div>
             </section>
           )}
+
+          {/* Browse Categories for internal linking */}
+          <BrowseCategories />
 
           {/* CTA Section */}
           <section className="mt-16 text-center bg-gray-900 rounded-xl p-8">

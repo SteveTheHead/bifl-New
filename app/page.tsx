@@ -8,8 +8,8 @@ import { OrganizationStructuredData, WebSiteStructuredData } from '@/components/
 import { NewsletterSection } from '@/components/homepage/newsletter-section'
 import { HeroProductCarousel } from '@/components/homepage/hero-product-carousel'
 
-// Enable dynamic rendering (required because we use Supabase cookies)
-export const dynamic = 'force-dynamic'
+// Use ISR with hourly revalidation for better performance
+// Note: Removed force-dynamic to enable static generation with revalidation
 export const revalidate = 3600 // Revalidate every hour
 
 // SEO Metadata

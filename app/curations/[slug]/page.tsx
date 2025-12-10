@@ -4,6 +4,15 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import BadgeDisplay from '@/components/BadgeDisplay'
 import { BreadcrumbStructuredData, ItemListStructuredData } from '@/components/seo/structured-data'
+import {
+  generateCurationTitle,
+  generateCurationDescription,
+  generateOpenGraph,
+  generateTwitterCard,
+} from '@/lib/seo/utils'
+
+// Enable ISR with hourly revalidation
+export const revalidate = 3600
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com'
 
@@ -68,26 +77,40 @@ export async function generateMetadata(
   if (!curation) {
     return {
       title: 'Curation Not Found',
+      description: 'The requested curated collection could not be found.',
     }
   }
 
+  // Use SEO utility functions for consistent, length-compliant metadata
+  const title = generateCurationTitle({ name: curation.name })
+  const description = generateCurationDescription({
+    name: curation.name,
+    description: curation.description || undefined,
+    productCount: curation.curation_products?.length,
+  })
+
+  const curationUrl = `${baseUrl}/curations/${slug}`
+
   return {
-    title: `${curation.name} - Curated Products | Buy It For Life`,
-    description: curation.description || `Explore our curated collection: ${curation.name}`,
-    openGraph: {
-      title: `${curation.name} - Curated Products`,
-      description: curation.description || `Explore our curated collection: ${curation.name}`,
-      url: `${baseUrl}/curations/${slug}`,
-      siteName: 'Buy It For Life',
-      images: curation.featured_image_url ? [curation.featured_image_url] : [],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: `${curation.name} - Curated Products`,
-      description: curation.description || `Explore our curated collection: ${curation.name}`,
-    },
+    title,
+    description,
+
+    openGraph: generateOpenGraph({
+      title,
+      description,
+      url: curationUrl,
+      image: curation.featured_image_url || undefined,
+      type: 'website',
+    }),
+
+    twitter: generateTwitterCard({
+      title,
+      description,
+      image: curation.featured_image_url || undefined,
+    }),
+
     alternates: {
-      canonical: `${baseUrl}/curations/${slug}`,
+      canonical: curationUrl,
     },
   }
 }

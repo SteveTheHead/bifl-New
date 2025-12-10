@@ -19,33 +19,56 @@ interface ProductSchemaProps {
 }
 
 export function ProductStructuredData({ product }: { product: ProductSchemaProps }) {
-  const schema = {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com'
+
+  // Data quality validation - these fields are REQUIRED
+  // Log errors in development to catch data issues early
+  if (!product.description?.trim()) {
+    console.error(`[SEO ERROR] Product "${product.name}" is missing description - this MUST be fixed in the database`)
+  }
+  if (!product.brand?.trim()) {
+    console.error(`[SEO ERROR] Product "${product.name}" is missing brand - this MUST be fixed in the database`)
+  }
+  if (!product.image) {
+    console.error(`[SEO ERROR] Product "${product.name}" is missing image - this MUST be fixed in the database`)
+  }
+
+  // Ensure image is a valid absolute URL
+  const image = product.image?.startsWith('http') ? product.image : `${baseUrl}${product.image}`
+
+  const schema: Record<string, any> = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
     description: product.description,
-    image: product.image,
+    image: image,
     brand: {
       '@type': 'Brand',
       name: product.brand,
     },
-    ...(product.aggregateRating && {
-      aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: product.aggregateRating.ratingValue,
-        reviewCount: product.aggregateRating.reviewCount,
-      },
-    }),
-    ...(product.offers && {
-      offers: {
-        '@type': 'Offer',
-        price: product.offers.price,
-        priceCurrency: product.offers.priceCurrency,
-        availability: `https://schema.org/${product.offers.availability}`,
-        url: product.offers.url,
-        ...(product.offers.priceValidUntil && { priceValidUntil: product.offers.priceValidUntil }),
-      },
-    }),
+  }
+
+  // Add aggregateRating only if valid (must have reviewCount >= 1)
+  if (product.aggregateRating && product.aggregateRating.reviewCount >= 1) {
+    schema.aggregateRating = {
+      '@type': 'AggregateRating',
+      ratingValue: product.aggregateRating.ratingValue,
+      reviewCount: product.aggregateRating.reviewCount,
+      bestRating: 10,
+      worstRating: 0,
+    }
+  }
+
+  // Add offers only if price is valid
+  if (product.offers && product.offers.price > 0) {
+    schema.offers = {
+      '@type': 'Offer',
+      price: product.offers.price.toFixed(2),
+      priceCurrency: product.offers.priceCurrency,
+      availability: 'https://schema.org/InStock',
+      url: product.offers.url,
+      ...(product.offers.priceValidUntil && { priceValidUntil: product.offers.priceValidUntil }),
+    }
   }
 
   return (
@@ -210,34 +233,49 @@ export function ItemListStructuredData({
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: name,
-    description: description,
+    description: description || `${name} - curated products`,
     numberOfItems: products.length,
-    itemListElement: products.map((product, index) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      item: {
+    itemListElement: products.map((product, index) => {
+      const productUrl = product.url.startsWith('http') ? product.url : `${baseUrl}${product.url}`
+      const productImage = product.image?.startsWith('http') ? product.image : (product.image ? `${baseUrl}${product.image}` : undefined)
+
+      const item: Record<string, any> = {
         '@type': 'Product',
         name: product.name,
-        url: product.url.startsWith('http') ? product.url : `${baseUrl}${product.url}`,
-        ...(product.image && { image: product.image }),
-        ...(product.rating && {
-          aggregateRating: {
-            '@type': 'AggregateRating',
-            ratingValue: product.rating,
-            bestRating: 10,
-            worstRating: 0,
-          },
-        }),
-        ...(product.price && {
-          offers: {
-            '@type': 'Offer',
-            price: product.price,
-            priceCurrency: 'USD',
-            availability: 'https://schema.org/InStock',
-          },
-        }),
-      },
-    })),
+        url: productUrl,
+      }
+
+      if (productImage) {
+        item.image = productImage
+      }
+
+      // Only add aggregateRating with required reviewCount
+      if (product.rating && product.rating > 0) {
+        item.aggregateRating = {
+          '@type': 'AggregateRating',
+          ratingValue: product.rating,
+          bestRating: 10,
+          worstRating: 0,
+          reviewCount: 1, // Required field for aggregateRating
+        }
+      }
+
+      // Only add offers if price is valid
+      if (product.price && product.price > 0) {
+        item.offers = {
+          '@type': 'Offer',
+          price: product.price.toFixed(2),
+          priceCurrency: 'USD',
+          availability: 'https://schema.org/InStock',
+        }
+      }
+
+      return {
+        '@type': 'ListItem',
+        position: index + 1,
+        item: item,
+      }
+    }),
   }
 
   return (

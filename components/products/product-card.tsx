@@ -56,7 +56,29 @@ export function ProductCard({ product, variant = 'vertical' }: ProductCardProps)
                 <h3 className="text-lg font-semibold text-brand-dark truncate">
                   {product.name}
                 </h3>
-                <p className="text-brand-gray text-sm">{product.brand_name}</p>
+                <div className="flex items-center gap-2 text-sm">
+                  {product.brand_name && product.brand_slug && product.category_slug ? (
+                    <Link
+                      href={`/categories/${product.category_slug}?brand=${product.brand_slug}`}
+                      className="text-brand-gray hover:text-brand-teal transition-colors"
+                    >
+                      {product.brand_name}
+                    </Link>
+                  ) : (
+                    <span className="text-brand-gray">{product.brand_name}</span>
+                  )}
+                  {product.category_name && product.category_slug && (
+                    <>
+                      <span className="text-gray-300">•</span>
+                      <Link
+                        href={`/categories/${product.category_slug}`}
+                        className="text-brand-gray hover:text-brand-teal transition-colors"
+                      >
+                        {product.category_name}
+                      </Link>
+                    </>
+                  )}
+                </div>
               </div>
               {product.price && (
                 <div className="text-right ml-4">
@@ -154,7 +176,29 @@ export function ProductCard({ product, variant = 'vertical' }: ProductCardProps)
           <h3 className="text-lg font-semibold text-brand-dark mb-1 line-clamp-2">
             {product.name}
           </h3>
-          <p className="text-brand-gray text-sm">{product.brand_name}</p>
+          <div className="flex items-center gap-2 text-sm flex-wrap">
+            {product.brand_name && product.brand_slug && product.category_slug ? (
+              <Link
+                href={`/categories/${product.category_slug}?brand=${product.brand_slug}`}
+                className="text-brand-gray hover:text-brand-teal transition-colors"
+              >
+                {product.brand_name}
+              </Link>
+            ) : (
+              <span className="text-brand-gray">{product.brand_name}</span>
+            )}
+            {product.category_name && product.category_slug && (
+              <>
+                <span className="text-gray-300">•</span>
+                <Link
+                  href={`/categories/${product.category_slug}`}
+                  className="text-brand-gray hover:text-brand-teal transition-colors"
+                >
+                  {product.category_name}
+                </Link>
+              </>
+            )}
+          </div>
         </div>
 
         {/* BIFL Score */}

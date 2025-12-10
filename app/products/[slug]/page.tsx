@@ -4,6 +4,12 @@ import { notFound } from 'next/navigation'
 import { ProductDetailView } from '@/components/products/product-detail-view'
 import { ProductStructuredData, FAQStructuredData, BreadcrumbStructuredData } from '@/components/seo/structured-data'
 import { createClient, createBuildClient } from '@/lib/supabase/server'
+import {
+  generateProductTitle,
+  generateProductDescription,
+  generateOpenGraph,
+  generateTwitterCard,
+} from '@/lib/seo/utils'
 
 interface ProductPageProps {
   params: Promise<{
@@ -104,63 +110,57 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   }
 
   const productData = product as any
-  const biflScore = productData.bifl_total_score || 0
-  const brandName = productData.brands?.name || 'Unknown Brand'
+  const brandName = productData.brands?.name || ''
   const categoryName = productData.categories?.name || ''
 
-  // Create SEO-optimized title
-  const title = `${productData.name} Review - BIFL Score ${biflScore}/10 | Buy It For Life`
+  // Use SEO utility functions for consistent, length-compliant metadata
+  const title = generateProductTitle({
+    name: productData.name,
+    brandName,
+    biflScore: productData.bifl_total_score,
+  })
 
-  // Create SEO-optimized description
-  const verdictSnippet = productData.verdict_summary?.substring(0, 100) || ''
-  const fullDescription = `${productData.name} by ${brandName} - BIFL Score: ${biflScore}/10. ${verdictSnippet} Expert review of durability, repairability, and warranty.`
-  // Truncate at word boundary to avoid cut-off words
-  const description = fullDescription.length <= 160
-    ? fullDescription
-    : fullDescription.substring(0, 157).replace(/\s+\S*$/, '') + '...'
+  const description = generateProductDescription({
+    name: productData.name,
+    brandName,
+    biflScore: productData.bifl_total_score,
+    verdictSummary: productData.verdict_summary,
+    excerpt: productData.excerpt,
+  })
 
   // Keywords
   const keywords = [
     productData.name,
     `${productData.name} review`,
-    `${productData.name} BIFL`,
     'buy it for life',
     brandName,
     categoryName,
-    'durability review',
-    'product review',
+    'durable products',
   ].filter(Boolean)
+
+  const productUrl = `${baseUrl}/products/${productData.slug}`
 
   return {
     title,
-    description: description.substring(0, 160), // Keep under 160 chars
+    description,
     keywords,
 
-    openGraph: {
-      title: `${productData.name} - BIFL Score ${biflScore}/10`,
+    openGraph: generateOpenGraph({
+      title,
       description,
-      url: `${baseUrl}/products/${productData.slug}`,
-      siteName: 'Buy It For Life',
-      images: productData.featured_image_url ? [
-        {
-          url: productData.featured_image_url,
-          width: 1200,
-          height: 630,
-          alt: `${productData.name} by ${brandName}`,
-        }
-      ] : [],
+      url: productUrl,
+      image: productData.featured_image_url,
       type: 'article',
-    },
+    }),
 
-    twitter: {
-      card: 'summary_large_image',
-      title: `${productData.name} - BIFL Score ${biflScore}/10`,
+    twitter: generateTwitterCard({
+      title,
       description,
-      images: productData.featured_image_url ? [productData.featured_image_url] : [],
-    },
+      image: productData.featured_image_url,
+    }),
 
     alternates: {
-      canonical: `${baseUrl}/products/${productData.slug}`,
+      canonical: productUrl,
     },
 
     robots: {

@@ -3,6 +3,15 @@ import { createClient, createBuildClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { CategoryPageClient } from '@/components/categories/category-page-client'
 import { Metadata } from 'next'
+import {
+  generateCategoryTitle,
+  generateCategoryDescription,
+  generateOpenGraph,
+  generateTwitterCard,
+} from '@/lib/seo/utils'
+
+// Enable ISR with hourly revalidation
+export const revalidate = 3600
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>
@@ -51,9 +60,15 @@ export async function generateMetadata({ params, searchParams }: CategoryPagePro
     .eq('status', 'published')
 
   const categoryName = (category as any).name
-  const title = `Best ${categoryName} 2024 - BIFL Buying Guide & Reviews`
-  const description = (category as any).description ||
-    `Discover the ${productCount || 'best'} highest-rated ${categoryName.toLowerCase()} products built to last a lifetime. Expert reviews, AI-generated buying guides, and detailed BIFL ratings. Find durable, repairable ${categoryName.toLowerCase()} with strong warranties.`
+  const categoryDescription = (category as any).description
+
+  // Use SEO utility functions for consistent, length-compliant metadata
+  const title = generateCategoryTitle({ name: categoryName })
+  const description = generateCategoryDescription({
+    name: categoryName,
+    description: categoryDescription,
+    productCount: productCount || undefined,
+  })
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com'
   const canonicalUrl = `${baseUrl}/categories/${slug}`
@@ -74,31 +89,22 @@ export async function generateMetadata({ params, searchParams }: CategoryPagePro
       'long lasting',
       'reviews',
       'buying guide',
-      'best quality',
-      'repairable',
-      'warranty'
     ].join(', '),
-    openGraph: {
-      title: `Best ${categoryName} - Buy It For Life Products`,
-      description,
-      type: 'website',
-      siteName: 'Buy It For Life',
-      url: `${baseUrl}/categories/${slug}`,
-      images: [
-        {
-          url: '/og-image-category.jpg',
-          width: 1200,
-          height: 630,
-          alt: `Best ${categoryName} products that last a lifetime`
-        }
-      ]
-    },
-    twitter: {
-      card: 'summary_large_image',
+
+    openGraph: generateOpenGraph({
       title,
       description,
-      images: ['/og-image-category.jpg']
-    },
+      url: canonicalUrl,
+      image: '/og-image-category.jpg',
+      type: 'website',
+    }),
+
+    twitter: generateTwitterCard({
+      title,
+      description,
+      image: '/og-image-category.jpg',
+    }),
+
     robots: {
       index: shouldIndex,
       follow: true,
@@ -111,7 +117,7 @@ export async function generateMetadata({ params, searchParams }: CategoryPagePro
       },
     },
     alternates: {
-      canonical: canonicalUrl, // Always point to clean URL without filters
+      canonical: canonicalUrl,
     },
   }
 }

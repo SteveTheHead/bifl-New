@@ -6,7 +6,8 @@ import { sb } from '../supabase-utils'
 export async function getProducts(limit = 20, offset = 0) {
   const supabase = await createClient()
 
-  // Select only necessary fields for better performance
+  // Select only fields needed for product grid display
+  // Minimized payload for better performance and smaller HTML size
   let query = supabase
     .from('products_with_taxonomy')
     .select(`
@@ -16,21 +17,15 @@ export async function getProducts(limit = 20, offset = 0) {
       brand_name,
       category_name,
       category_id,
-      country_of_origin,
       featured_image_url,
       bifl_total_score,
       bifl_certification,
       price,
-      status,
-      is_featured,
-      use_case,
-      excerpt,
       durability_score,
       repairability_score,
       warranty_score,
       sustainability_score,
-      social_score,
-      created_at
+      social_score
     `)
     .eq('status', 'published')
     .order('bifl_total_score', { ascending: false })

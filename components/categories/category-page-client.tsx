@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { ProductCard } from '@/components/products/product-card'
 import { BuyingGuideSection } from '@/components/categories/buying-guide-section'
 import { CategoryFilters } from '@/components/categories/category-filters'
+import { RelatedCategories } from '@/components/categories/related-categories'
 import { Filter, Grid, List, ChevronDown, ChevronUp } from 'lucide-react'
 import { BuyingGuide } from '@/lib/ai/buying-guide'
 
@@ -389,6 +390,12 @@ export function CategoryPageClient({
           </div>
         </div>
       </div>
+
+      {/* Related Categories for internal linking */}
+      <RelatedCategories
+        currentCategoryId={category.id}
+        currentCategorySlug={category.slug}
+      />
       </div>
     </>
   )
