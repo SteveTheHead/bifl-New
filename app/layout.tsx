@@ -12,6 +12,7 @@ import { ExitIntentFeedback } from "@/components/exit-intent-feedback";
 import FooterSection from "@/components/homepage/footer";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com'
 
 export const metadata: Metadata = {
@@ -65,6 +66,7 @@ export default function RootLayout({
               <ExitIntentFeedback />
               <Toaster />
               <Analytics />
+              <SpeedInsights />
             </CompareProvider>
           </AuthProvider>
         </ThemeProvider>
