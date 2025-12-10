@@ -54,6 +54,14 @@ export default function FooterSection() {
                   How It Works
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/scoring-methodology"
+                  className="text-brand-gray hover:text-brand-teal transition-colors duration-150"
+                >
+                  Scoring Methodology
+                </Link>
+              </li>
             </ul>
           </div>
 

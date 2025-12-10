@@ -172,6 +172,12 @@ export default function HowItWorks() {
               Each product's BIFL Total Score is a weighted average, with the highest importance placed on durability and social consensus,
               followed by warranty and repairability.
             </p>
+            <Link
+              href="/scoring-methodology"
+              className="inline-block mt-4 text-brand-teal font-semibold hover:underline"
+            >
+              Read our full scoring methodology →
+            </Link>
           </div>
 
           <div className="max-w-5xl mx-auto space-y-3">
