@@ -1,12 +1,16 @@
 // @ts-nocheck
 import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { requireAdmin } from '@/lib/auth/admin'
 
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const unauthorized = await requireAdmin()
+    if (unauthorized) return unauthorized
+
     const { id } = await params
     const body = await request.json()
     const { status: feedbackStatus } = body
@@ -50,6 +54,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const unauthorized = await requireAdmin()
+    if (unauthorized) return unauthorized
+
     const { id } = await params
     const supabase = createAdminClient()
 

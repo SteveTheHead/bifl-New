@@ -2,9 +2,13 @@ import { NextResponse } from 'next/server'
 import { db } from '@/db/drizzle'
 import { user } from '@/db/schema'
 import { desc } from 'drizzle-orm'
+import { requireAdmin } from '@/lib/auth/admin'
 
 export async function GET() {
   try {
+    const unauthorized = await requireAdmin()
+    if (unauthorized) return unauthorized
+
     // Fetch all users from Better Auth database
     const users = await db
       .select({

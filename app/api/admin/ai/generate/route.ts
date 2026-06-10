@@ -2,14 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { aiService } from '@/lib/ai/service'
 import { SYSTEM_PROMPTS, formatProductForAI, formatProductsForComparison, formatCategoryData } from '@/lib/ai/prompts'
 import { getProductById, getCategories, getProducts } from '@/lib/supabase/queries'
-import { isAdminRequest } from '@/lib/auth/admin'
+import { requireAdmin } from '@/lib/auth/admin'
 
 export async function POST(request: NextRequest) {
   try {
     // Check admin authentication
-    if (!isAdminRequest(request)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const unauthorized = await requireAdmin()
+    if (unauthorized) return unauthorized
 
     // Check if AI service is available
     if (!aiService.isAvailable()) {

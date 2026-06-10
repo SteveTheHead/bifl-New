@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { sb } from '@/lib/supabase-utils'
+import { requireAdmin } from '@/lib/auth/admin'
 
 export async function GET() {
   try {
+    const unauthorized = await requireAdmin()
+    if (unauthorized) return unauthorized
+
     const supabase = await createClient()
 
     const { data: categories, error } = await supabase
@@ -25,6 +29,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const unauthorized = await requireAdmin()
+    if (unauthorized) return unauthorized
+
     const body = await request.json()
     const supabase = await createClient()
 

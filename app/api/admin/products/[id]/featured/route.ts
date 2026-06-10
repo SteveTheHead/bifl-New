@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { toggleProductFeatured } from '@/lib/supabase/queries'
+import { requireAdmin } from '@/lib/auth/admin'
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const unauthorized = await requireAdmin()
+    if (unauthorized) return unauthorized
+
     const body = await request.json()
     const { is_featured } = body
     const { id } = await params

@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { requireAdmin } from '@/lib/auth/admin'
 
 // POST /api/admin/curations/[id]/products - Add products to a curation
 export async function POST(
@@ -7,6 +8,9 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const unauthorized = await requireAdmin()
+    if (unauthorized) return unauthorized
+
     const { id: curationId } = await params
     const supabase = await createClient()
     const body = await request.json()
@@ -99,6 +103,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const unauthorized = await requireAdmin()
+    if (unauthorized) return unauthorized
+
     const { id: curationId } = await params
     const supabase = await createClient()
 

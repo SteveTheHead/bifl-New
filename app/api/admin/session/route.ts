@@ -1,26 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
+import { NextResponse } from 'next/server'
+import { getAdminSession } from '@/lib/auth/admin'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const cookieStore = await cookies()
-    const adminSessionCookie = cookieStore.get('admin-session')
+    const adminSession = await getAdminSession()
 
-    if (!adminSessionCookie) {
-      return NextResponse.json({
-        isAuthenticated: false,
-        user: null
-      })
-    }
-
-    // Parse the admin session cookie
-    const adminSession = JSON.parse(adminSessionCookie.value)
-
-    // Check if session is still valid (24 hours)
-    const sessionAge = Date.now() - (adminSession.loginTime || 0)
-    const maxAge = 24 * 60 * 60 * 1000 // 24 hours in milliseconds
-
-    if (sessionAge > maxAge) {
+    if (!adminSession) {
       return NextResponse.json({
         isAuthenticated: false,
         user: null

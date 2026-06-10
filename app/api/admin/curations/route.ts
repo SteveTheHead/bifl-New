@@ -1,9 +1,13 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { requireAdmin } from '@/lib/auth/admin'
 
 // GET /api/admin/curations - List all curations
 export async function GET() {
   try {
+    const unauthorized = await requireAdmin()
+    if (unauthorized) return unauthorized
+
     const supabase = await createClient()
 
     const { data: curations, error } = await supabase
@@ -45,6 +49,9 @@ export async function GET() {
 // POST /api/admin/curations - Create a new curation
 export async function POST(request: Request) {
   try {
+    const unauthorized = await requireAdmin()
+    if (unauthorized) return unauthorized
+
     const supabase = await createClient()
     const body = await request.json()
 
