@@ -26,7 +26,7 @@ export async function PATCH(
       if (sessionAge > maxAge) {
         return NextResponse.json({ error: 'Session expired' }, { status: 401 })
       }
-    } catch (parseError) {
+    } catch {
       return NextResponse.json({ error: 'Invalid session' }, { status: 401 })
     }
 

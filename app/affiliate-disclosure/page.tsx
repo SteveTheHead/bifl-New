@@ -108,7 +108,7 @@ export default function AffiliateDisclosure() {
                 <li><strong>Fund research:</strong> Product testing, data analysis, and investigation</li>
                 <li><strong>Create content:</strong> Detailed reviews, comparisons, and buying guides</li>
                 <li><strong>Maintain the site:</strong> Updates, improvements, and new features</li>
-                <li><strong>Keep content free:</strong> We don't charge readers to access our reviews</li>
+                <li><strong>Keep content free:</strong> We don&apos;t charge readers to access our reviews</li>
               </ul>
             </section>
 
@@ -130,7 +130,7 @@ export default function AffiliateDisclosure() {
             <section>
               <h2 className="text-2xl font-bold text-brand-dark mb-4">Products We Recommend</h2>
               <p className="leading-relaxed mb-4">
-                We feature products that we genuinely believe are worth recommending based on our "Buy It For Life" criteria. We consider:
+                We feature products that we genuinely believe are worth recommending based on our &quot;Buy It For Life&quot; criteria. We consider:
               </p>
               <ul className="list-disc pl-6 mb-4 space-y-2">
                 <li><strong>Longevity:</strong> Products designed to last 10+ years</li>
@@ -140,7 +140,7 @@ export default function AffiliateDisclosure() {
                 <li><strong>Value:</strong> Worth the investment over the long term</li>
               </ul>
               <p className="leading-relaxed">
-                If a product doesn't meet our standards, we won't recommend it—regardless of potential affiliate earnings.
+                If a product doesn&apos;t meet our standards, we won&apos;t recommend it—regardless of potential affiliate earnings.
               </p>
             </section>
 
@@ -150,7 +150,7 @@ export default function AffiliateDisclosure() {
                 Product prices displayed on our website are shown for reference only and may not reflect real-time pricing. Prices can change frequently on retail sites.
               </p>
               <p className="leading-relaxed">
-                <strong>The final price you see at checkout on the retailer's website is the price you will pay.</strong> We encourage you to verify pricing before completing your purchase.
+                <strong>The final price you see at checkout on the retailer&apos;s website is the price you will pay.</strong> We encourage you to verify pricing before completing your purchase.
               </p>
             </section>
 
@@ -168,7 +168,7 @@ export default function AffiliateDisclosure() {
                 <strong>If you find our content helpful and choose to use our affiliate links, thank you!</strong> Your support allows us to continue providing free, independent product reviews and recommendations.
               </p>
               <p className="leading-relaxed">
-                If you prefer not to use affiliate links, we completely understand and respect your choice. You'll still have full access to all our reviews and content.
+                If you prefer not to use affiliate links, we completely understand and respect your choice. You&apos;ll still have full access to all our reviews and content.
               </p>
             </section>
 
@@ -182,7 +182,7 @@ export default function AffiliateDisclosure() {
             <section>
               <h2 className="text-2xl font-bold text-brand-dark mb-4">Questions About Our Affiliate Relationships?</h2>
               <p className="leading-relaxed mb-4">
-                We believe in full transparency. If you have any questions about our affiliate relationships, how we evaluate products, or our editorial process, please don't hesitate to contact us:
+                We believe in full transparency. If you have any questions about our affiliate relationships, how we evaluate products, or our editorial process, please don&apos;t hesitate to contact us:
               </p>
               <div className="bg-gray-50 p-6 rounded-lg">
                 <p className="mb-2">
@@ -197,14 +197,14 @@ export default function AffiliateDisclosure() {
             <section>
               <h2 className="text-2xl font-bold text-brand-dark mb-4">FTC Guidelines Compliance</h2>
               <p className="leading-relaxed">
-                This disclosure is made in accordance with the Federal Trade Commission's 16 CFR Part 255: "Guides Concerning the Use of Endorsements and Testimonials in Advertising." We are required by the FTC to disclose our affiliate relationships and ensure transparency with our readers.
+                This disclosure is made in accordance with the Federal Trade Commission&apos;s 16 CFR Part 255: &quot;Guides Concerning the Use of Endorsements and Testimonials in Advertising.&quot; We are required by the FTC to disclose our affiliate relationships and ensure transparency with our readers.
               </p>
             </section>
 
             <div className="bg-green-50 border-l-4 border-green-500 p-6 rounded mt-8">
               <h3 className="text-lg font-semibold text-green-900 mb-2">Thank You for Your Support</h3>
               <p className="text-green-800">
-                Your trust means everything to us. We're committed to providing honest, thorough, and independent product reviews to help you make informed purchasing decisions. When you support us through affiliate links, you help us continue this mission—and we're truly grateful.
+                Your trust means everything to us. We&apos;re committed to providing honest, thorough, and independent product reviews to help you make informed purchasing decisions. When you support us through affiliate links, you help us continue this mission—and we&apos;re truly grateful.
               </p>
             </div>
           </div>

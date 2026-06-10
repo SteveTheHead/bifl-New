@@ -29,7 +29,7 @@ export default function TermsOfService() {
             <section>
               <h2 className="text-2xl font-bold text-brand-dark mb-4">1. Acceptance of Terms</h2>
               <p className="leading-relaxed">
-                Welcome to BuyItForLifeProducts.com. By accessing or using our website, you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use our website.
+                Welcome to BuyItForLifeProducts.com. By accessing or using our website, you agree to be bound by these Terms of Service (&quot;Terms&quot;). If you do not agree to these Terms, please do not use our website.
               </p>
               <p className="leading-relaxed">
                 We reserve the right to modify these Terms at any time. Your continued use of the website after changes are posted constitutes acceptance of the modified Terms.
@@ -115,7 +115,7 @@ export default function TermsOfService() {
             <section>
               <h2 className="text-2xl font-bold text-brand-dark mb-4">7. Disclaimer of Warranties</h2>
               <p className="leading-relaxed mb-4">
-                OUR WEBSITE AND ALL CONTENT ARE PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO:
+                OUR WEBSITE AND ALL CONTENT ARE PROVIDED &quot;AS IS&quot; AND &quot;AS AVAILABLE&quot; WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>Warranties of merchantability</li>
@@ -147,7 +147,7 @@ export default function TermsOfService() {
             <section>
               <h2 className="text-2xl font-bold text-brand-dark mb-4">9. Indemnification</h2>
               <p className="leading-relaxed">
-                You agree to indemnify, defend, and hold harmless BuyItForLifeProducts.com and its officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, and expenses, including reasonable attorneys' fees, arising out of or in any way connected with your access to or use of our website, your violation of these Terms, or your violation of any rights of another.
+                You agree to indemnify, defend, and hold harmless BuyItForLifeProducts.com and its officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, and expenses, including reasonable attorneys&apos; fees, arising out of or in any way connected with your access to or use of our website, your violation of these Terms, or your violation of any rights of another.
               </p>
             </section>
 
@@ -182,7 +182,7 @@ export default function TermsOfService() {
             <section>
               <h2 className="text-2xl font-bold text-brand-dark mb-4">13. Changes to Terms</h2>
               <p className="leading-relaxed">
-                We reserve the right to modify these Terms at any time. We will notify you of any material changes by posting the new Terms on this page and updating the "Last Updated" date. Your continued use of the website after such changes constitutes your acceptance of the new Terms.
+                We reserve the right to modify these Terms at any time. We will notify you of any material changes by posting the new Terms on this page and updating the &quot;Last Updated&quot; date. Your continued use of the website after such changes constitutes your acceptance of the new Terms.
               </p>
             </section>
 

@@ -16,7 +16,7 @@ interface RelatedCategoriesProps {
   currentCategorySlug: string
 }
 
-export function RelatedCategories({ currentCategoryId, currentCategorySlug }: RelatedCategoriesProps) {
+export function RelatedCategories({ currentCategoryId }: RelatedCategoriesProps) {
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
 

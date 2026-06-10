@@ -41,6 +41,8 @@ export default function ManageCurationProductsPage({ params }: { params: Promise
 
   useEffect(() => {
     fetchData()
+    // run once on mount only
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   async function fetchData() {

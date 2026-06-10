@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { useSearchParams, useRouter, usePathname } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Search } from 'lucide-react'
 import { trackFilterUsage } from '@/lib/analytics'
@@ -49,8 +49,6 @@ interface FilterProps {
 
 export function ProductFilters({ onFiltersChange, categories, allCategories, products, currentPriceRange, resetTrigger }: FilterProps) {
   const searchParams = useSearchParams()
-  const router = useRouter()
-  const pathname = usePathname()
 
   const [search, setSearch] = useState('')
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
@@ -137,7 +135,7 @@ export function ProductFilters({ onFiltersChange, categories, allCategories, pro
     }
 
     return filtered
-  }, [products, search, selectedCategories, selectedBrands, selectedBadges, selectedScoreRanges, selectedCountries])
+  }, [products, search, selectedCategories, selectedBrands, selectedBadges, selectedScoreRanges, selectedCountries, allCategories])
 
   const priceStats = useMemo(() => {
     if (filteredProductsForPriceCalc.length === 0) return { min: 0, max: 10000 }
@@ -254,18 +252,6 @@ export function ProductFilters({ onFiltersChange, categories, allCategories, pro
       prev.includes(categoryId)
         ? prev.filter(id => id !== categoryId)
         : [...prev, categoryId]
-    )
-  }
-
-  const toggleBrand = (brandId: string) => {
-    const isAdding = !selectedBrands.includes(brandId)
-    if (isAdding) {
-      trackFilterUsage('brand', brandId)
-    }
-    setSelectedBrands(prev =>
-      prev.includes(brandId)
-        ? prev.filter(id => id !== brandId)
-        : [...prev, brandId]
     )
   }
 

@@ -49,7 +49,7 @@ export const auth = betterAuth({
   emailVerification: {
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
-    sendVerificationEmail: async ({ user, url, token }) => {
+    sendVerificationEmail: async ({ user, url }) => {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://buyitforlifeproducts.com';
 
       try {

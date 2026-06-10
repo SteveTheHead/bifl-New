@@ -2,13 +2,12 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { authClient } from '@/lib/auth-client'
 
 export const dynamic = 'force-dynamic'
 
 export default function SignInPage() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const [error, setError] = useState<string>('')
   const [message, setMessage] = useState<string>('')
@@ -34,7 +33,7 @@ export default function SignInPage() {
     const password = formData.get('password') as string
 
     try {
-      const { data, error } = await authClient.signIn.email({
+      const { error } = await authClient.signIn.email({
         email,
         password,
       })

@@ -69,7 +69,7 @@ interface ReviewsListProps {
   refreshTrigger?: number
 }
 
-export function ReviewsList({ productId, refreshTrigger }: ReviewsListProps) {
+export function ReviewsList({ productId }: ReviewsListProps) {
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

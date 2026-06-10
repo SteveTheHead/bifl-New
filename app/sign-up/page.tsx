@@ -50,7 +50,7 @@ export default function SignUpPage() {
           router.push('/user-dashboard')
         }
       }
-    } catch (err) {
+    } catch {
       setError(isSignUp ? 'Sign up failed' : 'Sign in failed')
     } finally {
       setLoading(false)

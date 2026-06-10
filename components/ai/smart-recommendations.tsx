@@ -26,13 +26,6 @@ interface Recommendation {
   affiliate_link?: string
 }
 
-interface RecommendationResponse {
-  recommendations: Recommendation[]
-  type: 'product-based' | 'preference-based' | 'trending'
-  reasoning?: string
-  behaviorScore?: number
-}
-
 export function SmartRecommendations({
   productId,
   title,
@@ -50,6 +43,7 @@ export function SmartRecommendations({
 
   useEffect(() => {
     loadRecommendations()
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadRecommendations is stable; re-run only when productId changes
   }, [productId])
 
   const loadRecommendations = async () => {

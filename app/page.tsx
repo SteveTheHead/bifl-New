@@ -247,7 +247,7 @@ export default async function HomePage() {
               </div>
               <h3 className="text-xl font-semibold text-brand-dark mb-4">Community-Sourced</h3>
               <p className="text-brand-gray">
-                Our recommendations come from the 2.6M+ Buy It For Life community, sustainability forums, and real owners who've tested products for years, sometimes decades.
+                Our recommendations come from the 2.6M+ Buy It For Life community, sustainability forums, and real owners who&apos;ve tested products for years, sometimes decades.
               </p>
             </div>
 

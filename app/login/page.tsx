@@ -39,7 +39,7 @@ export default function LoginPage() {
       } else {
         router.push('/user-dashboard')
       }
-    } catch (err) {
+    } catch {
       setError('Sign in failed')
     } finally {
       setLoading(false)

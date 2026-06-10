@@ -60,7 +60,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   try {
     // Get products and taxonomy data
     // Note: In dev mode this may be slow, but production with caching will be fast
-    const [products, mainCategories, allCategories, priceRanges] = await Promise.all([
+    const [products, mainCategories, allCategories] = await Promise.all([
       getProducts(0, 0), // Get all products (needed for client-side filtering)
       getCategories(), // Main categories for display
       getAllCategories(), // All categories including subcategories for counting

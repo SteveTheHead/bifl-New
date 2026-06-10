@@ -1,7 +1,6 @@
 'use client'
 
-import { useState } from 'react'
-import { Sparkles, Droplets, Shield, Clock, ChevronDown, ChevronUp } from 'lucide-react'
+import { Sparkles, Droplets, Shield, Clock } from 'lucide-react'
 
 interface CareStep {
   step: number
@@ -28,8 +27,6 @@ interface ProductCareMaintenanceProps {
 }
 
 export function ProductCareMaintenance({ careData }: ProductCareMaintenanceProps) {
-  const [isExpanded, setIsExpanded] = useState(true)
-
   // If no care data is provided, don't render anything
   if (!careData?.content && (!careData?.steps || careData.steps.length === 0)) {
     return null

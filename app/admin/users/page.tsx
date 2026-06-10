@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Users as UsersIcon, CheckCircle, XCircle, Mail, Calendar, User } from 'lucide-react'
 
@@ -16,7 +15,6 @@ interface User {
 }
 
 export default function UsersPage() {
-  const router = useRouter()
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [totalUsers, setTotalUsers] = useState(0)

@@ -95,7 +95,6 @@ function getWordVariations(word: string): string[] {
 
 // Check if any word variation matches in the text (using word boundaries)
 function matchesAnyVariation(text: string, word: string): boolean {
-  const textLower = text.toLowerCase()
   const variations = getWordVariations(word)
   return variations.some(variant => {
     // Use word boundary regex to match whole words only
@@ -112,18 +111,6 @@ function startsWithWord(text: string, word: string): boolean {
 }
 
 // Check if word is a standalone/primary word (not a modifier)
-function isStandaloneWord(text: string, word: string): boolean {
-  const textLower = text.toLowerCase()
-  const wordLower = word.toLowerCase()
-
-  if (textLower === wordLower) return true
-
-  const commonModifiers = ['the', 'a', 'an', 'professional', 'premium', 'deluxe', 'classic']
-  const words = textLower.split(/\s+/).filter(w => !commonModifiers.includes(w))
-
-  return words.length === 1 && words[0] === wordLower
-}
-
 // Detect if this is a compound/accessory product (e.g., "knife sharpener" when searching "knife")
 function isCompoundMatch(text: string, searchWord: string): boolean {
   const textLower = text.toLowerCase()
@@ -199,48 +186,6 @@ function countWordsInField(fieldText: string, words: string[]): number {
 }
 
 // Calculate enhanced relevance score
-function calculateEnhancedScore(
-  product: any,
-  searchWords: string[],
-  fieldName: string,
-  fieldValue: string,
-  baseScore: number
-): number {
-  let score = baseScore
-  const fieldLower = (fieldValue || '').toLowerCase()
-
-  searchWords.forEach(searchWord => {
-    const variations = getWordVariations(searchWord)
-
-    variations.forEach(variant => {
-      if (fieldLower.includes(variant)) {
-        // Position bonus: word at start is more relevant
-        if (startsWithWord(fieldValue, variant)) {
-          score += 2
-        }
-
-        // Standalone bonus: word is the primary subject
-        if (isStandaloneWord(fieldValue, variant)) {
-          score += 3
-        }
-
-        // Exact word boundary match (whole word, not substring)
-        const wordBoundaryRegex = new RegExp(`\\b${variant}\\b`, 'i')
-        if (wordBoundaryRegex.test(fieldValue)) {
-          score += 1.5
-        }
-
-        // Compound penalty: this is an accessory, not the main product
-        if (fieldName === 'name' && isCompoundMatch(fieldValue, variant)) {
-          score -= 2
-        }
-      }
-    })
-  })
-
-  return score
-}
-
 // Product card component
 function SimpleProductCard({ product }: { product: Product }) {
   const totalScore = product.bifl_total_score || 0
@@ -352,7 +297,7 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
 
   const [displayCount, setDisplayCount] = useState(48)
   const [pageSize, setPageSize] = useState(48)
-  const [resetTrigger, setResetTrigger] = useState(0)
+  const [resetTrigger] = useState(0)
 
   // Update filters when URL parameters change (e.g., clicking category links)
   useEffect(() => {
@@ -463,7 +408,6 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
 
           // Count matches per field
           const nameWordCount = countWordsInField(name, words)
-          const brandWordCount = countWordsInField(brand, words)
           const useCaseWordCount = countWordsInField(useCase, words)
 
           // Base scores for each word match
@@ -626,7 +570,7 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
     // If search is active, keep the relevancy sort already applied
 
     return filtered
-  }, [initialProducts, filters])
+  }, [initialProducts, filters, allCategories])
 
   // Get products to display based on current display count
   const displayedProducts = filteredProducts.slice(0, displayCount)
@@ -723,7 +667,7 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
             <div className="mb-4 p-4 bg-teal-50 border-2 border-teal-400 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <p className="text-sm text-gray-900 flex-1">
                 <span className="font-semibold">Filters active:</span>
-                {filters.search && <span className="ml-2">Search: "{filters.search}"</span>}
+                {filters.search && <span className="ml-2">Search: &quot;{filters.search}&quot;</span>}
                 {filters.categories && filters.categories.length > 0 && <span className="ml-2">• {filters.categories.length} {filters.categories.length === 1 ? 'category' : 'categories'}</span>}
                 {filters.brands && filters.brands.length > 0 && <span className="ml-2">• {filters.brands.length} {filters.brands.length === 1 ? 'brand' : 'brands'}</span>}
                 {filters.badges && filters.badges.length > 0 && <span className="ml-2">• {filters.badges.length} {filters.badges.length === 1 ? 'badge' : 'badges'}</span>}

@@ -60,7 +60,7 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
         setStatus('error')
         setMessage(data.message || 'Failed to submit feedback. Please try again.')
       }
-    } catch (error) {
+    } catch {
       setStatus('error')
       setMessage('An unexpected error occurred. Please try again.')
     }
@@ -116,7 +116,7 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
             <div className="border-t border-gray-200 pt-6">
               <h3 className="text-brand-dark font-semibold mb-2">Contact Info (Optional)</h3>
               <p className="text-brand-gray text-sm mb-4">
-                Provide your contact details if you'd like a response or are open to follow-up questions from our research team.
+                Provide your contact details if you&apos;d like a response or are open to follow-up questions from our research team.
               </p>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>

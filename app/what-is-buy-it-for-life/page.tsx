@@ -1,6 +1,5 @@
 import { Metadata } from 'next'
 import Link from "next/link"
-import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 
 export const metadata: Metadata = {
@@ -96,7 +95,7 @@ export default function WhatIsBuyItForLife() {
               </p>
 
               <p className="text-lg leading-relaxed">
-                Rather than participating in the cycle of planned obsolescence and disposable consumer culture, BIFL advocates believe in investing more upfront in products that will serve you reliably for decades. This approach is often summarized by the saying: <em>"Buy once, cry once."</em>
+                Rather than participating in the cycle of planned obsolescence and disposable consumer culture, BIFL advocates believe in investing more upfront in products that will serve you reliably for decades. This approach is often summarized by the saying: <em>&quot;Buy once, cry once.&quot;</em>
               </p>
 
               <div className="relative bg-gradient-to-br from-brand-cream to-white p-10 rounded-2xl my-10 shadow-xl border border-brand-teal/20 overflow-hidden">
@@ -105,7 +104,7 @@ export default function WhatIsBuyItForLife() {
                 <div className="relative z-10">
                   <h3 className="text-3xl font-semibold text-brand-dark mb-4">The Core Principle</h3>
                   <p className="text-lg text-brand-gray mb-6">
-                    It's cheaper in the long run to buy one $200 pair of boots that lasts 20 years than to buy ten $40 pairs that each last 2 years.
+                    It&apos;s cheaper in the long run to buy one $200 pair of boots that lasts 20 years than to buy ten $40 pairs that each last 2 years.
                   </p>
                   <div className="flex flex-wrap items-center gap-4 text-brand-teal font-bold text-xl">
                     <div className="bg-white px-6 py-3 rounded-lg shadow-md">
@@ -162,7 +161,7 @@ export default function WhatIsBuyItForLife() {
               </div>
 
               <p className="text-lg leading-relaxed">
-                The community shares stories of products that have lasted decades: cast iron skillets passed down through generations, leather boots resoled multiple times, mechanical watches that still tick after 50 years. These aren't just products, they're testaments to quality craftsmanship.
+                The community shares stories of products that have lasted decades: cast iron skillets passed down through generations, leather boots resoled multiple times, mechanical watches that still tick after 50 years. These aren&apos;t just products, they&apos;re testaments to quality craftsmanship.
               </p>
             </div>
           </div>
@@ -221,7 +220,7 @@ export default function WhatIsBuyItForLife() {
                     <div className="flex-1">
                       <h3 className="text-3xl font-semibold text-brand-dark mb-4">Environmental Sustainability</h3>
                       <p className="text-brand-gray text-lg mb-6 leading-relaxed">
-                        BIFL products dramatically reduce waste and environmental impact. Every product that doesn't end up in a landfill, and every product that doesn't need to be manufactured, shipped, and packaged saves resources and reduces pollution.
+                        BIFL products dramatically reduce waste and environmental impact. Every product that doesn&apos;t end up in a landfill, and every product that doesn&apos;t need to be manufactured, shipped, and packaged saves resources and reduces pollution.
                       </p>
                       <ul className="space-y-3 text-brand-gray">
                         <li className="flex items-start gap-3">
@@ -260,7 +259,7 @@ export default function WhatIsBuyItForLife() {
                     <div className="flex-1">
                       <h3 className="text-3xl font-semibold text-brand-dark mb-4">Better User Experience</h3>
                       <p className="text-brand-gray text-lg leading-relaxed">
-                        BIFL products simply work better. They're more reliable, perform better, feel more satisfying to use, and eliminate the frustration of dealing with broken or malfunctioning items. Plus, there's real satisfaction in owning something well-made that improves with age rather than deteriorates.
+                        BIFL products simply work better. They&apos;re more reliable, perform better, feel more satisfying to use, and eliminate the frustration of dealing with broken or malfunctioning items. Plus, there&apos;s real satisfaction in owning something well-made that improves with age rather than deteriorates.
                       </p>
                     </div>
                   </div>
@@ -297,10 +296,10 @@ export default function WhatIsBuyItForLife() {
         <div className="container mx-auto px-6">
           <div className="max-w-5xl mx-auto">
             <h2 className="text-4xl md:text-5xl font-serif font-bold text-brand-dark mb-10 text-center">
-              What Makes a Product "Buy It For Life"?
+              What Makes a Product &quot;Buy It For Life&quot;?
             </h2>
             <p className="text-xl text-brand-gray text-center mb-14 max-w-3xl mx-auto">
-              Not every expensive product is BIFL, and not every BIFL product is expensive. Here's what to look for:
+              Not every expensive product is BIFL, and not every BIFL product is expensive. Here&apos;s what to look for:
             </p>
 
             <div className="grid md:grid-cols-2 gap-6">
@@ -446,7 +445,7 @@ export default function WhatIsBuyItForLife() {
                 <Card key={i} className="bg-gradient-to-r from-brand-cream to-white border-l-4 border-brand-teal shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-x-2">
                   <CardContent className="p-8">
                     <h3 className="text-xl font-semibold text-brand-dark mb-3 flex items-center gap-2">
-                      <span className="text-2xl">❌</span> "{item.myth}"
+                      <span className="text-2xl">❌</span> &quot;{item.myth}&quot;
                     </h3>
                     <p className="text-brand-gray leading-relaxed">
                       <strong className="text-brand-teal">Reality:</strong> {item.reality}
@@ -469,7 +468,7 @@ export default function WhatIsBuyItForLife() {
 
             <div className="prose prose-lg max-w-none text-brand-gray space-y-6">
               <p className="text-lg leading-relaxed text-center mb-14">
-                Transitioning to a BIFL mindset doesn't happen overnight. Here's how to start:
+                Transitioning to a BIFL mindset doesn&apos;t happen overnight. Here&apos;s how to start:
               </p>
 
               <ol className="space-y-6 list-none">

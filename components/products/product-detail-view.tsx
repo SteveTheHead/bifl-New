@@ -148,6 +148,8 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
         product.categories?.name || product.wordpress_meta?.category_name
       )
     }
+    // Intentionally tracks a view once per product id; addToRecentlyViewed/category fields would cause redundant re-tracking
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product?.id, product.name])
 
   // Create gallery images array from actual gallery data
@@ -222,7 +224,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
         setNewsletterStatus('error')
         setNewsletterMessage(data.message || 'Failed to subscribe. Please try again.')
       }
-    } catch (error) {
+    } catch {
       setNewsletterStatus('error')
       setNewsletterMessage('An error occurred. Please try again.')
     }
@@ -327,7 +329,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                                   </li>
                                 )
                               })
-                          } catch (error) {
+                          } catch {
                             // If JSON fails, try to handle malformed JSON or plain text
                             const rawText = String(product.verdict_bullets || '')
 
@@ -375,7 +377,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                                   bullets = items
                                 }
                               }
-                            } catch (repairError) {
+                            } catch {
                               // Strategy 2: Fallback to regex-based splitting
                               try {
                                 const cleanText = rawText
@@ -387,7 +389,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                                   .split(/",\s*"/)
                                   .map(bullet => bullet.replace(/^["']+|["']+$/g, '').trim())
                                   .filter(bullet => bullet.length > 10)
-                              } catch (finalError) {
+                              } catch {
                                 // Strategy 3: Manual text splitting
                                 bullets = rawText
                                   .replace(/^\s*\[|\]\s*$/g, '')
@@ -850,7 +852,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
         {/* Help Us Improve */}
         <section className="mt-8 border border-gray-200 rounded-2xl p-8 text-center">
           <h2 className="text-3xl font-bold mb-2">Help Us Improve</h2>
-          <p className="text-brand-gray mb-6 max-w-xl mx-auto">This site is for you. Help us make it better. We're constantly refining the way we score and present BIFL products. If something's missing, broken, or off — we want to hear from you.</p>
+          <p className="text-brand-gray mb-6 max-w-xl mx-auto">This site is for you. Help us make it better. We&apos;re constantly refining the way we score and present BIFL products. If something&apos;s missing, broken, or off — we want to hear from you.</p>
           <button
             onClick={() => setIsFeedbackModalOpen(true)}
             className="bg-gray-700 text-white font-bold py-3 px-8 rounded-lg hover:bg-gray-600 transition-colors"

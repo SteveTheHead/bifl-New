@@ -113,7 +113,7 @@ export function ProductComparisonTable({ currentProduct }: ProductComparisonTabl
           <thead>
             <tr className="border-b-2 border-gray-200">
               <th className="text-left py-4 text-sm font-medium text-gray-600 w-40">Feature</th>
-              {allProducts.map((product, _index) => (
+              {allProducts.map((product) => (
                 <th key={product.id} className="text-center py-4 text-sm font-medium text-gray-900 min-w-[180px]">
                   <div className="flex flex-col items-center gap-2">
                     <div className="relative">

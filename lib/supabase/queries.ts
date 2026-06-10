@@ -441,7 +441,7 @@ export async function toggleProductFeatured(productId: string, isFeatured: boole
   const adminClient = createAdminClient()
 
   // First check if the product exists
-  const { data: existingProduct, error: checkError } = await adminClient
+  const { error: checkError } = await adminClient
     .from('products')
     .select('id, name, is_featured')
     .eq('id', productId)
@@ -454,7 +454,7 @@ export async function toggleProductFeatured(productId: string, isFeatured: boole
 
 
   // Update using admin client with full permissions
-  const { data, error, count } = await sb.update(adminClient, 'products', { is_featured: isFeatured })
+  const { data, error } = await sb.update(adminClient, 'products', { is_featured: isFeatured })
     .eq('id', productId)
     .select()
 

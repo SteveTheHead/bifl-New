@@ -7,8 +7,6 @@ import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
 
 type SupabaseClientType = SupabaseClient<Database>
-type Review = Database['public']['Tables']['reviews']['Row']
-type Product = Database['public']['Tables']['products']['Row']
 
 export async function GET() {
   try {

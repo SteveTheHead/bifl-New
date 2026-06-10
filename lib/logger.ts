@@ -57,6 +57,7 @@ class Logger {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- placeholder signature kept for the external logging integration TODO below
   private sendToExternalService(_level: LogLevel, _message: string, _context?: unknown) {
     // Placeholder for external logging service integration
     // Examples: Sentry, LogRocket, DataDog, etc.

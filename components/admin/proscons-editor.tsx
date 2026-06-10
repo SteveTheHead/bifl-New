@@ -15,6 +15,7 @@ export function ProsConsEditor({ productId }: ProsConsEditorProps) {
 
   useEffect(() => {
     fetchProsConsData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchProsConsData is stable; re-run only when productId changes
   }, [productId])
 
   const fetchProsConsData = async () => {

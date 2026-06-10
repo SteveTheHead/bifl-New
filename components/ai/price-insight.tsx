@@ -40,7 +40,7 @@ interface PriceInsightProps {
   className?: string
 }
 
-export function PriceInsight({ productId, productName, currentPrice, className = '' }: PriceInsightProps) {
+export function PriceInsight({ productId, className = '' }: PriceInsightProps) {
   const [analysis, setAnalysis] = useState<PriceAnalysis | null>(null)
   const [prediction, setPrediction] = useState<PricePrediction | null>(null)
   const [loading, setLoading] = useState(false)
@@ -48,6 +48,7 @@ export function PriceInsight({ productId, productName, currentPrice, className =
 
   useEffect(() => {
     loadPriceAnalysis()
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadPriceAnalysis is stable; re-run only when productId changes
   }, [productId])
 
   const loadPriceAnalysis = async () => {

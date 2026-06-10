@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useRef, useEffect } from 'react'
-import { Menu, X, Search, User, LogOut } from 'lucide-react'
+import { Menu, X, User, LogOut } from 'lucide-react'
 import { authClient } from '@/lib/auth-client'
 import { AISearch } from '../search/ai-search'
 import { useAuth } from '@/lib/contexts/auth-context'
@@ -15,7 +15,7 @@ export function Navbar() {
   const [isClient, setIsClient] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
 
-  const { user, loading, refreshAuth } = useAuth()
+  const { user, loading } = useAuth()
 
   // Fix hydration mismatch
   useEffect(() => {

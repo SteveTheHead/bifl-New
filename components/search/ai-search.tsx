@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Search, X, Sparkles, Clock, TrendingUp, Filter, Star, DollarSign, Tag } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { sb } from '@/lib/supabase-utils'
@@ -51,7 +51,8 @@ export function AISearch() {
 
     // Load trending searches and suggestions
     loadSuggestions()
-  }, []) // loadSuggestions should be wrapped in useCallback
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount; loadSuggestions is not memoized
+  }, [])
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -76,6 +77,7 @@ export function AISearch() {
       setResults([])
     }
     setSelectedIndex(-1) // Reset selection when query changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- performSearch is not memoized; debounce keyed only on query
   }, [query])
 
   // Re-search when filters change
@@ -83,6 +85,7 @@ export function AISearch() {
     if (query.length > 2) {
       performSearch(query)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- performSearch is not memoized; re-run on filter/query change
   }, [selectedFilters, query])
 
   // Keyboard navigation
@@ -132,6 +135,7 @@ export function AISearch() {
       document.addEventListener('keydown', handleKeyDown)
       return () => document.removeEventListener('keydown', handleKeyDown)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- handleSuggestionClick is not memoized; deps cover the read state
   }, [isOpen, selectedIndex, suggestions, results, query])
 
   const loadSuggestions = async () => {
@@ -139,7 +143,7 @@ export function AISearch() {
       const supabase = createClient()
 
       // Get trending categories and brands
-      const [categoriesResult, brandsResult] = await Promise.all([
+      await Promise.all([
         sb.from(supabase, 'products_with_taxonomy')
           .select('category_name')
           .eq('status', 'published')
@@ -150,13 +154,7 @@ export function AISearch() {
           .not('brand_name', 'is', null)
       ])
 
-      const categoryCount = {} as any
-      const brandCount = {} as any
-
       // Skip data processing for now to avoid type issues
-      const categoriesData = categoriesResult.data || []
-      const brandsData = brandsResult.data || []
-
       // TODO: Fix type inference issues with Supabase data
 
       // TODO: Re-enable suggestions once type issues are resolved
@@ -217,7 +215,6 @@ export function AISearch() {
       if (words.length === 1) {
         // Single word search with variations
         const variations = getWordVariations(searchQuery)
-        const variationPattern = variations.join('|')
 
         searchResults = await Promise.all([
           // 1. Name matches with variations (highest priority)

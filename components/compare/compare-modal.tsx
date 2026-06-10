@@ -66,6 +66,8 @@ export function CompareModal() {
     if (showCompareModal && compareProducts.length > 0) {
       fetchDetailedProducts()
     }
+    // fetchDetailedProducts is defined inline and only reads compareProducts/showCompareModal, already in deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showCompareModal, compareProducts])
 
   // Handle Escape key to close modal
@@ -80,6 +82,8 @@ export function CompareModal() {
       document.addEventListener('keydown', handleEscape)
       return () => document.removeEventListener('keydown', handleEscape)
     }
+    // handleClose only calls the stable setShowCompareModal setter; re-subscribing each render is unnecessary
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showCompareModal])
 
   const fetchDetailedProducts = async () => {
@@ -104,23 +108,6 @@ export function CompareModal() {
 
   const handleClose = () => {
     setShowCompareModal(false)
-  }
-
-  const getScoreBadge = (score?: number) => {
-    if (!score) return null
-
-    const getScoreColor = (score: number) => {
-      if (score >= 8.5) return 'bg-green-500'
-      if (score >= 7.5) return 'bg-blue-500'
-      if (score >= 6.5) return 'bg-yellow-500'
-      return 'bg-red-500'
-    }
-
-    return (
-      <div className={`inline-flex items-center px-2 py-1 rounded-full text-black text-sm font-medium ${getScoreColor(score)}`}>
-        {score}/10
-      </div>
-    )
   }
 
   return (

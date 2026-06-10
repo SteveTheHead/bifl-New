@@ -61,7 +61,7 @@ export default function AccountSettingsPage() {
     }
   }
 
-  const handleAvatarUpdate = async (avatarUrl: string | null) => {
+  const handleAvatarUpdate = async () => {
     // Reload the page to refresh the session
     // This is necessary due to a known Better Auth limitation where useSession()
     // doesn't automatically update after server-side profile changes

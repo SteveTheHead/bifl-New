@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
 
 
     // Upload to Supabase Storage using admin client
-    const { data: uploadData, error: uploadError } = await adminSupabase.storage
+    const { error: uploadError } = await adminSupabase.storage
       .from('user-uploads')
       .upload(filePath, file, {
         cacheControl: '3600',
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
     // Update user's image field using Better Auth API to update both DB and session
     try {
       // Use Better Auth's update-user endpoint to update session cookie
-      const updateResponse = await auth.api.updateUser({
+      await auth.api.updateUser({
         body: {
           image: avatarUrl
         },
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
+export async function DELETE() {
   try {
     // Check authentication with Better Auth
     const session = await auth.api.getSession({

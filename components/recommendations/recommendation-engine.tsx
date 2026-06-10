@@ -135,7 +135,6 @@ export function RecommendationEngine() {
       // Analyze user preferences
       const categoryPreferences = {} as any
       const brandPreferences = {} as any
-      let avgPriceRange = 0 as any
       let scoreSum = 0 as any
 
       (favoriteProducts as any[]).forEach((product: any) => {
@@ -145,11 +144,9 @@ export function RecommendationEngine() {
         if (product.brand_name) {
           brandPreferences[product.brand_name] = (brandPreferences[product.brand_name] || 0) + 1
         }
-        if (product.price) avgPriceRange += product.price
         if (product.bifl_total_score) scoreSum += product.bifl_total_score
       })
 
-      // avgPriceRange = avgPriceRange / favoriteProducts.length // Unused variable
       const averageScore = scoreSum / (favoriteProducts as any[]).length
 
       // Get top preferred categories and brands

@@ -15,7 +15,7 @@ export function ExitIntentFeedback() {
     const checkCookie = () => {
       const cookies = document.cookie.split(';')
       for (let cookie of cookies) {
-        const [name, value] = cookie.trim().split('=')
+        const [name] = cookie.trim().split('=')
         if (name === COOKIE_NAME) {
           return true
         }

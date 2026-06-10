@@ -23,7 +23,7 @@ export default async function AdminDashboard() {
     }
 
     return <AdminDashboardClient session={session} />
-  } catch (error) {
+  } catch {
     redirect('/admin/signin')
   }
 }
