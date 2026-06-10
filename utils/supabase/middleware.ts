@@ -62,23 +62,32 @@ export async function updateSession(request: NextRequest) {
     // Continue without user - they'll be treated as logged out
   }
 
-  // Handle admin routes separately using our admin authentication
-  if (request.nextUrl.pathname.startsWith('/admin') &&
-      request.nextUrl.pathname !== '/admin/signin' &&
-      !request.nextUrl.pathname.startsWith('/admin-setup')) {
+  // --- Admin authorization (verified signed admin-session cookie) ---
+  const path = request.nextUrl.pathname
 
-    console.log('Middleware: Admin route check for:', request.nextUrl.pathname)
-    const isAdmin = isAdminRequest(request)
-    console.log('Middleware: isAdminRequest result:', isAdmin)
+  // Admin API routes: the authoritative gate. Anyone without a valid admin
+  // session gets a 401 before the handler runs. /api/admin/session and
+  // /api/admin/signout manage their own state and must stay reachable.
+  if (
+    path.startsWith('/api/admin') &&
+    path !== '/api/admin/session' &&
+    path !== '/api/admin/signout'
+  ) {
+    if (!(await isAdminRequest(request))) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+  }
 
-    if (!isAdmin) {
-      console.log('Middleware: Redirecting to admin signin - no valid admin session')
-      // Redirect to admin signin
+  // Admin pages: redirect unauthenticated visitors to the sign-in page.
+  if (
+    path.startsWith('/admin') &&
+    path !== '/admin/signin' &&
+    !path.startsWith('/admin-setup')
+  ) {
+    if (!(await isAdminRequest(request))) {
       const url = request.nextUrl.clone()
       url.pathname = '/admin/signin'
       return NextResponse.redirect(url)
-    } else {
-      console.log('Middleware: Admin access granted')
     }
   }
 

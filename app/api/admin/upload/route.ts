@@ -1,30 +1,12 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
+import { requireAdmin } from '@/lib/auth/admin'
 
 const BUCKET_NAME = 'guide-images'
 
-async function checkAdminAuth() {
-  const cookieStore = await cookies()
-  const adminSessionCookie = cookieStore.get('admin-session')
-
-  if (!adminSessionCookie) return false
-
-  try {
-    const adminSession = JSON.parse(adminSessionCookie.value)
-    const sessionAge = Date.now() - (adminSession.loginTime || 0)
-    const maxAge = 24 * 60 * 60 * 1000
-    return sessionAge <= maxAge
-  } catch {
-    return false
-  }
-}
-
 export async function POST(request: NextRequest) {
-  const isAuthenticated = await checkAdminAuth()
-  if (!isAuthenticated) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const unauthorized = await requireAdmin()
+  if (unauthorized) return unauthorized
 
   try {
     const formData = await request.formData()

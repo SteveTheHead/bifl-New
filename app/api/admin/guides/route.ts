@@ -1,32 +1,13 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
+import { requireAdmin } from '@/lib/auth/admin'
 import { Database } from '@/lib/supabase/types'
 
 type BuyingGuideInsert = Database['public']['Tables']['buying_guides']['Insert']
 
-async function checkAdminAuth() {
-  const cookieStore = await cookies()
-  const adminSessionCookie = cookieStore.get('admin-session')
-
-  if (!adminSessionCookie) return false
-
-  try {
-    const adminSession = JSON.parse(adminSessionCookie.value)
-    // Check if session is still valid (24 hours)
-    const sessionAge = Date.now() - (adminSession.loginTime || 0)
-    const maxAge = 24 * 60 * 60 * 1000
-    return sessionAge <= maxAge
-  } catch {
-    return false
-  }
-}
-
 export async function GET() {
-  const isAuthenticated = await checkAdminAuth()
-  if (!isAuthenticated) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const unauthorized = await requireAdmin()
+  if (unauthorized) return unauthorized
 
   try {
     const supabase = createAdminClient()
@@ -60,10 +41,8 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const isAuthenticated = await checkAdminAuth()
-  if (!isAuthenticated) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const unauthorized = await requireAdmin()
+  if (unauthorized) return unauthorized
 
   try {
     const body = await request.json()

@@ -1,32 +1,13 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
-
-async function checkAdminAuth() {
-  const cookieStore = await cookies()
-  const adminSessionCookie = cookieStore.get('admin-session')
-
-  if (!adminSessionCookie) return false
-
-  try {
-    const adminSession = JSON.parse(adminSessionCookie.value)
-    // Check if session is still valid (24 hours)
-    const sessionAge = Date.now() - (adminSession.loginTime || 0)
-    const maxAge = 24 * 60 * 60 * 1000
-    return sessionAge <= maxAge
-  } catch {
-    return false
-  }
-}
+import { requireAdmin } from '@/lib/auth/admin'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const isAuthenticated = await checkAdminAuth()
-  if (!isAuthenticated) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const unauthorized = await requireAdmin()
+  if (unauthorized) return unauthorized
 
   try {
     const { id } = await params
@@ -73,10 +54,8 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const isAuthenticated = await checkAdminAuth()
-  if (!isAuthenticated) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const unauthorized = await requireAdmin()
+  if (unauthorized) return unauthorized
 
   try {
     const { id } = await params
@@ -128,10 +107,8 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const isAuthenticated = await checkAdminAuth()
-  if (!isAuthenticated) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const unauthorized = await requireAdmin()
+  if (unauthorized) return unauthorized
 
   try {
     const { id } = await params

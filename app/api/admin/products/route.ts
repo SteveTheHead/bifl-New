@@ -2,9 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getAllProductsForAdmin } from '@/lib/supabase/queries'
 import { sb } from '@/lib/supabase-utils'
+import { requireAdmin } from '@/lib/auth/admin'
 
 export async function GET(request: NextRequest) {
   try {
+    const unauthorized = await requireAdmin()
+    if (unauthorized) return unauthorized
+
     const supabase = await createClient()
 
     // First, clean up empty products if requested
@@ -32,6 +36,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const unauthorized = await requireAdmin()
+    if (unauthorized) return unauthorized
+
     const body = await request.json()
     const supabase = await createClient()
 

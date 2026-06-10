@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { BetaAnalyticsDataClient } from '@google-analytics/data'
+import { requireAdmin } from '@/lib/auth/admin'
 
 // Initialize the Analytics Data API client
 const analyticsDataClient = new BetaAnalyticsDataClient({
@@ -12,6 +13,9 @@ const analyticsDataClient = new BetaAnalyticsDataClient({
 const propertyId = process.env.GA4_PROPERTY_ID
 
 export async function GET() {
+  const unauthorized = await requireAdmin()
+  if (unauthorized) return unauthorized
+
   if (!propertyId || !process.env.GA4_CLIENT_EMAIL || !process.env.GA4_PRIVATE_KEY) {
     return NextResponse.json(
       { error: 'GA4 credentials not configured' },

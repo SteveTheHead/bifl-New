@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { requireAdmin } from '@/lib/auth/admin'
 
 // DELETE /api/admin/curations/[id]/products/[productId] - Remove a product from a curation
 export async function DELETE(
@@ -7,6 +8,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string; productId: string }> }
 ) {
   try {
+    const unauthorized = await requireAdmin()
+    if (unauthorized) return unauthorized
+
     const { id: curationId, productId } = await params
     const supabase = await createClient()
 
@@ -40,6 +44,9 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string; productId: string }> }
 ) {
   try {
+    const unauthorized = await requireAdmin()
+    if (unauthorized) return unauthorized
+
     const { id: curationId, productId } = await params
     const supabase = await createClient()
     const body = await request.json()

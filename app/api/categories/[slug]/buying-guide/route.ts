@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { BuyingGuideGenerator } from '@/lib/ai/buying-guide'
+import { requireAdmin } from '@/lib/auth/admin'
 
 export async function GET(
   request: NextRequest,
@@ -90,11 +91,10 @@ export async function POST(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    // Check admin authentication
-    const adminSession = request.cookies.get('admin-session')
-    if (!adminSession) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    // This route lives under /api/categories, so the /api/admin middleware
+    // guard does not cover it — verify the signed admin session here.
+    const unauthorized = await requireAdmin()
+    if (unauthorized) return unauthorized
 
     // Regenerate the buying guide (same logic as GET)
     return GET(request, { params })
