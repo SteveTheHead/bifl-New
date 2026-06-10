@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/utils/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { PasswordUtils } from '@/lib/auth/password'
 import { revalidatePath } from 'next/cache'
 import { ADMIN_SESSION_COOKIE, signAdminSession, type AdminSession } from '@/lib/auth/admin'
@@ -12,7 +12,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
     }
 
-    const supabase = await createClient()
+    // admin_users has RLS enabled with no anon policy, so the credential
+    // lookup must use the service-role client. This route IS the auth
+    // boundary (it verifies the password itself), so bypassing RLS here is
+    // correct, not a leak.
+    const supabase = createAdminClient()
 
     // Find admin user in database (using type assertion for temporary fix)
     const { data: adminUser, error: fetchError } = await (supabase as any)
