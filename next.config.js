@@ -1,7 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
-    ignoreDuringBuilds: true,
+    // Quality gate ON: production builds fail on ESLint errors (real bugs).
+    // `no-explicit-any` is downgraded to a warning in eslint.config.mjs, so
+    // the pre-existing `any` debt doesn't block deploys while still being visible.
+    ignoreDuringBuilds: false,
   },
   images: {
     remotePatterns: [
