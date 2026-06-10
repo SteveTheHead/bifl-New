@@ -194,7 +194,6 @@ export function LongTermCostAnalysis({ product, category }: LongTermCostAnalysis
   }
 
   const costData = getCostData()
-  const calculations = calculateCosts(costData)
 
   // Update with actual product data if available
   if (product.price) {
@@ -282,7 +281,7 @@ export function LongTermCostAnalysis({ product, category }: LongTermCostAnalysis
         <p className="mt-4 text-sm text-gray-600 max-w-2xl mx-auto">
           This analysis assumes typical replacement patterns and maintenance costs.
           BIFL products often provide additional benefits like superior performance,
-          warranty coverage, and environmental sustainability that aren't reflected in cost alone.
+          warranty coverage, and environmental sustainability that aren&apos;t reflected in cost alone.
         </p>
       </div>
     </section>

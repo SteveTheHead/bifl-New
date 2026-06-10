@@ -22,6 +22,8 @@ export function ProductFAQ({ productId }: ProductFAQProps) {
 
   useEffect(() => {
     fetchFAQs()
+    // fetchFAQs only depends on productId, which is already in the dependency array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId])
 
   const fetchFAQs = async () => {

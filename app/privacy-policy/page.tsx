@@ -29,7 +29,7 @@ export default function PrivacyPolicy() {
             <section>
               <h2 className="text-2xl font-bold text-brand-dark mb-4">1. Introduction</h2>
               <p className="leading-relaxed">
-                Welcome to BuyItForLifeProducts.com ("we," "our," or "us"). We are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website.
+                Welcome to BuyItForLifeProducts.com (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;). We are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website.
               </p>
               <p className="leading-relaxed">
                 By using our website, you consent to the data practices described in this policy.
@@ -100,7 +100,7 @@ export default function PrivacyPolicy() {
                 We participate in the Amazon Services LLC Associates Program, an affiliate advertising program. When you click on Amazon links on our site and make a purchase, we may earn a small commission at no additional cost to you.
               </p>
               <p className="leading-relaxed">
-                Amazon may collect information about your browsing and purchasing behavior through their own cookies and tracking technologies. Please refer to Amazon's Privacy Policy for more information about how they handle your data.
+                Amazon may collect information about your browsing and purchasing behavior through their own cookies and tracking technologies. Please refer to Amazon&apos;s Privacy Policy for more information about how they handle your data.
               </p>
             </section>
 
@@ -148,7 +148,7 @@ export default function PrivacyPolicy() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-brand-dark mb-4">8. Children's Privacy</h2>
+              <h2 className="text-2xl font-bold text-brand-dark mb-4">8. Children&apos;s Privacy</h2>
               <p className="leading-relaxed">
                 Our website is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13. If you become aware that a child has provided us with personal information, please contact us, and we will take steps to delete such information.
               </p>
@@ -157,7 +157,7 @@ export default function PrivacyPolicy() {
             <section>
               <h2 className="text-2xl font-bold text-brand-dark mb-4">9. Changes to This Privacy Policy</h2>
               <p className="leading-relaxed">
-                We may update this Privacy Policy from time to time to reflect changes in our practices or for legal, regulatory, or operational reasons. We will notify you of any material changes by posting the new Privacy Policy on this page and updating the "Last Updated" date. We encourage you to review this Privacy Policy periodically.
+                We may update this Privacy Policy from time to time to reflect changes in our practices or for legal, regulatory, or operational reasons. We will notify you of any material changes by posting the new Privacy Policy on this page and updating the &quot;Last Updated&quot; date. We encourage you to review this Privacy Policy periodically.
               </p>
             </section>
 
@@ -179,7 +179,7 @@ export default function PrivacyPolicy() {
             <div className="bg-blue-50 border-l-4 border-blue-500 p-6 rounded mt-8">
               <h3 className="text-lg font-semibold text-blue-900 mb-2">Your Privacy Matters</h3>
               <p className="text-blue-800">
-                We are committed to protecting your privacy and being transparent about our data practices. If you have any questions or concerns about how we handle your information, please don't hesitate to reach out to us.
+                We are committed to protecting your privacy and being transparent about our data practices. If you have any questions or concerns about how we handle your information, please don&apos;t hesitate to reach out to us.
               </p>
             </div>
           </div>

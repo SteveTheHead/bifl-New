@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import BadgeDisplay from '@/components/BadgeDisplay'
 import { AddToCompareButton } from '@/components/compare/add-to-compare-button'
-import { Star, Wrench, Shield, DollarSign } from 'lucide-react'
+import { Star, Wrench, Shield } from 'lucide-react'
 
 interface ProductCardProps {
   product: any

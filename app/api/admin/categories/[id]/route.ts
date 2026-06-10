@@ -116,7 +116,7 @@ export async function PUT(
 
     // Check if slug is already in use by another category
     if (cleanSlug !== existingCategory.slug) {
-      const { data: existingSlug, error: slugError } = await supabase
+      const { data: existingSlug } = await supabase
         .from('categories')
         .select('id')
         .eq('slug', cleanSlug)

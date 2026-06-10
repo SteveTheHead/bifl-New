@@ -25,7 +25,7 @@ export default function SignUpPage() {
     const password = formData.get('password') as string
 
     try {
-      const { data, error } = await authClient.signUp.email({
+      const { error } = await authClient.signUp.email({
         email,
         password,
         name,

@@ -64,7 +64,7 @@ export default function HowItWorks() {
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h1 className="text-4xl font-serif font-bold text-brand-dark mb-6">How It Works</h1>
-            <h2 className="text-2xl font-semibold text-brand-dark mb-4">How We Actually Figure Out What's Built to Last</h2>
+            <h2 className="text-2xl font-semibold text-brand-dark mb-4">How We Actually Figure Out What&apos;s Built to Last</h2>
             <p className="text-xl text-brand-gray max-w-4xl mx-auto">
               We don&apos;t guess. We don&apos;t rely on opinions alone. We systematically dig through the internet&apos;s
               collective wisdom about durable goods, using research techniques and algorithms
@@ -169,7 +169,7 @@ export default function HowItWorks() {
               We score every product on a 10-point scale and then bucket scores into these criteria:
             </p>
             <p className="text-sm text-brand-gray mt-2">
-              Each product's BIFL Total Score is a weighted average, with the highest importance placed on durability and social consensus,
+              Each product&apos;s BIFL Total Score is a weighted average, with the highest importance placed on durability and social consensus,
               followed by warranty and repairability.
             </p>
             <Link
@@ -407,7 +407,7 @@ export default function HowItWorks() {
                     </svg>
                   </summary>
                   <div className="px-4 pb-4 text-brand-gray text-sm">
-                    <p>Absolutely! We welcome product suggestions from our community. You can submit suggestions through our feedback form or contact us directly. We'll research and evaluate products based on our methodology.</p>
+                    <p>Absolutely! We welcome product suggestions from our community. You can submit suggestions through our feedback form or contact us directly. We&apos;ll research and evaluate products based on our methodology.</p>
                   </div>
                 </details>
               </CardContent>
@@ -424,7 +424,7 @@ export default function HowItWorks() {
                     </svg>
                   </summary>
                   <div className="px-4 pb-4 text-brand-gray text-sm">
-                    <p>We encourage feedback! Our scoring system is continuously updated as new data becomes available. If you have specific information about a product's performance, please share it with us through our data correction form.</p>
+                    <p>We encourage feedback! Our scoring system is continuously updated as new data becomes available. If you have specific information about a product&apos;s performance, please share it with us through our data correction form.</p>
                   </div>
                 </details>
               </CardContent>

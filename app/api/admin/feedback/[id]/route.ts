@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth/admin'
@@ -26,7 +25,7 @@ export async function PATCH(
 
     const supabase = createAdminClient()
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('feedback')
       .update({ status: feedbackStatus })
       .eq('id', id)
@@ -41,7 +40,7 @@ export async function PATCH(
     }
 
     return NextResponse.json({ message: 'Status updated successfully', data })
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: 'An unexpected error occurred' },
       { status: 500 }
@@ -73,7 +72,7 @@ export async function DELETE(
     }
 
     return NextResponse.json({ message: 'Feedback deleted successfully' })
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: 'An unexpected error occurred' },
       { status: 500 }

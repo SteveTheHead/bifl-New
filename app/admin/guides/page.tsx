@@ -34,7 +34,7 @@ export default function AdminGuidesPage() {
         } else {
           router.push('/admin/signin')
         }
-      } catch (error) {
+      } catch {
         router.push('/admin/signin')
       }
     }

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
@@ -35,7 +34,7 @@ export async function POST(request: Request) {
     const supabase = createAdminClient()
 
     // Insert feedback
-    const { data, error: insertError } = await supabase
+    const { data, error: insertError } = await (supabase as any)
       .from('feedback')
       .insert({
         feedback_type,

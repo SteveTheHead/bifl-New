@@ -22,6 +22,7 @@ export function FAQEditor({ productId }: FAQEditorProps) {
 
   useEffect(() => {
     fetchFAQs()
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchFAQs is stable; re-run only when productId changes
   }, [productId])
 
   const fetchFAQs = async () => {
@@ -162,7 +163,7 @@ export function FAQEditor({ productId }: FAQEditorProps) {
 
       {faqs.length === 0 && (
         <div className="text-center py-8 text-gray-500">
-          No FAQs yet. Click "Add FAQ" to create one.
+          No FAQs yet. Click &quot;Add FAQ&quot; to create one.
         </div>
       )}
 

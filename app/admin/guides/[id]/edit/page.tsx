@@ -71,11 +71,13 @@ export default function EditGuidePage({ params }: { params: Promise<{ id: string
         } else {
           router.push('/admin/signin')
         }
-      } catch (error) {
+      } catch {
         router.push('/admin/signin')
       }
     }
     checkAuth()
+    // re-run when route id changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router, id])
 
   const fetchCurations = async () => {
@@ -411,7 +413,7 @@ export default function EditGuidePage({ params }: { params: Promise<{ id: string
                         AI Content Assistant
                       </h3>
                       <p className="text-xs text-purple-700 mt-1">
-                        Regenerate intro, buying criteria, and FAQs based on your curation's products
+                        Regenerate intro, buying criteria, and FAQs based on your curation&apos;s products
                       </p>
                     </div>
                     <button

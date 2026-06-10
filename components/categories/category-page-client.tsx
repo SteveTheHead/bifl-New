@@ -158,7 +158,7 @@ export function CategoryPageClient({
         }
       ]
     },
-    "hasPart": products.slice(0, 10).map((product, _index) => ({
+    "hasPart": products.slice(0, 10).map((product) => ({
       "@type": "Product",
       "name": product.name,
       "brand": {

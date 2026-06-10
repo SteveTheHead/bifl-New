@@ -4,21 +4,18 @@
 import { useSession } from '@/lib/auth-client'
 import { useFavorites } from '@/lib/hooks/use-favorites'
 import { useRecentlyViewed } from '@/lib/hooks/use-recently-viewed'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
   Heart,
-  Eye,
   Settings,
   Search,
   ArrowRight,
   Calendar,
   TrendingUp
 } from 'lucide-react'
-import { SimpleProductCard } from '@/components/products/SimpleProductCard'
 import { MiniProductCard } from '@/components/products/MiniProductCard'
-import { RecentlyViewedCard } from '@/components/user/RecentlyViewedCard'
 import { MiniRecentlyViewedCard } from '@/components/user/MiniRecentlyViewedCard'
 import { AnimatedCounter } from '@/components/user/AnimatedCounter'
 import { Avatar } from '@/components/user/avatar-upload'
@@ -110,6 +107,8 @@ export default function UserDashboardPage() {
 
       fetchUserData()
     }
+    // key off lengths to avoid loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.user, favoritesLoading, recentlyViewedLoading, favorites.length, recentlyViewed.length])
 
   if (isPending || loading) {
@@ -259,7 +258,7 @@ export default function UserDashboardPage() {
               <div>
                 <h2 className="text-2xl font-bold text-brand-dark">Recently Viewed</h2>
                 <p className="text-brand-gray mt-1 text-sm">
-                  Products you've viewed recently with timestamps
+                  Products you&apos;ve viewed recently with timestamps
                 </p>
               </div>
             </div>

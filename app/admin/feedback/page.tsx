@@ -24,6 +24,8 @@ export default function FeedbackAdminPage() {
 
   useEffect(() => {
     fetchFeedback()
+    // refetch when filters change only
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter, typeFilter])
 
   const fetchFeedback = async () => {

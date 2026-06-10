@@ -44,7 +44,7 @@ export default function AdminBrandsPage() {
         } else {
           router.push('/admin/signin')
         }
-      } catch (error) {
+      } catch {
         router.push('/admin/signin')
       }
     }

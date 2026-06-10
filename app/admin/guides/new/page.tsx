@@ -53,7 +53,7 @@ export default function NewGuidePage() {
         } else {
           router.push('/admin/signin')
         }
-      } catch (error) {
+      } catch {
         router.push('/admin/signin')
       }
     }
@@ -379,7 +379,7 @@ export default function NewGuidePage() {
                         AI Content Assistant
                       </h3>
                       <p className="text-xs text-purple-700 mt-1">
-                        Generate intro, buying criteria, and FAQs based on your curation's products
+                        Generate intro, buying criteria, and FAQs based on your curation&apos;s products
                       </p>
                     </div>
                     <button

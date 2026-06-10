@@ -1,6 +1,7 @@
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { getScoreTailwindBg } from '@/lib/scoring'
 
 interface BiflScoreProps {
   totalScore: number
@@ -23,12 +24,8 @@ export function BiflScore({
   compact = false,
   className = ""
 }: BiflScoreProps) {
-  const getScoreColor = (score: number) => {
-    if (score >= 8) return "bg-green-500"
-    if (score >= 6) return "bg-yellow-500"
-    if (score >= 4) return "bg-orange-500"
-    return "bg-red-500"
-  }
+  // Canonical 5-tier color (was a divergent 4-tier scale); see lib/scoring.ts
+  const getScoreColor = getScoreTailwindBg
 
   const getScoreBadgeVariant = (score: number) => {
     if (score >= 8) return "default" as const

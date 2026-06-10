@@ -101,13 +101,13 @@ function SettingsContent() {
           } else {
             setOrders(null);
           }
-        } catch (orderError) {
+        } catch {
           setOrders(null);
         }
 
         try {
-          const { data: customerState } = await authClient.customer.state();
-        } catch (customerError) {
+          await authClient.customer.state();
+        } catch {
         }
       } catch (error) {
         console.error("Error fetching data:", error);

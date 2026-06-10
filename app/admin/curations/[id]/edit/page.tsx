@@ -26,6 +26,8 @@ export default function EditCurationPage({ params }: { params: Promise<{ id: str
 
   useEffect(() => {
     fetchCuration()
+    // run once on mount only
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   async function fetchCuration() {

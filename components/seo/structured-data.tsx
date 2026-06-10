@@ -331,7 +331,7 @@ interface ReviewSchemaProps {
 export function ReviewStructuredData({ productName, reviews }: ReviewSchemaProps) {
   if (!reviews || reviews.length === 0) return null
 
-  const schemas = reviews.map((review, index) => ({
+  const schemas = reviews.map((review) => ({
     '@context': 'https://schema.org',
     '@type': 'Review',
     itemReviewed: {

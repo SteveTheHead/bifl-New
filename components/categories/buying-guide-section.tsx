@@ -45,7 +45,7 @@ export function BuyingGuideSection({ buyingGuide, loading, categoryName }: Buyin
           Buying Guide Unavailable
         </h3>
         <p className="text-brand-gray">
-          We're working on generating a comprehensive buying guide for {categoryName}.
+          We&apos;re working on generating a comprehensive buying guide for {categoryName}.
           Please check back soon!
         </p>
       </div>

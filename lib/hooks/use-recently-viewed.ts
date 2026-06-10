@@ -28,6 +28,7 @@ export function useRecentlyViewed() {
       setRecentlyViewed([])
       setLoading(false)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchRecentlyViewed is a stable useCallback declared below; depend only on user
   }, [user])
 
   const fetchRecentlyViewed = useCallback(async (userEmail: string) => {
