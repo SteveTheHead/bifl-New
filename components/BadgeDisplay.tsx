@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { useState } from 'react'
+import { calculateBadges } from '@/lib/scoring'
 
 interface BadgeDisplayProps {
   certification?: string | null
@@ -14,7 +15,7 @@ interface BadgeDisplayProps {
 const badgeConfig = {
   'Gold Standard': {
     name: 'Gold Standard',
-    description: '9.0+ average across all scores',
+    description: '9.0+ total with 8.5+ durability and 8.0+ warranty',
     icon: 'gold-standard'
   },
   'Lifetime Warranty': {
@@ -29,7 +30,7 @@ const badgeConfig = {
   },
   'BIFL Approved': {
     name: 'BIFL Approved',
-    description: '7.5+ across all categories',
+    description: '7.5+ total with solid durability and warranty',
     icon: 'bifl-approved'
   },
   'Repair Friendly': {
@@ -49,59 +50,6 @@ const sizeConfig = {
   sm: { width: 90, height: 36 },
   md: { width: 120, height: 48 },
   lg: { width: 160, height: 64 }
-}
-
-// Dynamic badge calculation based on product scores - returns array of all qualifying badges
-function calculateBadges(product: any): string[] {
-  if (!product) return []
-
-  const badges: string[] = []
-  const totalScore = product.bifl_total_score || 0
-  const warrantyScore = product.warranty_score || 0
-  const socialScore = product.social_score || 0
-  const repairabilityScore = product.repairability_score || 0
-  const sustainabilityScore = product.sustainability_score || 0
-  const buildQualityScore = product.durability_score || 0
-  const durabilityScore = product.durability_score || 0
-
-  // Gold Standard: 9.0+ average across all scores with high individual scores
-  if (totalScore >= 9.0 &&
-      buildQualityScore >= 8.5 &&
-      durabilityScore >= 8.5 &&
-      warrantyScore >= 8.0) {
-    badges.push('Gold Standard')
-  }
-
-  // Lifetime Warranty: Warranty score = 10
-  if (warrantyScore >= 10.0) {
-    badges.push('Lifetime Warranty')
-  }
-
-  // Crowd Favorite: Social score ≥ 8.5
-  if (socialScore >= 8.5) {
-    badges.push('Crowd Favorite')
-  }
-
-  // Repair Friendly: Repairability score ≥ 8.5
-  if (repairabilityScore >= 8.5) {
-    badges.push('Repair Friendly')
-  }
-
-  // Eco Hero: Sustainability score ≥ 8.0
-  if (sustainabilityScore >= 8.0) {
-    badges.push('Eco Hero')
-  }
-
-  // BIFL Approved: 7.5+ across all categories (only if no other badges)
-  if (badges.length === 0 &&
-      totalScore >= 7.5 &&
-      buildQualityScore >= 7.0 &&
-      durabilityScore >= 7.0 &&
-      warrantyScore >= 6.0) {
-    badges.push('BIFL Approved')
-  }
-
-  return badges
 }
 
 export default function BadgeDisplay({ certification, size = 'md', className = '', overlay = false, product = null }: BadgeDisplayProps) {

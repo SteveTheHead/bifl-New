@@ -421,11 +421,11 @@ export default function ScoringMethodologyPage() {
                   <tbody>
                     <tr>
                       <td className="border border-gray-200 px-4 py-3 font-medium">Gold Standard</td>
-                      <td className="border border-gray-200 px-4 py-3">BIFL Total Score of 9.0 or higher</td>
+                      <td className="border border-gray-200 px-4 py-3">BIFL Total Score of 9.0+ with a Durability Score of 8.5+ and a Warranty Score of 8.0+</td>
                     </tr>
                     <tr className="bg-gray-50">
                       <td className="border border-gray-200 px-4 py-3 font-medium">BIFL Approved</td>
-                      <td className="border border-gray-200 px-4 py-3">Score of 7.5+ in all five categories</td>
+                      <td className="border border-gray-200 px-4 py-3">BIFL Total Score of 7.5+ with a Durability Score of 7.0+ and a Warranty Score of 6.0+ (when no higher badge applies)</td>
                     </tr>
                     <tr>
                       <td className="border border-gray-200 px-4 py-3 font-medium">Lifetime Warranty</td>

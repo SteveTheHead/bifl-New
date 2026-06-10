@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { X, Plus, ExternalLink } from 'lucide-react'
 import { useCompare } from '@/contexts/compare-context'
+import { calculateBadges } from '@/lib/scoring'
 
 interface CompareProduct {
   id: string
@@ -21,56 +22,6 @@ interface CompareProduct {
   sustainability_score?: number
   social_score?: number
   description?: string
-}
-
-// Badge calculation function (matching product-grid logic)
-function calculateBadges(product: CompareProduct): string[] {
-  if (!product) return []
-
-  const badges: string[] = []
-  const totalScore = product.average_score || 0
-  const warrantyScore = product.warranty_score || 0
-  const socialScore = product.social_score || 0
-  const repairabilityScore = product.repairability_score || 0
-  const sustainabilityScore = product.sustainability_score || 0
-  const durabilityScore = product.durability_score || 0
-
-  // Gold Standard: 9.0+ average across all scores with high individual scores
-  if (totalScore >= 9.0 &&
-      durabilityScore >= 8.5 &&
-      warrantyScore >= 8.0) {
-    badges.push('Gold Standard')
-  }
-
-  // Lifetime Warranty: Warranty score = 10
-  if (warrantyScore >= 10.0) {
-    badges.push('Lifetime Warranty')
-  }
-
-  // Crowd Favorite: Social score ≥ 8.5
-  if (socialScore >= 8.5) {
-    badges.push('Crowd Favorite')
-  }
-
-  // Repair Friendly: Repairability score ≥ 8.5
-  if (repairabilityScore >= 8.5) {
-    badges.push('Repair Friendly')
-  }
-
-  // Eco Hero: Sustainability score ≥ 8.0
-  if (sustainabilityScore >= 8.0) {
-    badges.push('Eco Hero')
-  }
-
-  // BIFL Approved: 7.5+ across all categories (only if no other badges)
-  if (badges.length === 0 &&
-      totalScore >= 7.5 &&
-      durabilityScore >= 7.0 &&
-      warrantyScore >= 6.0) {
-    badges.push('BIFL Approved')
-  }
-
-  return badges
 }
 
 // Map badge names to SVG file paths
