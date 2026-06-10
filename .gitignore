@@ -41,4 +41,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-AuthKey_8LYJ3Y87D4.p8BIFL Score Card*.xlsx
+# secrets (Apple push key — was smushed onto one line with the line below, so neither ignored)
+AuthKey_8LYJ3Y87D4.p8
+
+# build artifacts / reports (untracked 2026-06-11)
+*.xlsx
+lighthouse-report.*
+
+# supabase CLI temp
+supabase/.temp/

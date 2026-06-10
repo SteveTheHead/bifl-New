@@ -293,6 +293,8 @@ export interface Database {
           is_featured: boolean
           created_at: string
           updated_at: string
+          buying_guide: Json | null
+          buying_guide_generated_at: string | null
         }
         Insert: {
           id?: string
@@ -305,6 +307,8 @@ export interface Database {
           is_featured?: boolean
           created_at?: string
           updated_at?: string
+          buying_guide?: Json | null
+          buying_guide_generated_at?: string | null
         }
         Update: {
           id?: string
@@ -317,6 +321,8 @@ export interface Database {
           is_featured?: boolean
           created_at?: string
           updated_at?: string
+          buying_guide?: Json | null
+          buying_guide_generated_at?: string | null
         }
       }
       materials: {

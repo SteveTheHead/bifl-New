@@ -14,7 +14,7 @@ export function ExitIntentFeedback() {
     // Check if feedback was already shown in the last 30 days
     const checkCookie = () => {
       const cookies = document.cookie.split(';')
-      for (let cookie of cookies) {
+      for (const cookie of cookies) {
         const [name] = cookie.trim().split('=')
         if (name === COOKIE_NAME) {
           return true

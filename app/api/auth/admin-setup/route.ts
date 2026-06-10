@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/utils/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { PasswordUtils } from '@/lib/auth/password'
 import { sb } from '@/lib/supabase-utils'
 

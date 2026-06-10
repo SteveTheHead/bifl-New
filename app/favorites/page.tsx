@@ -6,7 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Heart, Trash2, ShoppingBag, ArrowLeft } from 'lucide-react'
 import { useFavorites } from '@/lib/hooks/use-favorites'
-import { createClient } from '@/utils/supabase/client'
+import { createClient } from '@/lib/supabase/client'
 
 interface FavoriteProduct {
   id: string

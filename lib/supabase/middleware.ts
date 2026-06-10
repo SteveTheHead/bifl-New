@@ -31,7 +31,7 @@ export async function updateSession(request: NextRequest) {
             return request.cookies.getAll()
           },
           setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) => {
+            cookiesToSet.forEach(({ name, value }) => {
               request.cookies.set(name, value)
             })
             supabaseResponse = NextResponse.next({
@@ -51,12 +51,10 @@ export async function updateSession(request: NextRequest) {
 
   // IMPORTANT: Avoid writing any logic between createServerClient and
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug
-  // issues with users being randomly logged out.
-
-  let user = null
+  // issues with users being randomly logged out. We call getUser() for its
+  // session-refresh side effect; the returned user isn't needed here.
   try {
-    const { data } = await supabase.auth.getUser()
-    user = data.user
+    await supabase.auth.getUser()
   } catch (error) {
     console.error('Middleware: Failed to get user:', error)
     // Continue without user - they'll be treated as logged out
