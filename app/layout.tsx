@@ -29,9 +29,10 @@ export const metadata: Metadata = {
     siteName: "Buy It For Life",
     images: [
       {
-        url: "/images/categories/hero Picture 1.png",
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
+        type: "image/jpeg",
         alt: "BIFL - Buy It For Life",
       },
     ],
