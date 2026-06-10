@@ -6,8 +6,9 @@ import { CompareProvider } from "@/contexts/compare-context";
 import { AuthProvider } from "@/lib/contexts/auth-context";
 import { FloatingCompareBar } from "@/components/compare/floating-compare-bar";
 import { CompareModal } from "@/components/compare/compare-modal";
-import { GoogleAnalytics } from "@/components/analytics/google-analytics";
-import { MicrosoftClarity } from "@/components/analytics/microsoft-clarity";
+import { ConsentProvider } from "@/components/analytics/consent-context";
+import { ConsentBanner } from "@/components/analytics/consent-banner";
+import { AnalyticsScripts } from "@/components/analytics/analytics-scripts";
 import { ExitIntentFeedback } from "@/components/exit-intent-feedback";
 import FooterSection from "@/components/homepage/footer";
 import "./globals.css";
@@ -46,30 +47,37 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`font-[-apple-system,BlinkMacSystemFont]antialiased`}>
-        <GoogleAnalytics measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || ''} />
-        <MicrosoftClarity projectId={process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID || ''} />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          forcedTheme="light"
-          enableSystem={false}
-          disableTransitionOnChange
-        >
-          <AuthProvider>
-            <CompareProvider>
-              <ConditionalNavbar />
-              {children}
-              <FooterSection />
-              <FloatingCompareBar />
-              <CompareModal />
-              <ExitIntentFeedback />
-              <Toaster />
-              <Analytics />
-              <SpeedInsights />
-            </CompareProvider>
-          </AuthProvider>
-        </ThemeProvider>
+      <body className={`font-[-apple-system,BlinkMacSystemFont] antialiased`}>
+        <ConsentProvider>
+          {/* GA4 + Clarity load only after consent; Vercel Analytics/Speed
+              Insights are cookieless and run unconditionally. */}
+          <AnalyticsScripts
+            gaMeasurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || ''}
+            clarityProjectId={process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID || ''}
+          />
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            forcedTheme="light"
+            enableSystem={false}
+            disableTransitionOnChange
+          >
+            <AuthProvider>
+              <CompareProvider>
+                <ConditionalNavbar />
+                {children}
+                <FooterSection />
+                <FloatingCompareBar />
+                <CompareModal />
+                <ExitIntentFeedback />
+                <Toaster />
+                <Analytics />
+                <SpeedInsights />
+              </CompareProvider>
+            </AuthProvider>
+          </ThemeProvider>
+          <ConsentBanner />
+        </ConsentProvider>
       </body>
     </html>
   );
