@@ -7,13 +7,14 @@ import { ProductGrid } from '@/components/products/product-grid'
 export const revalidate = 1800 // Revalidate every 30 minutes
 
 interface ProductsPageProps {
-  searchParams: Promise<{ search?: string; categories?: string }>
+  searchParams: Promise<{ search?: string; categories?: string; badge?: string }>
 }
 
 // Generate metadata dynamically to handle search queries
 export async function generateMetadata({ searchParams }: ProductsPageProps): Promise<Metadata> {
-  const { search } = await searchParams
+  const { search, badge } = await searchParams
   const hasSearch = !!search
+  const isFiltered = hasSearch || !!badge
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com'
 
@@ -41,17 +42,20 @@ export async function generateMetadata({ searchParams }: ProductsPageProps): Pro
     },
 
     robots: {
-      index: !hasSearch, // Don't index search results
+      index: !isFiltered, // Don't index search/badge-filtered views
       follow: true,
     },
   }
 }
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
-  const { search, categories } = await searchParams
+  const { search, categories, badge } = await searchParams
 
   // Parse categories from URL parameter (comma-separated if multiple, or single ID)
   const initialCategoryIds = categories ? categories.split(',').filter(Boolean) : []
+
+  // Parse badge filter from URL (e.g. homepage hero CTAs link to ?badge=Gold%20Standard)
+  const initialBadges = badge ? badge.split(',').map((b) => b.trim()).filter(Boolean) : []
 
   try {
     // Get products and taxonomy data
@@ -84,6 +88,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
               allCategories={allCategories || []}
               initialSearch={search || ''}
               initialCategories={initialCategoryIds}
+              initialBadges={initialBadges}
             />
           </div>
         </section>

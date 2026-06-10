@@ -319,9 +319,10 @@ interface ProductGridProps {
   allCategories?: Category[]
   initialSearch?: string
   initialCategories?: string[]
+  initialBadges?: string[]
 }
 
-export function ProductGrid({ initialProducts, categories, allCategories, initialSearch = '', initialCategories = [] }: ProductGridProps) {
+export function ProductGrid({ initialProducts, categories, allCategories, initialSearch = '', initialCategories = [], initialBadges = [] }: ProductGridProps) {
   // Mobile filter drawer state
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false)
 
@@ -342,7 +343,7 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
     search: initialSearch,
     categories: initialCategories,
     brands: [] as string[],
-    badges: [] as string[],
+    badges: initialBadges as string[],
     scoreRanges: [] as string[],
     countries: [] as string[],
     priceRange: priceRange as [number, number],
@@ -364,6 +365,9 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
       trackProductSearch(urlSearch.trim())
     }
 
+    // Note: badges are seeded once from initialBadges (the ?badge= URL param at
+    // mount) and then owned by the sidebar filter; we intentionally preserve
+    // prev.badges here so a category/search change doesn't wipe a selection.
     setFilters(prev => ({
       ...prev,
       search: urlSearch,
