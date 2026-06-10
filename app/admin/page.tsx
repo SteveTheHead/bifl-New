@@ -1,29 +1,14 @@
 import { redirect } from 'next/navigation'
-import { cookies } from 'next/headers'
+import { getAdminSession } from '@/lib/auth/admin'
 import AdminDashboardClient from './AdminDashboardClient'
 
 export default async function AdminDashboard() {
-  // Server-side authentication check
-  const cookieStore = await cookies()
-  const sessionCookie = cookieStore.get('admin-session')
+  // Server-side authentication check (verifies the signed admin session)
+  const session = await getAdminSession()
 
-  if (!sessionCookie) {
+  if (!session) {
     redirect('/admin/signin')
   }
 
-  try {
-    const session = JSON.parse(sessionCookie.value)
-
-    // Check if session is expired (24 hours)
-    const sessionAge = Date.now() - session.loginTime
-    const maxAge = 24 * 60 * 60 * 1000 // 24 hours in ms
-
-    if (sessionAge > maxAge || session.role !== 'admin') {
-      redirect('/admin/signin')
-    }
-
-    return <AdminDashboardClient session={session} />
-  } catch {
-    redirect('/admin/signin')
-  }
+  return <AdminDashboardClient session={session} />
 }

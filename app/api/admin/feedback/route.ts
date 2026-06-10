@@ -1,8 +1,12 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { requireAdmin } from '@/lib/auth/admin'
 
 export async function GET(request: Request) {
   try {
+    const unauthorized = await requireAdmin()
+    if (unauthorized) return unauthorized
+
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
     const feedbackType = searchParams.get('feedback_type')

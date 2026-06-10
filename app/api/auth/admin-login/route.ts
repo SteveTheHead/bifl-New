@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import { PasswordUtils } from '@/lib/auth/password'
 import { revalidatePath } from 'next/cache'
+import { ADMIN_SESSION_COOKIE, signAdminSession, type AdminSession } from '@/lib/auth/admin'
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,14 +47,15 @@ export async function POST(request: NextRequest) {
       console.warn('Failed to update last login:', updateError)
     }
 
-    // Create admin session token (you can implement JWT or use simple session storage)
-    const adminSession = {
+    // Create a SIGNED admin session token (HMAC over ADMIN_SECRET_KEY).
+    const adminSession: AdminSession = {
       id: (adminUser as any).id,
       email: (adminUser as any).email,
       name: (adminUser as any).name,
       role: (adminUser as any).role,
       loginTime: Date.now()
     }
+    const adminSessionToken = await signAdminSession(adminSession)
 
     revalidatePath('/', 'layout')
 
@@ -69,8 +71,8 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Set admin session cookie
-    response.cookies.set('admin-session', JSON.stringify(adminSession), {
+    // Set signed admin session cookie
+    response.cookies.set(ADMIN_SESSION_COOKIE, adminSessionToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

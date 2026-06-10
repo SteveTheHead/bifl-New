@@ -1,8 +1,13 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { withTypedSupabase } from '@/lib/supabase-utils'
+import { requireAdmin } from '@/lib/auth/admin'
 
 export async function GET() {
   try {
+    const unauthorized = await requireAdmin()
+    if (unauthorized) return unauthorized
+
     const supabase = await createClient()
 
     // Get counts for different entities

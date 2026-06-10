@@ -1,29 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { aiService } from '@/lib/ai/service'
 import { createAdminClient } from '@/lib/supabase/server'
-import { cookies } from 'next/headers'
-
-async function checkAdminAuth() {
-  const cookieStore = await cookies()
-  const adminSessionCookie = cookieStore.get('admin-session')
-
-  if (!adminSessionCookie) return false
-
-  try {
-    const adminSession = JSON.parse(adminSessionCookie.value)
-    const sessionAge = Date.now() - (adminSession.loginTime || 0)
-    const maxAge = 24 * 60 * 60 * 1000
-    return sessionAge <= maxAge
-  } catch {
-    return false
-  }
-}
+import { requireAdmin } from '@/lib/auth/admin'
 
 export async function POST(request: NextRequest) {
-  const isAuthenticated = await checkAdminAuth()
-  if (!isAuthenticated) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const unauthorized = await requireAdmin()
+  if (unauthorized) return unauthorized
 
   try {
     if (!aiService.isAvailable()) {

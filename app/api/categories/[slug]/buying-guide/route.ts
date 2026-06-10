@@ -1,6 +1,7 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { BuyingGuideGenerator, type BuyingGuide } from '@/lib/ai/buying-guide'
+import { requireAdmin } from '@/lib/auth/admin'
 
 // Regenerate a category's cached guide at most this often. The whole point is
 // to NOT call the LLM on every request — once stored, reads are free.
@@ -152,12 +153,10 @@ export async function POST(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    // NOTE: admin auth on this route is hardened in the security PR (requireAdmin);
-    // this branch keeps the existing cookie check until that merges.
-    const adminSession = request.cookies.get('admin-session')
-    if (!adminSession) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    // This route lives under /api/categories, so the /api/admin middleware
+    // guard does not cover it — verify the signed admin session here.
+    const unauthorized = await requireAdmin()
+    if (unauthorized) return unauthorized
 
     const { slug } = await params
     const supabase = await createClient()
