@@ -1,6 +1,6 @@
-import { createClient } from '@/utils/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import { Database } from '@/utils/supabase/types'
+import { Database } from '@/lib/supabase/types'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { sb } from '@/lib/supabase-utils'
 import { auth } from '@/lib/auth'
