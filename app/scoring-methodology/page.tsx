@@ -125,7 +125,7 @@ export default function ScoringMethodologyPage() {
                   <tbody>
                     <tr>
                       <td className="border border-gray-200 px-4 py-3"><span className="text-green-600 font-semibold">9.0 - 10.0</span></td>
-                      <td className="border border-gray-200 px-4 py-3">Exceptional</td>
+                      <td className="border border-gray-200 px-4 py-3">Legend</td>
                       <td className="border border-gray-200 px-4 py-3">True BIFL legend. Industry benchmark for longevity.</td>
                     </tr>
                     <tr className="bg-gray-50">
@@ -135,23 +135,18 @@ export default function ScoringMethodologyPage() {
                     </tr>
                     <tr>
                       <td className="border border-gray-200 px-4 py-3"><span className="text-yellow-600 font-semibold">7.0 - 7.9</span></td>
-                      <td className="border border-gray-200 px-4 py-3">Very Good</td>
+                      <td className="border border-gray-200 px-4 py-3">Good</td>
                       <td className="border border-gray-200 px-4 py-3">Solid long-term choice. Minor compromises possible.</td>
                     </tr>
                     <tr className="bg-gray-50">
-                      <td className="border border-gray-200 px-4 py-3"><span className="text-yellow-600 font-semibold">6.0 - 6.9</span></td>
-                      <td className="border border-gray-200 px-4 py-3">Good</td>
-                      <td className="border border-gray-200 px-4 py-3">Above average durability. Good value for price.</td>
+                      <td className="border border-gray-200 px-4 py-3"><span className="text-orange-600 font-semibold">6.0 - 6.9</span></td>
+                      <td className="border border-gray-200 px-4 py-3">Fair</td>
+                      <td className="border border-gray-200 px-4 py-3">Above average durability. Decent value for the price.</td>
                     </tr>
                     <tr>
-                      <td className="border border-gray-200 px-4 py-3"><span className="text-orange-600 font-semibold">5.0 - 5.9</span></td>
-                      <td className="border border-gray-200 px-4 py-3">Fair</td>
-                      <td className="border border-gray-200 px-4 py-3">Average product. May need replacement within 5-10 years.</td>
-                    </tr>
-                    <tr className="bg-gray-50">
-                      <td className="border border-gray-200 px-4 py-3"><span className="text-red-600 font-semibold">Below 5.0</span></td>
-                      <td className="border border-gray-200 px-4 py-3">Below Average</td>
-                      <td className="border border-gray-200 px-4 py-3">Not recommended for BIFL purposes.</td>
+                      <td className="border border-gray-200 px-4 py-3"><span className="text-red-600 font-semibold">Below 6.0</span></td>
+                      <td className="border border-gray-200 px-4 py-3">Poor</td>
+                      <td className="border border-gray-200 px-4 py-3">Falls short for BIFL purposes. Consider sturdier alternatives.</td>
                     </tr>
                   </tbody>
                 </table>
