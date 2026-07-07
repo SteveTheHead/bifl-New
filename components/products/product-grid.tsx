@@ -17,7 +17,7 @@ interface Product {
   id: string
   name: string
   slug: string
-  brand_name?: string
+  brand_name?: string | null
   featured_image_url?: string | null
   price?: number | string | null
   bifl_total_score?: number | null
@@ -27,7 +27,8 @@ interface Product {
   sustainability_score?: number | null
   durability_score?: number | null
   affiliate_link?: string | null
-  bifl_certification?: string[] | null
+  // varchar in the DB: badges stored as a comma-separated string, not an array
+  bifl_certification?: string | null
 }
 
 interface Category {

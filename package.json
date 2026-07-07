@@ -2,6 +2,9 @@
   "name": "bifl-product-directory",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "dev": "next dev --turbopack",
     "dev:clean": "./dev-restart.sh",

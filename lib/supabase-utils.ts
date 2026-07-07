@@ -6,6 +6,9 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 
 export type TypedSupabaseClient = SupabaseClient<Database>
 
+/** Table or view names in the public schema (from the generated Database types). */
+type Relation = keyof (Database['public']['Tables'] & Database['public']['Views']) & string
+
 // Clean type assertion for Supabase operations
 export function withTypedSupabase<T>(
   supabase: any,
@@ -16,15 +19,16 @@ export function withTypedSupabase<T>(
 
 // Shorthand for common operations
 export const sb = {
-  // Insert operation - using flexible string type for table names
+  // Insert operation. Table names are checked against the generated schema;
+  // results are intentionally untyped (callers narrow with their own shapes).
   async insert(
     supabase: any,
-    table: string,
+    table: Relation,
     data: any[]
-  ) {
-    return await (supabase as TypedSupabaseClient)
-      .from(table as any)
-      .insert(data as any)
+  ): Promise<{ data: any; error: any }> {
+    return await (supabase as any)
+      .from(table)
+      .insert(data)
       .select()
   },
 
@@ -37,32 +41,32 @@ export const sb = {
     return await (supabase as TypedSupabaseClient).rpc(fn, params as any)
   },
 
-  // Select operation - using flexible string type for table names
+  // Select operation. Same deal as insert: name-checked, loosely typed.
   select(
     supabase: any,
-    table: string,
+    table: Relation,
     select = '*'
-  ) {
-    return (supabase as TypedSupabaseClient)
-      .from(table as any)
+  ): any {
+    return (supabase as any)
+      .from(table)
       .select(select)
   },
 
   // Update operation
   update(
     supabase: any,
-    table: string,
+    table: Relation,
     data: any
   ) {
     return ((supabase as any).from(table).update(data) as any)
   },
 
-  // From operation for chaining
+  // From operation for chaining. Same deal as select: name-checked, loosely typed.
   from(
     supabase: any,
-    table: string
-  ) {
-    return (supabase as TypedSupabaseClient)
-      .from(table as any)
+    table: Relation
+  ): any {
+    return (supabase as any)
+      .from(table)
   }
 }

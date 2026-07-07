@@ -2,8 +2,32 @@ import { createClient, createAdminClient } from './server'
 import { Database } from './types'
 import { sb } from '../supabase-utils'
 
+/**
+ * Grid-subset row returned by getProducts(). View columns are all nullable in
+ * the generated types (Postgres drops NOT NULL through views), but id/name/slug
+ * come straight from products' NOT NULL columns, so we assert them non-null here
+ * at the single query boundary instead of null-guarding every consumer.
+ */
+export type ProductGridRow = {
+  id: string
+  name: string
+  slug: string
+  brand_name: string | null
+  category_name: string | null
+  category_id: string | null
+  featured_image_url: string | null
+  bifl_total_score: number | null
+  bifl_certification: string | null
+  price: number | null
+  durability_score: number | null
+  repairability_score: number | null
+  warranty_score: number | null
+  sustainability_score: number | null
+  social_score: number | null
+}
+
 // Product queries
-export async function getProducts(limit = 20, offset = 0) {
+export async function getProducts(limit = 20, offset = 0): Promise<ProductGridRow[]> {
   const supabase = await createClient()
 
   // Select only fields needed for product grid display
@@ -45,7 +69,7 @@ export async function getProducts(limit = 20, offset = 0) {
     throw error
   }
 
-  return data
+  return (data ?? []) as ProductGridRow[]
 }
 
 

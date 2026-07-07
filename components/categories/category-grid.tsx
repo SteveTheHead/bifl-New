@@ -8,7 +8,7 @@ interface Category {
   slug: string
   description: string | null
   icon_url: string | null
-  is_featured: boolean
+  is_featured: boolean | null
   productCount: number
 }
 

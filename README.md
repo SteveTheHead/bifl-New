@@ -240,7 +240,9 @@ R2_UPLOAD_IMAGE_BUCKET_NAME=your-bucket-name
 
 4. **Database Setup**
 
-Your Supabase database should have the following tables (migrations included):
+A fresh database is created from the baseline migration
+(`supabase/migrations/20260707000000_baseline_schema.sql`, dumped from
+production on 2026-07-07). It includes every table the app uses:
 
 - `products` - Product data
 - `categories` - Hierarchical categories
@@ -472,13 +474,15 @@ npm run lint           # Run ESLint
 
 ### Database Migrations
 
-Migrations are located in `/supabase/migrations/`
+Migrations are located in `/supabase/migrations/`. The first file is a full
+baseline dumped from production (2026-07-07); pre-baseline history is archived
+in `/supabase/migrations-archive/` and must not be re-applied.
 
-To create a new migration:
-1. Make schema changes in Supabase dashboard
-2. Export as SQL migration
-3. Place in migrations folder
-4. Apply with `npx supabase db push`
+To make a schema change:
+1. Write a new timestamped SQL file in `/supabase/migrations/`
+2. Apply it to production (Supabase SQL editor or `supabase db push`)
+3. Regenerate types: `supabase gen types typescript --db-url "$DATABASE_URL" > lib/supabase/types.ts`
+   (`lib/supabase/types.ts` is generated — never hand-edit it)
 
 ---
 

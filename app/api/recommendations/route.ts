@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { aiService } from '@/lib/ai/service'
 import { SYSTEM_PROMPTS, formatProductForAI } from '@/lib/ai/prompts'
 import { getProducts, getProductById } from '@/lib/supabase/queries'
-import { Database } from '@/lib/supabase/types'
 
-type ProductWithTaxonomy = Database['public']['Views']['products_with_taxonomy']['Row']
+// The grid-subset row shape returned by getProducts() (a projection of the
+// products_with_taxonomy view) — this is what every code path below works with.
+type GridProduct = NonNullable<Awaited<ReturnType<typeof getProducts>>>[number]
 
 interface RecommendationRequest {
   productId?: string          // For "similar to this product" recommendations
@@ -31,7 +32,7 @@ export async function POST(request: NextRequest) {
     const body: RecommendationRequest = await request.json()
     const { productId, userPreferences, behaviorData } = body
 
-    let recommendations: ProductWithTaxonomy[]
+    let recommendations: GridProduct[]
 
     if (productId) {
       // Product-based recommendations
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function getProductBasedRecommendations(productId: string): Promise<ProductWithTaxonomy[]> {
+async function getProductBasedRecommendations(productId: string): Promise<GridProduct[]> {
   const sourceProduct = await getProductById(productId)
   if (!sourceProduct) {
     throw new Error('Product not found')
@@ -129,7 +130,7 @@ Return only the product names exactly as they appear, one per line.`
 async function getPreferenceBasedRecommendations(
   preferences: RecommendationRequest['userPreferences'],
   behaviorData?: RecommendationRequest['behaviorData']
-): Promise<ProductWithTaxonomy[]> {
+): Promise<GridProduct[]> {
   const allProducts = await getProducts(0)
 
   // Filter products based on preferences
@@ -195,7 +196,7 @@ Return only the product names exactly as they appear, one per line.`
   }
 }
 
-async function getTrendingRecommendations(): Promise<ProductWithTaxonomy[]> {
+async function getTrendingRecommendations(): Promise<GridProduct[]> {
   const allProducts = await getProducts(0)
 
   // Simple trending algorithm: highest scored products
