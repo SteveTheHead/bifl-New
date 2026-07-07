@@ -95,18 +95,42 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }))
 
-  // Get all categories
+  // Get all categories with their rolled-up published-product counts, and only
+  // list the ones that are indexable (>= 3 products, matching the noindex
+  // threshold in the category page's generateMetadata). Thin pages are
+  // noindex, so they shouldn't appear in the sitemap.
+  const MIN_INDEXABLE_PRODUCTS = 3
   const { data: categories } = await supabase
     .from('categories')
-    .select('slug, updated_at')
+    .select('id, slug, parent_id, updated_at')
     .order('updated_at', { ascending: false })
 
-  const categoryPages: MetadataRoute.Sitemap = (categories || []).map((category: any) => ({
-    url: `${baseUrl}/categories/${category.slug}`,
-    lastModified: new Date(category.updated_at),
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
-  }))
+  const { data: countRows } = await supabase
+    .from('products')
+    .select('category_id')
+    .eq('status', 'published')
+
+  const directCounts = new Map<string, number>()
+  for (const row of countRows || []) {
+    const id = (row as any).category_id
+    if (id) directCounts.set(id, (directCounts.get(id) ?? 0) + 1)
+  }
+  const rollupCount = (cat: any) => {
+    let n = directCounts.get(cat.id) ?? 0
+    for (const child of categories || []) {
+      if ((child as any).parent_id === cat.id) n += directCounts.get((child as any).id) ?? 0
+    }
+    return n
+  }
+
+  const categoryPages: MetadataRoute.Sitemap = (categories || [])
+    .filter((category: any) => rollupCount(category) >= MIN_INDEXABLE_PRODUCTS)
+    .map((category: any) => ({
+      url: `${baseUrl}/categories/${category.slug}`,
+      lastModified: new Date(category.updated_at),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }))
 
   // Get all published buying guides
   const { data: guides } = await supabase
