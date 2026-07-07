@@ -54,11 +54,18 @@ export async function generateMetadata({ params, searchParams }: CategoryPagePro
     }
   }
 
-  // Get product count for this category
+  // Rolled-up product count (this category + its direct subcategories), which
+  // is what the page actually renders. A top-level hub has 0 direct products
+  // but many via children, so a direct-only count would wrongly mark it thin.
+  const { data: childCats } = await supabase
+    .from('categories')
+    .select('id')
+    .eq('parent_id', (category as any).id)
+  const rollupIds = [(category as any).id, ...(childCats || []).map((c: any) => c.id)]
   const { count: productCount } = await supabase
     .from('products')
     .select('*', { count: 'exact', head: true })
-    .eq('category_id', (category as any).id)
+    .in('category_id', rollupIds)
     .eq('status', 'published')
 
   const categoryName = (category as any).name
@@ -75,10 +82,15 @@ export async function generateMetadata({ params, searchParams }: CategoryPagePro
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com'
   const canonicalUrl = `${baseUrl}/categories/${slug}`
 
-  // Check if this is a filtered/sorted view - if so, prevent indexing
+  // Don't index thin or filtered category pages. Thin pages (< 3 products)
+  // are mostly leaf subcategories that got 1-2 products from the original
+  // import; noindex,follow keeps them crawlable for internal links and lets
+  // them flip back to indexed automatically if they gain products. No
+  // top-level hub is thin (verified), so no important page is affected.
+  const MIN_INDEXABLE_PRODUCTS = 3
   const params_resolved = await searchParams
   const hasFilters = params_resolved.sort || params_resolved.price_min || params_resolved.price_max || params_resolved.brand
-  const shouldIndex = !hasFilters
+  const shouldIndex = !hasFilters && (productCount ?? 0) >= MIN_INDEXABLE_PRODUCTS
 
   return {
     title,
