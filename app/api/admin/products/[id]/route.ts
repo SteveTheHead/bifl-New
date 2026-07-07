@@ -1,7 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import type { Database } from '@/lib/supabase/types'
 import { requireAdmin } from '@/lib/auth/admin'
+import { productWriteSchema } from '@/lib/validation/product'
 
 export async function GET(
   request: Request,
@@ -43,12 +43,18 @@ export async function PUT(
     if (unauthorized) return unauthorized
 
     const { id } = await params
-    const body = await request.json()
+    const parsed = productWriteSchema.safeParse(await request.json())
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Invalid product data', details: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      )
+    }
     const supabase = createAdminClient()
 
-
-    // Type assertion needed due to admin client limitations with typed mutations
-    const updateData = body as Database['public']['Tables']['products']['Update']
+    // Allow-listed fields only (audit H9): never spread the raw body — that let
+    // a caller set id/created_at/any column.
+    const updateData = { ...parsed.data, updated_at: new Date().toISOString() }
     const { data, error} = await (supabase
       .from('products')
       .update as any)(updateData)

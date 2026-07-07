@@ -70,7 +70,7 @@ export class AIService {
         content: msg.content
       })),
       max_tokens: options.maxTokens || aiConfig.openai.maxTokens,
-      temperature: options.temperature || aiConfig.openai.temperature,
+      temperature: options.temperature ?? aiConfig.openai.temperature, // ?? so temperature 0 is honored
     })
 
     const choice = response.choices[0]
@@ -107,7 +107,7 @@ export class AIService {
         content: msg.content
       })),
       max_tokens: options.maxTokens || aiConfig.anthropic.maxTokens,
-      temperature: options.temperature || aiConfig.anthropic.temperature,
+      temperature: options.temperature ?? aiConfig.anthropic.temperature, // ?? so temperature 0 is honored
     })
 
     const content = response.content[0]

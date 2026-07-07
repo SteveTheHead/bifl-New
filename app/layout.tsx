@@ -66,7 +66,8 @@ export default function RootLayout({
             <AuthProvider>
               <CompareProvider>
                 <ConditionalNavbar />
-                {children}
+                {/* Single main landmark for a11y (audit L6) */}
+                <main id="main-content">{children}</main>
                 <FooterSection />
                 <FloatingCompareBar />
                 <CompareModal />

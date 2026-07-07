@@ -1,18 +1,20 @@
 import OpenAI from 'openai'
 import Anthropic from '@anthropic-ai/sdk'
 
-// AI Service Configuration
+// AI Service Configuration. Models/limits are env-overridable so upgrades
+// don't require a deploy (audit M17 — the old hardcoded default was a
+// March-2024 Haiku that has since been retired).
 export const aiConfig = {
   openai: {
     apiKey: process.env.OPENAI_API_KEY,
-    model: 'gpt-4o-mini', // Cost-effective model for most tasks
-    maxTokens: 2000,
+    model: process.env.OPENAI_MODEL || 'gpt-4o-mini', // Cost-effective model for most tasks
+    maxTokens: Number(process.env.AI_MAX_TOKENS) || 2000,
     temperature: 0.7,
   },
   anthropic: {
     apiKey: process.env.ANTHROPIC_API_KEY,
-    model: 'claude-3-haiku-20240307', // Fast and cost-effective
-    maxTokens: 2000,
+    model: process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001', // Fast and cost-effective
+    maxTokens: Number(process.env.AI_MAX_TOKENS) || 2000,
     temperature: 0.7,
   }
 }
