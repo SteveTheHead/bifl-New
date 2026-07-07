@@ -149,14 +149,12 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       title,
       description,
       url: productUrl,
-      image: productData.featured_image_url,
       type: 'article',
     }),
 
     twitter: generateTwitterCard({
       title,
       description,
-      image: productData.featured_image_url,
     }),
 
     alternates: {

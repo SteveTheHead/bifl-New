@@ -97,14 +97,12 @@ export async function generateMetadata({ params, searchParams }: CategoryPagePro
       title,
       description,
       url: canonicalUrl,
-      image: '/og-image.jpg',
       type: 'website',
     }),
 
     twitter: generateTwitterCard({
       title,
       description,
-      image: '/og-image.jpg',
     }),
 
     robots: {
