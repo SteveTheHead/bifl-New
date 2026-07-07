@@ -841,6 +841,61 @@ export async function getFeaturedCurations() {
   })) || []
 }
 
+/**
+ * Live site stats for copy/metadata (audit M14 — no more hardcoded "327+").
+ * Cached daily; roundedProducts gives a stable marketing-friendly floor
+ * ("354 products" -> "350+").
+ */
+export const getSiteStats = unstable_cache(
+  async () => {
+    const supabase = createBuildClient()
+    const [{ count: productCount }, { count: categoryCount }] = await Promise.all([
+      supabase
+        .from('products')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'published'),
+      supabase.from('categories').select('*', { count: 'exact', head: true }),
+    ])
+    const products = productCount ?? 0
+    return {
+      products,
+      categories: categoryCount ?? 0,
+      roundedProducts: `${Math.max(10, Math.floor(products / 10) * 10)}+`,
+    }
+  },
+  ['site-stats'],
+  { revalidate: 86400 }
+)
+
+/** All active curations for the /curations index page. */
+export async function getActiveCurations() {
+  const supabase = createBuildClient()
+
+  const { data, error } = await supabase
+    .from('curations')
+    .select(`
+      id,
+      name,
+      slug,
+      description,
+      featured_image_url,
+      display_order,
+      curation_products (id)
+    `)
+    .eq('is_active', true)
+    .order('display_order', { ascending: true })
+
+  if (error) {
+    console.error('Error fetching curations:', error)
+    return []
+  }
+
+  return (data ?? []).map((curation: any) => ({
+    ...curation,
+    product_count: curation.curation_products?.length || 0,
+  }))
+}
+
 // Buying guide queries
 export async function getPublishedGuides(limit = 6) {
   const supabase = createBuildClient()

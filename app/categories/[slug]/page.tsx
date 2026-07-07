@@ -1,7 +1,9 @@
 import { Suspense } from 'react'
-import { createClient, createBuildClient } from '@/lib/supabase/server'
+import { createBuildClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { CategoryPageClient } from '@/components/categories/category-page-client'
+import { ItemListStructuredData } from '@/components/seo/structured-data'
+import { RelatedGuides } from '@/components/products/related-guides'
 import { Metadata } from 'next'
 import {
   generateCategoryTitle,
@@ -33,7 +35,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params, searchParams }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params
-  const supabase = await createClient()
+  const supabase = createBuildClient()
 
   const { data: category } = await supabase
     .from('categories')
@@ -95,14 +97,14 @@ export async function generateMetadata({ params, searchParams }: CategoryPagePro
       title,
       description,
       url: canonicalUrl,
-      image: '/og-image-category.jpg',
+      image: '/og-image.jpg',
       type: 'website',
     }),
 
     twitter: generateTwitterCard({
       title,
       description,
-      image: '/og-image-category.jpg',
+      image: '/og-image.jpg',
     }),
 
     robots: {
@@ -126,7 +128,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   const { slug } = await params
   const { sort, price_min, price_max, brand } = await searchParams
 
-  const supabase = await createClient()
+  const supabase = createBuildClient()
 
   // Get category details
   const { data: category, error: categoryError } = await supabase
@@ -138,6 +140,15 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   if (categoryError || !category) {
     notFound()
   }
+
+  // Server-render the cached buying guide (jsonb on the category row) so its
+  // ~1000 words are in the HTML for crawlers. Generation/refresh stays in the
+  // admin flow + API route; no LLM call happens here.
+  const storedGuide = (category as any).buying_guide as
+    | { guide: unknown; productCount: number }
+    | null
+  const initialBuyingGuide =
+    (category as any).show_buying_guide && storedGuide?.guide ? storedGuide.guide : null
 
   // Get all categories to find subcategories
   const { data: allCategories } = await supabase
@@ -272,11 +283,24 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
           </div>
         </div>
       }>
+        <ItemListStructuredData
+          name={`Best ${(category as any).name} - BIFL Products`}
+          description={(category as any).description || `Top-rated ${(category as any).name} products that last`}
+          products={transformedProducts.slice(0, 24).map((p: any, i: number) => ({
+            name: p.name,
+            url: `/products/${p.slug}`,
+            image: p.featured_image_url || undefined,
+            position: i + 1,
+            rating: p.bifl_total_score || undefined,
+            price: typeof p.price === 'number' ? p.price : undefined,
+          }))}
+        />
         <CategoryPageClient
           category={category}
           products={transformedProducts}
           availableBrands={uniqueBrands}
           subcategories={subcategories}
+          initialBuyingGuide={initialBuyingGuide as any}
           initialFilters={{
             sort: sort as string,
             price_min: price_min as string,
@@ -284,6 +308,10 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
             brand: brand as string
           }}
         />
+        {/* Server-rendered cross-links to guides (crawlable internal links) */}
+        <div className="container mx-auto px-4 pb-12">
+          <RelatedGuides categoryId={categoryId} categoryName={(category as any).name} />
+        </div>
       </Suspense>
     </div>
   )
