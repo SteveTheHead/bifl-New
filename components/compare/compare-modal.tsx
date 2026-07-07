@@ -157,9 +157,12 @@ export function CompareModal() {
                                 <X className="w-3 h-3" />
                               </button>
                               <div className="flex flex-col items-center gap-1">
-                                <img
+                                <Image
                                   src={product.images?.[0] || '/placeholder-product.png'}
                                   alt={product.name}
+                                  width={56}
+                                  height={56}
+                                  sizes="56px"
                                   className="w-14 h-14 object-contain rounded-lg"
                                 />
                                 <span className="text-xs font-semibold leading-tight px-1 line-clamp-2">

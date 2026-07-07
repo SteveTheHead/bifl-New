@@ -117,9 +117,12 @@ export function ProductComparisonTable({ currentProduct }: ProductComparisonTabl
                 <th key={product.id} className="text-center py-4 text-sm font-medium text-gray-900 min-w-[180px]">
                   <div className="flex flex-col items-center gap-2">
                     <div className="relative">
-                      <img
+                      <Image
                         src={product.featured_image_url || '/placeholder-product.png'}
                         alt={product.name}
+                        width={64}
+                        height={64}
+                        sizes="64px"
                         className="w-16 h-16 object-contain rounded-lg"
                       />
                     </div>
