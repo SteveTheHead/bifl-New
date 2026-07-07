@@ -1,15 +1,17 @@
-// Type definitions for product and category data
+// Type definitions for product and category data.
+// Fields are null-tolerant because rows come from the products_with_taxonomy
+// view, whose columns are all nullable in the generated Database types.
 interface Product {
-  name: string
-  brand_name?: string
-  category_name?: string
-  price?: number
-  bifl_total_score?: number
-  primary_material?: string
-  warranty_years?: number
-  use_case?: string
-  description?: string
-  country_of_origin?: string
+  name?: string | null
+  brand_name?: string | null
+  category_name?: string | null
+  price?: number | string | null
+  bifl_total_score?: number | null
+  primary_material?: string | null
+  warranty_years?: number | null
+  use_case?: string | null
+  description?: string | null
+  country_of_origin?: string | null
 }
 
 interface Category {
@@ -98,7 +100,7 @@ Provide actionable insights about when and where to buy for the best value.`
 
 // Utility functions for formatting product data for AI
 export function formatProductForAI(product: Product): string {
-  return `Product: ${product.name}
+  return `Product: ${product.name || 'Unknown'}
 Brand: ${product.brand_name || 'Unknown'}
 Category: ${product.category_name || 'Unknown'}
 Price: $${product.price || 'Not specified'}

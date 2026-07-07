@@ -74,7 +74,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         ]}
       />
 
-      <ProductDetailView product={product} />
+      <ProductDetailView product={productData} />
     </>
   )
 }

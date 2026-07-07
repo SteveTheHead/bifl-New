@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
     })) || []
 
     return NextResponse.json({
-      products: products.filter(p => p.id) // Filter out null products
+      products: products.filter((p: any) => p.id) // Filter out null products
     })
 
   } catch (error) {

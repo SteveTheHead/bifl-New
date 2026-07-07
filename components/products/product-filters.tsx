@@ -11,7 +11,7 @@ interface Product {
   id: string
   name: string
   slug: string
-  brand_name?: string
+  brand_name?: string | null
   bifl_total_score?: number | null
   warranty_score?: number | null
   social_score?: number | null
@@ -19,8 +19,9 @@ interface Product {
   sustainability_score?: number | null
   durability_score?: number | null
   price?: number | string | null
-  country_of_origin?: string
-  bifl_certification?: string[] | null
+  country_of_origin?: string | null
+  // varchar in the DB: badges stored as a comma-separated string, not an array
+  bifl_certification?: string | null
 }
 
 interface Category {
@@ -357,7 +358,7 @@ export function ProductFilters({ onFiltersChange, categories, allCategories, pro
 
   // Filter brands based on search
   const filteredBrands = allBrands.filter((brand): brand is string =>
-    brand !== undefined && brand.toLowerCase().includes(brandSearch.toLowerCase())
+    typeof brand === 'string' && brand.toLowerCase().includes(brandSearch.toLowerCase())
   )
 
   const removeBrand = (brandToRemove: string) => {

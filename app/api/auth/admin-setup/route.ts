@@ -42,44 +42,6 @@ export async function POST(request: NextRequest) {
       console.error('Error checking for existing admins:', error)
     }
 
-    // First, ensure the admin_users table exists
-    try {
-      const { error: tableCheckError } = await supabase
-        .from('admin_users')
-        .select('id')
-        .limit(1)
-
-      if (tableCheckError && (tableCheckError.code === 'PGRST116' || tableCheckError.code === 'PGRST205')) {
-        // Table doesn't exist, create it using the SQL editor approach
-        const { error: createError } = await sb.rpc(supabase, 'create_admin_users_table_if_not_exists')
-
-        if (createError) {
-          console.error('Error creating admin_users table via RPC:', createError)
-
-          // Fallback: Try using simple SQL execution
-          try {
-            // Create admin_users table directly
-            await sb.insert(supabase, '_admin_setup', [{
-              setup_complete: true,
-              created_at: new Date().toISOString()
-            }])
-          } catch (fallbackError) {
-            console.error('Fallback table creation failed:', fallbackError)
-            return NextResponse.json({
-              error: 'Database setup required. Please create the admin_users table manually or contact support.',
-              details: 'admin_users table not found'
-            }, { status: 503 })
-          }
-        }
-      }
-    } catch (tableError) {
-      console.error('Table check error:', tableError)
-      return NextResponse.json({
-        error: 'Database connectivity issue. Please try again later.',
-        details: tableError instanceof Error ? tableError.message : 'Unknown error'
-      }, { status: 503 })
-    }
-
     // Check if admin already exists
     const { data: existingAdmin } = await supabase
       .from('admin_users')

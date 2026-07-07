@@ -31,7 +31,7 @@ interface Category {
   name: string
   slug: string
   description: string | null
-  show_buying_guide?: boolean
+  show_buying_guide?: boolean | null
 }
 
 interface Subcategory {
