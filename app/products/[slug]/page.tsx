@@ -86,7 +86,7 @@ export async function generateStaticParams() {
     .from('products')
     .select('slug')
     .eq('status', 'published')
-    .limit(1000) // Limit to prevent excessive build times
+    .limit(10000) // effectively uncapped; the whole catalog pre-renders at build
 
   return (products || []).map((product: { slug: string }) => ({
     slug: product.slug,

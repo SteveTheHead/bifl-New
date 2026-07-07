@@ -1,35 +1,18 @@
 'use client'
 
-import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
-import { ProductFilters } from './product-filters'
+import { ProductFilters, type FilterState } from './product-filters'
 import BadgeDisplay from '@/components/BadgeDisplay'
 import { AddToCompareButton } from '@/components/compare/add-to-compare-button'
 import { FavoriteButton } from '@/components/favorites/favorite-button'
-import { SlidersHorizontal, X } from 'lucide-react'
+import { SlidersHorizontal, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { getScoreLabel } from '@/lib/scoring'
 import { trackProductSearch } from '@/lib/analytics'
-import { calculateBadges } from '@/lib/scoring'
-
-interface Product {
-  id: string
-  name: string
-  slug: string
-  brand_name?: string | null
-  featured_image_url?: string | null
-  price?: number | string | null
-  bifl_total_score?: number | null
-  warranty_score?: number | null
-  social_score?: number | null
-  repairability_score?: number | null
-  sustainability_score?: number | null
-  durability_score?: number | null
-  affiliate_link?: string | null
-  // varchar in the DB: badges stored as a comma-separated string, not an array
-  bifl_certification?: string | null
-}
+import type { ProductGridRow, ProductFacets } from '@/lib/supabase/queries'
 
 interface Category {
   id: string
@@ -37,158 +20,8 @@ interface Category {
   slug: string
 }
 
-function getScoreBadgeStyle(score: number) {
-  const scoreString = score.toString()
-  return {
-    className: "score-field px-3 py-1 rounded-full transform transition-all duration-300",
-    dataScore: scoreString
-  }
-}
-
-// Get score label for accessibility
-function getScoreLabel(score: number) {
-  if (score >= 9.0) return "Legend"
-  if (score >= 8.0) return "Excellent"
-  if (score >= 7.0) return "Good"
-  if (score >= 6.0) return "Fair"
-  return "Poor"
-}
-
-// Word variation helper for handling singular/plural
-function getWordVariations(word: string): string[] {
-  const lower = word.toLowerCase().trim()
-  if (!lower) return []
-
-  const variations = new Set([lower])
-
-  // Handle plurals
-  if (lower.endsWith('s') && lower.length > 2) {
-    variations.add(lower.slice(0, -1)) // boots → boot
-    if (lower.endsWith('es') && lower.length > 3) {
-      variations.add(lower.slice(0, -2))
-    }
-  } else {
-    variations.add(lower + 's') // boot → boots
-  }
-
-  // Handle -ies/-y pattern
-  if (lower.endsWith('ies') && lower.length > 3) {
-    variations.add(lower.slice(0, -3) + 'y') // batteries → battery
-  } else if (lower.endsWith('y') && lower.length > 2) {
-    const secondLast = lower[lower.length - 2]
-    if (secondLast && !'aeiou'.includes(secondLast)) {
-      variations.add(lower.slice(0, -1) + 'ies') // battery → batteries
-    }
-  }
-
-  // Handle -ves/-fe pattern (knife/knives)
-  if (lower.endsWith('ves') && lower.length > 3) {
-    variations.add(lower.slice(0, -3) + 'fe') // knives → knife
-    variations.add(lower.slice(0, -3) + 'f')
-  } else if (lower.endsWith('fe') && lower.length > 2) {
-    variations.add(lower.slice(0, -2) + 'ves') // knife → knives
-  } else if (lower.endsWith('f') && lower.length > 2) {
-    variations.add(lower.slice(0, -1) + 'ves') // shelf → shelves
-  }
-
-  return Array.from(variations)
-}
-
-// Check if any word variation matches in the text (using word boundaries)
-function matchesAnyVariation(text: string, word: string): boolean {
-  const variations = getWordVariations(word)
-  return variations.some(variant => {
-    // Use word boundary regex to match whole words only
-    const regex = new RegExp(`\\b${variant}\\b`, 'i')
-    return regex.test(text)
-  })
-}
-
-// Check if word appears at the start of a string (higher relevance)
-function startsWithWord(text: string, word: string): boolean {
-  const textLower = text.toLowerCase()
-  const wordLower = word.toLowerCase()
-  return textLower.startsWith(wordLower) || textLower.startsWith(wordLower + ' ')
-}
-
-// Check if word is a standalone/primary word (not a modifier)
-// Detect if this is a compound/accessory product (e.g., "knife sharpener" when searching "knife")
-function isCompoundMatch(text: string, searchWord: string): boolean {
-  const textLower = text.toLowerCase()
-  const searchLower = searchWord.toLowerCase()
-
-  if (!textLower.includes(searchLower)) return false
-
-  const compoundIndicators = [
-    'sharpener', 'holder', 'case', 'bag', 'kit', 'set', 'stand',
-    'rack', 'organizer', 'cleaner', 'polish', 'oil', 'maintenance',
-    'accessory', 'tool', 'for', 'with'
-  ]
-
-  return compoundIndicators.some(indicator => textLower.includes(indicator))
-}
-
-// Check if an exact phrase appears in text (e.g., "coffee grinder" as exact phrase)
-function containsExactPhrase(text: string, words: string[]): boolean {
-  if (words.length === 0) return false
-
-  const textLower = text.toLowerCase()
-  const phrase = words.join(' ')
-
-  // Check exact phrase with word boundaries
-  const regex = new RegExp(`\\b${phrase}\\b`, 'i')
-  return regex.test(textLower)
-}
-
-// Check if words appear near each other (within 2 words distance)
-function hasProximityMatch(text: string, words: string[]): boolean {
-  if (words.length < 2) return false
-
-  const textLower = text.toLowerCase()
-  const textWords = textLower.split(/\s+/)
-
-  // Find positions of each search word
-  const positions: number[][] = words.map(word => {
-    const positions: number[] = []
-    textWords.forEach((textWord, index) => {
-      if (matchesAnyVariation(textWord, word)) {
-        positions.push(index)
-      }
-    })
-    return positions
-  })
-
-  // Check if any combination of positions is close (within 2 words)
-  for (let i = 0; i < words.length - 1; i++) {
-    const currentPositions = positions[i]
-    const nextPositions = positions[i + 1]
-
-    for (const currentPos of currentPositions) {
-      for (const nextPos of nextPositions) {
-        if (Math.abs(nextPos - currentPos) <= 2) {
-          return true
-        }
-      }
-    }
-  }
-
-  return false
-}
-
-// Count how many search words appear in a specific field
-function countWordsInField(fieldText: string, words: string[]): number {
-  let count = 0
-  words.forEach(word => {
-    if (matchesAnyVariation(fieldText, word)) {
-      count++
-    }
-  })
-  return count
-}
-
-// Calculate enhanced relevance score
 // Product card component
-function SimpleProductCard({ product }: { product: Product }) {
+function ProductCard({ product }: { product: ProductGridRow }) {
   const totalScore = product.bifl_total_score || 0
 
   return (
@@ -200,20 +33,17 @@ function SimpleProductCard({ product }: { product: Product }) {
           alt={product.name || 'Product'}
           width={400}
           height={224}
+          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
-        <BadgeDisplay
-          product={product}
-          size="xs"
-          overlay={true}
-        />
+        <BadgeDisplay product={product} size="xs" overlay={true} />
       </Link>
       <h3 className="text-xl font-semibold">{product.name}</h3>
       <p className="text-brand-gray mb-4">{product.brand_name}</p>
       <div className="flex justify-center items-center gap-3 mb-6">
         <span className="text-sm font-medium text-brand-gray">BIFL Score:</span>
         <div
-          className={`${getScoreBadgeStyle(totalScore).className} hover:scale-105`}
-          data-score={getScoreBadgeStyle(totalScore).dataScore}
+          className="score-field px-3 py-1 rounded-full transform transition-all duration-300 hover:scale-105"
+          data-score={totalScore.toString()}
         >
           <div className="flex items-center gap-2">
             <span className="text-sm font-bold tracking-wide">
@@ -248,7 +78,6 @@ function SimpleProductCard({ product }: { product: Product }) {
               price: parseFloat(product.price?.toString() || '0') || 0,
               images: product.featured_image_url ? [product.featured_image_url] : [],
               average_score: product.bifl_total_score ?? undefined,
-              affiliate_link: product.affiliate_link ?? undefined
             }}
             size="sm"
             variant="secondary"
@@ -259,334 +88,105 @@ function SimpleProductCard({ product }: { product: Product }) {
   )
 }
 
-interface ProductGridProps {
-  initialProducts: Product[]
+export interface ProductGridProps {
+  products: ProductGridRow[]
+  total: number
+  page: number
+  totalPages: number
+  pageSize: number
   categories: Category[]
   allCategories?: Category[]
-  initialSearch?: string
-  initialCategories?: string[]
-  initialBadges?: string[]
+  facets: ProductFacets
+  filters: FilterState
+  sort: string
 }
 
-export function ProductGrid({ initialProducts, categories, allCategories, initialSearch = '', initialCategories = [], initialBadges = [] }: ProductGridProps) {
-  // Mobile filter drawer state
-  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false)
-
-  // Watch URL params for changes (client-side navigation)
-  const searchParams = useSearchParams()
+/**
+ * URL-driven product browser (audit M6). The server fetches one page of
+ * filtered rows; this shell renders them and turns every filter/sort/page
+ * interaction into a URL update, which re-renders the server component.
+ * Nothing is filtered client-side anymore.
+ */
+export function ProductGrid({
+  products,
+  total,
+  page,
+  totalPages,
+  pageSize,
+  categories,
+  allCategories,
+  facets,
+  filters,
+  sort,
+}: ProductGridProps) {
   const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Calculate the actual min and max price from all products
-  const priceRange = useMemo((): [number, number] => {
-    const prices = initialProducts
-      .map(p => parseFloat(p.price?.toString() || '0'))
-      .filter(p => !isNaN(p) && p > 0)
-    if (prices.length === 0) return [0, 10000]
-    return [Math.floor(Math.min(...prices)), Math.ceil(Math.max(...prices))]
-  }, [initialProducts])
-
-  const [filters, setFilters] = useState({
-    search: initialSearch,
-    categories: initialCategories,
-    brands: [] as string[],
-    badges: initialBadges as string[],
-    scoreRanges: [] as string[],
-    countries: [] as string[],
-    priceRange: priceRange as [number, number],
-    sortBy: 'score-desc'
-  })
-
-  const [displayCount, setDisplayCount] = useState(48)
-  const [pageSize, setPageSize] = useState(48)
-  const [resetTrigger] = useState(0)
-
-  // Update filters when URL parameters change (e.g., clicking category links)
+  // Analytics: log each distinct search term once it lands in the URL
   useEffect(() => {
-    const urlSearch = searchParams.get('search') || ''
-    const urlCategories = searchParams.get('categories')
-    const categoryIds = urlCategories ? urlCategories.split(',').filter(Boolean) : []
+    if (filters.search.trim()) trackProductSearch(filters.search.trim())
+  }, [filters.search])
 
-    // Track search event when a new search term is entered
-    if (urlSearch && urlSearch.trim()) {
-      trackProductSearch(urlSearch.trim())
-    }
-
-    // Note: badges are seeded once from initialBadges (the ?badge= URL param at
-    // mount) and then owned by the sidebar filter; we intentionally preserve
-    // prev.badges here so a category/search change doesn't wipe a selection.
-    setFilters(prev => ({
-      ...prev,
-      search: urlSearch,
-      categories: categoryIds
-    }))
-  }, [searchParams])
-
-  // Stable callback for filter changes
-  const handleFiltersChange = useCallback((newFilters: typeof filters) => {
-    setFilters(newFilters)
-  }, [])
-
-  // Callback for mobile drawer that also closes the drawer
-  const handleMobileFiltersChange = useCallback((newFilters: typeof filters) => {
-    setFilters(newFilters)
-    setIsMobileFilterOpen(false)
-  }, [])
-
-  // Reset display count when filters change
-  useEffect(() => {
-    setDisplayCount(pageSize)
-  }, [filters, pageSize])
-
-  // Filter and sort products based on current filters
-  const filteredProducts = useMemo(() => {
-    let filtered = [...initialProducts]
-
-    // Search filter - with singular/plural matching and enhanced relevancy scoring
-    if (filters.search) {
-      const searchTerm = filters.search.trim()
-      const words = searchTerm.toLowerCase().split(/\s+/)
-
-      if (words.length === 1) {
-        // Single word search with variations and enhanced scoring
-        const searchLower = words[0]
-
-        // First filter to only matching products (exclude description to reduce noise)
-        filtered = filtered.filter(product => {
-          const name = product.name || ''
-          const brand = product.brand_name || ''
-          const useCase = (product as any).use_case || ''
-
-          return matchesAnyVariation(name, searchLower) ||
-                 matchesAnyVariation(brand, searchLower) ||
-                 matchesAnyVariation(useCase, searchLower)
-        })
-
-        // Then calculate scores for sorting
-        filtered.forEach(product => {
-          const name = product.name || ''
-          const brand = product.brand_name || ''
-          const useCase = (product as any).use_case || ''
-
-          let score = 0
-
-          // Base scores for field matches
-          if (matchesAnyVariation(name, searchLower)) {
-            score += 10
-            // Position bonus: word at start is more relevant
-            if (startsWithWord(name, searchLower)) {
-              score += 5
-            }
-            // Compound penalty: accessories rank lower
-            if (isCompoundMatch(name, searchLower)) {
-              score -= 3
-            }
-          }
-          if (matchesAnyVariation(brand, searchLower)) {
-            score += 5
-          }
-          if (matchesAnyVariation(useCase, searchLower)) {
-            score += 7
-          }
-
-          // Bonus based on BIFL score for relevancy tiebreaker
-          score += (product.bifl_total_score || 0) * 0.2
-
-          // Store score for sorting
-          ;(product as any)._searchScore = score
-        })
-
-        // Sort by relevance score (higher is better)
-        filtered.sort((a, b) => ((b as any)._searchScore || 0) - ((a as any)._searchScore || 0))
-      } else {
-        // Multi-word search with phrase proximity and field concentration scoring
-        filtered = filtered.filter(product => {
-          const name = product.name || ''
-          const brand = product.brand_name || ''
-          const useCase = (product as any).use_case || ''
-
-          let score = 0
-          let matchCount = 0
-
-          // Count matches per field
-          const nameWordCount = countWordsInField(name, words)
-          const useCaseWordCount = countWordsInField(useCase, words)
-
-          // Base scores for each word match
-          words.forEach(word => {
-            if (matchesAnyVariation(name, word)) {
-              score += 10
-              matchCount++
-              // Position bonus for words at start
-              if (startsWithWord(name, word)) {
-                score += 3
-              }
-            }
-            if (matchesAnyVariation(brand, word)) {
-              score += 5
-              matchCount++
-            }
-            if (matchesAnyVariation(useCase, word)) {
-              score += 7
-              matchCount++
-            }
-          })
-
-          // EXACT PHRASE BONUS: Highest priority for exact phrase match
-          if (containsExactPhrase(name, words)) {
-            score += 30
-          } else if (containsExactPhrase(useCase, words)) {
-            score += 20
-          }
-
-          // PROXIMITY BONUS: Words appear near each other
-          if (hasProximityMatch(name, words)) {
-            score += 15
-          } else if (hasProximityMatch(useCase, words)) {
-            score += 10
-          }
-
-          // FIELD CONCENTRATION BONUS: All words in same field (especially name)
-          if (nameWordCount === words.length) {
-            score += 25  // All words in name field
-          } else if (useCaseWordCount === words.length) {
-            score += 15  // All words in use case
-          }
-
-          // Bonus for products containing ALL words (across any fields)
-          if (matchCount >= words.length) {
-            score += 10
-          }
-
-          // BIFL score tiebreaker
-          score += (product.bifl_total_score || 0) * 0.1
-
-          // Store score for sorting
-          ;(product as any)._searchScore = score
-
-          // Require at least some matches
-          return matchCount > 0
-        })
-
-        // Sort by relevance score (higher is better)
-        filtered.sort((a, b) => {
-          const scoreB = (b as any)._searchScore || 0
-          const scoreA = (a as any)._searchScore || 0
-          return scoreB - scoreA
-        })
-      }
-    }
-
-    // Category filter (include subcategories)
-    if (filters.categories && filters.categories.length > 0) {
-      // Build a list of all category IDs including subcategories
-      const categoryIdsToMatch: string[] = []
-      filters.categories.forEach(categoryId => {
-        categoryIdsToMatch.push(categoryId)
-        // Add all subcategories of this category
-        if (allCategories) {
-          const subcats = allCategories.filter((cat: any) => cat.parent_id === categoryId)
-          subcats.forEach((subcat: any) => categoryIdsToMatch.push(subcat.id))
-        }
-      })
-
-      filtered = filtered.filter(product => {
-        return categoryIdsToMatch.includes((product as any).category_id)
-      })
-    }
-
-    // Brand filter
-    if (filters.brands && filters.brands.length > 0) {
-      filtered = filtered.filter(product =>
-        filters.brands.includes(product.brand_name || '')
-      )
-    }
-
-    // Badge filter
-    if (filters.badges && filters.badges.length > 0) {
-      filtered = filtered.filter(product => {
-        const productBadges = product.bifl_certification || calculateBadges(product)
-        return filters.badges.some(badge => productBadges.includes(badge))
-      })
-    }
-
-    // Score range filter
-    if (filters.scoreRanges && filters.scoreRanges.length > 0) {
-      filtered = filtered.filter(product => {
-        const score = product.bifl_total_score || 0
-        return filters.scoreRanges.some(range => {
-          switch (range) {
-            case '9.0-10': return score >= 9.0 && score <= 10
-            case '8.0-8.9': return score >= 8.0 && score < 9.0
-            case '7.0-7.9': return score >= 7.0 && score < 8.0
-            case '6.0-6.9': return score >= 6.0 && score < 7.0
-            case '0.0-5.9': return score >= 0.0 && score < 6.0
-            default: return false
-          }
-        })
-      })
-    }
-
-    // Country filter
-    if (filters.countries && filters.countries.length > 0) {
-      filtered = filtered.filter(product =>
-        filters.countries.includes((product as any).country_of_origin)
-      )
-    }
-
-    // Price range filter
-    // IMPORTANT: Always include products with null/0 prices to avoid hiding products with missing data
-    // Bug fix: Previously filtered out 6 products with null prices
-    if (filters.priceRange && filters.priceRange.length === 2) {
-      filtered = filtered.filter(product => {
-        if (!product.price) return true // Include products without prices
-        const price = parseFloat(product.price.toString())
-        if (isNaN(price) || price === 0) return true // Include products with invalid or zero prices
-        return price >= filters.priceRange[0] && price <= filters.priceRange[1]
-      })
-    }
-
-    // Sort products
-    // IMPORTANT: When there's an active search, prioritize search relevancy over sortBy
-    const hasActiveSearch = filters.search && filters.search.trim().length > 0
-
-    if (!hasActiveSearch) {
-      // No search active - use normal sorting
-      filtered.sort((a, b) => {
-        switch (filters.sortBy) {
-          case 'score-desc':
-            return (b.bifl_total_score || 0) - (a.bifl_total_score || 0)
-          case 'score-asc':
-            return (a.bifl_total_score || 0) - (b.bifl_total_score || 0)
-          case 'name-asc':
-            return (a.name || '').localeCompare(b.name || '')
-          case 'name-desc':
-            return (b.name || '').localeCompare(a.name || '')
-          case 'newest':
-            return new Date((b as any).created_at || 0).getTime() - new Date((a as any).created_at || 0).getTime()
-          default:
-            return 0
-        }
-      })
-    }
-    // If search is active, keep the relevancy sort already applied
-
-    return filtered
-  }, [initialProducts, filters, allCategories])
-
-  // Get products to display based on current display count
-  const displayedProducts = filteredProducts.slice(0, displayCount)
-  const hasMore = displayCount < filteredProducts.length
-
-  const handleLoadMore = () => {
-    setDisplayCount(prev => prev + pageSize)
+  const buildQuery = (f: FilterState, sortBy: string, pageNum: number): string => {
+    const params = new URLSearchParams()
+    if (f.search.trim()) params.set('search', f.search.trim())
+    if (f.categories.length) params.set('categories', f.categories.join(','))
+    if (f.badges.length) params.set('badge', f.badges.join(','))
+    if (f.brands.length) params.set('brands', f.brands.join('|'))
+    if (f.countries.length) params.set('countries', f.countries.join('|'))
+    if (f.scoreRanges.length) params.set('score', f.scoreRanges.join(','))
+    if (f.priceRange[0] > facets.priceRange[0]) params.set('price_min', String(f.priceRange[0]))
+    if (f.priceRange[1] < facets.priceRange[1]) params.set('price_max', String(f.priceRange[1]))
+    if (sortBy && sortBy !== 'score-desc') params.set('sort', sortBy)
+    if (pageNum > 1) params.set('page', String(pageNum))
+    const qs = params.toString()
+    return qs ? `/products?${qs}` : '/products'
   }
 
-  const handlePageSizeChange = (newSize: number) => {
-    setPageSize(newSize)
-    if (newSize === filteredProducts.length) {
-      setDisplayCount(filteredProducts.length)
-    } else {
-      setDisplayCount(newSize)
+  const navigate = (url: string) => {
+    startTransition(() => {
+      router.replace(url, { scroll: false })
+    })
+  }
+
+  // Filter changes reset to page 1; text/slider input is debounced so the
+  // server isn't hit per keystroke.
+  const handleFiltersChange = (f: FilterState) => {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => navigate(buildQuery(f, sort, 1)), 350)
+  }
+
+  const handleMobileFiltersChange = (f: FilterState) => {
+    handleFiltersChange(f)
+    setIsMobileFilterOpen(false)
+  }
+
+  const handleSortChange = (sortBy: string) => navigate(buildQuery(filters, sortBy, 1))
+
+  const pageHref = (pageNum: number) => buildQuery(filters, sort, pageNum)
+
+  const hasActiveFilters =
+    filters.search !== '' ||
+    filters.categories.length > 0 ||
+    filters.brands.length > 0 ||
+    filters.badges.length > 0 ||
+    filters.scoreRanges.length > 0 ||
+    filters.countries.length > 0 ||
+    filters.priceRange[0] > facets.priceRange[0] ||
+    filters.priceRange[1] < facets.priceRange[1]
+
+  const rangeStart = total === 0 ? 0 : (page - 1) * pageSize + 1
+  const rangeEnd = Math.min(page * pageSize, total)
+
+  // Windowed page list: 1 … (page-1, page, page+1) … last
+  const pageNumbers: (number | '…')[] = []
+  for (let p = 1; p <= totalPages; p++) {
+    if (p === 1 || p === totalPages || Math.abs(p - page) <= 1) {
+      pageNumbers.push(p)
+    } else if (pageNumbers[pageNumbers.length - 1] !== '…') {
+      pageNumbers.push('…')
     }
   }
 
@@ -631,9 +231,8 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
             onFiltersChange={handleMobileFiltersChange}
             categories={categories}
             allCategories={allCategories || categories}
-            products={initialProducts}
-            currentPriceRange={filters.priceRange}
-            resetTrigger={resetTrigger}
+            facets={facets}
+            value={filters}
           />
         </div>
       </div>
@@ -645,131 +244,132 @@ export function ProductGrid({ initialProducts, categories, allCategories, initia
             onFiltersChange={handleFiltersChange}
             categories={categories}
             allCategories={allCategories || categories}
-            products={initialProducts}
-            currentPriceRange={filters.priceRange}
-            resetTrigger={resetTrigger}
+            facets={facets}
+            value={filters}
           />
         </div>
 
         {/* Product Grid Container - Full width on mobile, 9 cols on desktop */}
         <div className="col-span-12 lg:col-span-9">
-        {/* Active Filters Indicator */}
-        {(() => {
-          const hasActiveFilters =
-            (filters.search && filters.search !== '') ||
-            (filters.categories && filters.categories.length > 0) ||
-            (filters.brands && filters.brands.length > 0) ||
-            (filters.badges && filters.badges.length > 0) ||
-            (filters.scoreRanges && filters.scoreRanges.length > 0) ||
-            (filters.countries && filters.countries.length > 0) ||
-            (filters.priceRange && priceRange && (filters.priceRange[0] !== priceRange[0] || filters.priceRange[1] !== priceRange[1]))
-
-          return hasActiveFilters ? (
+          {/* Active Filters Indicator */}
+          {hasActiveFilters && (
             <div className="mb-4 p-4 bg-teal-50 border-2 border-teal-400 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <p className="text-sm text-gray-900 flex-1">
                 <span className="font-semibold">Filters active:</span>
                 {filters.search && <span className="ml-2">Search: &quot;{filters.search}&quot;</span>}
-                {filters.categories && filters.categories.length > 0 && <span className="ml-2">• {filters.categories.length} {filters.categories.length === 1 ? 'category' : 'categories'}</span>}
-                {filters.brands && filters.brands.length > 0 && <span className="ml-2">• {filters.brands.length} {filters.brands.length === 1 ? 'brand' : 'brands'}</span>}
-                {filters.badges && filters.badges.length > 0 && <span className="ml-2">• {filters.badges.length} {filters.badges.length === 1 ? 'badge' : 'badges'}</span>}
-                {filters.scoreRanges && filters.scoreRanges.length > 0 && <span className="ml-2">• Score filter</span>}
-                {filters.countries && filters.countries.length > 0 && <span className="ml-2">• {filters.countries.length} {filters.countries.length === 1 ? 'country' : 'countries'}</span>}
-                {filters.priceRange && priceRange && (filters.priceRange[0] !== priceRange[0] || filters.priceRange[1] !== priceRange[1]) && <span className="ml-2">• Price range</span>}
+                {filters.categories.length > 0 && <span className="ml-2">• {filters.categories.length} {filters.categories.length === 1 ? 'category' : 'categories'}</span>}
+                {filters.brands.length > 0 && <span className="ml-2">• {filters.brands.length} {filters.brands.length === 1 ? 'brand' : 'brands'}</span>}
+                {filters.badges.length > 0 && <span className="ml-2">• {filters.badges.length} {filters.badges.length === 1 ? 'badge' : 'badges'}</span>}
+                {filters.scoreRanges.length > 0 && <span className="ml-2">• Score filter</span>}
+                {filters.countries.length > 0 && <span className="ml-2">• {filters.countries.length} {filters.countries.length === 1 ? 'country' : 'countries'}</span>}
+                {(filters.priceRange[0] > facets.priceRange[0] || filters.priceRange[1] < facets.priceRange[1]) && <span className="ml-2">• Price range</span>}
               </p>
               <button
-                onClick={() => {
-                  // Navigate to clean URL to clear all filters
-                  // The URL change will trigger useEffect to update filters from URL params
-                  router.push('/products')
-                }}
+                onClick={() => navigate('/products')}
                 className="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors text-sm font-medium"
               >
                 <X className="w-4 h-4 mr-1" />
                 Clear All
               </button>
             </div>
-          ) : null
-        })()}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+          )}
+
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <p className="text-brand-gray text-sm sm:text-base">
-              Showing <span className="font-bold text-brand-dark">1-{Math.min(displayCount, filteredProducts.length)}</span> of <span className="font-bold text-brand-dark">{filteredProducts.length}</span> products
+              Showing <span className="font-bold text-brand-dark">{rangeStart}-{rangeEnd}</span> of <span className="font-bold text-brand-dark">{total}</span> products
             </p>
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-brand-gray">Show:</label>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <label htmlFor="products-sort" className="text-sm text-brand-gray whitespace-nowrap">Sort by:</label>
               <select
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-brand-teal focus:border-brand-teal min-h-[44px]"
-                value={pageSize}
-                onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                id="products-sort"
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-brand-teal focus:border-brand-teal min-h-[44px] flex-1 sm:flex-none"
+                value={sort}
+                onChange={(e) => handleSortChange(e.target.value)}
               >
-                <option value={12}>12</option>
-                <option value={24}>24</option>
-                <option value={48}>48</option>
-                <option value={72}>72</option>
-                <option value={filteredProducts.length}>All ({filteredProducts.length})</option>
+                <option value="score-desc">Score: High to Low</option>
+                <option value="score-asc">Score: Low to High</option>
+                <option value="name-asc">Name: A to Z</option>
+                <option value="name-desc">Name: Z to A</option>
+                <option value="newest">Newest</option>
               </select>
             </div>
           </div>
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <label className="text-sm text-brand-gray whitespace-nowrap">Sort by:</label>
-            <select
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-brand-teal focus:border-brand-teal min-h-[44px] flex-1 sm:flex-none"
-              value={filters.sortBy}
-              onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value }))}
-            >
-              <option value="score-desc">Score: High to Low</option>
-              <option value="score-asc">Score: Low to High</option>
-              <option value="name-asc">Name: A to Z</option>
-              <option value="name-desc">Name: Z to A</option>
-              <option value="newest">Newest</option>
-            </select>
+
+          {/* Product Grid */}
+          <div
+            className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 transition-opacity ${isPending ? 'opacity-60' : ''}`}
+          >
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
           </div>
-        </div>
 
-        {/* Product Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {displayedProducts.map((product) => (
-            <SimpleProductCard key={product.id} product={product} />
-          ))}
-        </div>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <nav aria-label="Product pages" className="flex justify-center items-center gap-1 mt-8 mb-20 lg:mb-8">
+              {page > 1 && (
+                <Link
+                  href={pageHref(page - 1)}
+                  scroll={true}
+                  className="px-3 py-2 rounded-lg border border-gray-300 text-sm hover:bg-gray-50 flex items-center gap-1"
+                  rel="prev"
+                >
+                  <ChevronLeft className="w-4 h-4" /> Prev
+                </Link>
+              )}
+              {pageNumbers.map((p, i) =>
+                p === '…' ? (
+                  <span key={`gap-${i}`} className="px-2 text-gray-400">…</span>
+                ) : (
+                  <Link
+                    key={p}
+                    href={pageHref(p)}
+                    scroll={true}
+                    aria-current={p === page ? 'page' : undefined}
+                    className={`px-4 py-2 rounded-lg text-sm border ${
+                      p === page
+                        ? 'bg-brand-teal text-white border-brand-teal font-semibold'
+                        : 'border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {p}
+                  </Link>
+                )
+              )}
+              {page < totalPages && (
+                <Link
+                  href={pageHref(page + 1)}
+                  scroll={true}
+                  className="px-3 py-2 rounded-lg border border-gray-300 text-sm hover:bg-gray-50 flex items-center gap-1"
+                  rel="next"
+                >
+                  Next <ChevronRight className="w-4 h-4" />
+                </Link>
+              )}
+            </nav>
+          )}
 
-        {/* Load More Button */}
-        {hasMore && (
-          <div className="flex justify-center mt-8 mb-20 lg:mb-8">
-            <button
-              onClick={handleLoadMore}
-              className="px-6 py-3 text-white font-medium text-sm rounded-lg transition-colors bg-gray-500 hover:bg-gray-600 min-h-[44px]"
-            >
-              Load More ({filteredProducts.length - displayCount} remaining)
-            </button>
-          </div>
-        )}
-
-        {/* No results message */}
-        {filteredProducts.length === 0 && (
-          <Card className="p-12 text-center bg-white border border-brand-teal/20 rounded-2xl shadow-lg">
-            <CardContent>
-              <div className="w-20 h-20 mx-auto mb-6 bg-brand-teal/10 rounded-full flex items-center justify-center">
-                <div className="w-10 h-10 bg-brand-teal/20 rounded-full"></div>
-              </div>
-              <h3 className="text-2xl font-bold text-brand-dark mb-3">No products found</h3>
-              <p className="text-brand-gray max-w-md mx-auto mb-6">
-                Try adjusting your filters or search terms to find more products.
-              </p>
-              <button
-                onClick={() => {
-                  // Navigate to clean URL to clear all filters
-                  // The URL change will trigger useEffect to update filters from URL params
-                  router.push('/products')
-                }}
-                className="inline-flex items-center px-6 py-3 bg-brand-teal text-white rounded-lg hover:bg-brand-teal/90 transition-colors font-medium"
-              >
-                <X className="w-4 h-4 mr-2" />
-                Clear All Filters
-              </button>
-            </CardContent>
-          </Card>
-        )}
+          {/* No results message */}
+          {products.length === 0 && (
+            <Card className="p-12 text-center bg-white border border-brand-teal/20 rounded-2xl shadow-lg">
+              <CardContent>
+                <div className="w-20 h-20 mx-auto mb-6 bg-brand-teal/10 rounded-full flex items-center justify-center">
+                  <div className="w-10 h-10 bg-brand-teal/20 rounded-full"></div>
+                </div>
+                <h3 className="text-2xl font-bold text-brand-dark mb-3">No products found</h3>
+                <p className="text-brand-gray max-w-md mx-auto mb-6">
+                  Try adjusting your filters or search terms to find more products.
+                </p>
+                <button
+                  onClick={() => navigate('/products')}
+                  className="inline-flex items-center px-6 py-3 bg-brand-teal text-white rounded-lg hover:bg-brand-teal/90 transition-colors font-medium"
+                >
+                  <X className="w-4 h-4 mr-2" />
+                  Clear All Filters
+                </button>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </>

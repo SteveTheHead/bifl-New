@@ -1,6 +1,8 @@
-import { createClient, createAdminClient } from './server'
+import { unstable_cache } from 'next/cache'
+import { createBuildClient, createAdminClient } from './server'
 import { Database } from './types'
 import { sb } from '../supabase-utils'
+import { calculateBadges } from '../scoring'
 
 /**
  * Grid-subset row returned by getProducts(). View columns are all nullable in
@@ -28,7 +30,7 @@ export type ProductGridRow = {
 
 // Product queries
 export async function getProducts(limit = 20, offset = 0): Promise<ProductGridRow[]> {
-  const supabase = await createClient()
+  const supabase = createBuildClient()
 
   // Select only fields needed for product grid display
   // Minimized payload for better performance and smaller HTML size
@@ -72,9 +74,272 @@ export async function getProducts(limit = 20, offset = 0): Promise<ProductGridRo
   return (data ?? []) as ProductGridRow[]
 }
 
+/** Strip PostgREST filter-grammar characters from user input before it is
+ *  interpolated into an .or() string (audit M9 — filter injection). */
+function escapeFilterValue(value: string): string {
+  return value.replace(/[,()%\\]/g, ' ').trim()
+}
+
+/**
+ * SQL-side equivalents of the badge criteria in lib/scoring.ts calculateBadges.
+ * A product matches a badge if its stored bifl_certification mentions it OR its
+ * subscores meet the published rule (the fallback the grid used client-side).
+ */
+const BADGE_SQL: Record<string, string> = {
+  'Gold Standard':
+    'and(bifl_total_score.gte.9,durability_score.gte.8.5,warranty_score.gte.8)',
+  'Lifetime Warranty': 'warranty_score.gte.10',
+  'Crowd Favorite': 'social_score.gte.8.5',
+  'Repair Friendly': 'repairability_score.gte.8.5',
+  'Eco Hero': 'sustainability_score.gte.8',
+  'BIFL Approved':
+    'and(bifl_total_score.gte.7.5,durability_score.gte.7,warranty_score.gte.6)',
+}
+
+export interface ProductFilterParams {
+  search?: string
+  /** Category ids to match; pass subcategory ids explicitly (no recursion here). */
+  categoryIds?: string[]
+  badges?: string[]
+  brands?: string[]
+  countries?: string[]
+  scoreRanges?: string[] // '9.0-10' | '8.0-8.9' | '7.0-7.9' | '6.0-6.9' | '0.0-5.9'
+  priceMin?: number
+  priceMax?: number
+  sort?: 'score-desc' | 'score-asc' | 'name-asc' | 'name-desc' | 'newest'
+  page?: number
+  pageSize?: number
+}
+
+export interface FilteredProducts {
+  products: ProductGridRow[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
+}
+
+/**
+ * Server-side filtered + paginated product listing for /products (audit M6).
+ * One page of rows and an exact count instead of shipping the whole catalog
+ * to the client.
+ */
+export async function getProductsFiltered(
+  params: ProductFilterParams = {}
+): Promise<FilteredProducts> {
+  const supabase = createBuildClient()
+  const page = Math.max(1, params.page ?? 1)
+  const pageSize = Math.min(96, Math.max(1, params.pageSize ?? 24))
+
+  let query = supabase
+    .from('products_with_taxonomy')
+    .select(
+      `
+      id,
+      name,
+      slug,
+      brand_name,
+      category_name,
+      category_id,
+      featured_image_url,
+      bifl_total_score,
+      bifl_certification,
+      price,
+      durability_score,
+      repairability_score,
+      warranty_score,
+      sustainability_score,
+      social_score
+    `,
+      { count: 'exact' }
+    )
+    .eq('status', 'published')
+
+  // Search: every word must match name, brand, or use case (simple ilike;
+  // relevance ordering is score-based below)
+  if (params.search?.trim()) {
+    for (const word of params.search.trim().split(/\s+/).slice(0, 6)) {
+      const w = escapeFilterValue(word)
+      if (!w) continue
+      query = query.or(
+        `name.ilike.*${w}*,brand_name.ilike.*${w}*,use_case.ilike.*${w}*`
+      )
+    }
+  }
+
+  if (params.categoryIds?.length) {
+    query = query.in('category_id', params.categoryIds)
+  }
+
+  if (params.brands?.length) {
+    query = query.in('brand_name', params.brands.map(escapeFilterValue))
+  }
+
+  if (params.countries?.length) {
+    query = query.in('country_of_origin', params.countries.map(escapeFilterValue))
+  }
+
+  if (params.badges?.length) {
+    const clauses = params.badges
+      .filter((b) => BADGE_SQL[b])
+      .map((b) => `bifl_certification.ilike.*${b}*,${BADGE_SQL[b]}`)
+    if (clauses.length) query = query.or(clauses.join(','))
+  }
+
+  if (params.scoreRanges?.length) {
+    const ranges: Record<string, string> = {
+      '9.0-10': 'and(bifl_total_score.gte.9,bifl_total_score.lte.10)',
+      '8.0-8.9': 'and(bifl_total_score.gte.8,bifl_total_score.lt.9)',
+      '7.0-7.9': 'and(bifl_total_score.gte.7,bifl_total_score.lt.8)',
+      '6.0-6.9': 'and(bifl_total_score.gte.6,bifl_total_score.lt.7)',
+      '0.0-5.9': 'and(bifl_total_score.gte.0,bifl_total_score.lt.6)',
+    }
+    const clauses = params.scoreRanges.filter((r) => ranges[r]).map((r) => ranges[r])
+    if (clauses.length) query = query.or(clauses.join(','))
+  }
+
+  // Price: products with no/zero price stay visible (matches the old client
+  // behavior — missing data shouldn't hide a product)
+  if (params.priceMin != null || params.priceMax != null) {
+    const min = params.priceMin ?? 0
+    const max = params.priceMax ?? 1_000_000
+    query = query.or(`and(price.gte.${min},price.lte.${max}),price.is.null,price.eq.0`)
+  }
+
+  switch (params.sort) {
+    case 'score-asc':
+      query = query.order('bifl_total_score', { ascending: true, nullsFirst: true })
+      break
+    case 'name-asc':
+      query = query.order('name', { ascending: true })
+      break
+    case 'name-desc':
+      query = query.order('name', { ascending: false })
+      break
+    case 'newest':
+      query = query.order('created_at', { ascending: false })
+      break
+    default:
+      query = query.order('bifl_total_score', { ascending: false })
+  }
+
+  const from = (page - 1) * pageSize
+  const { data, error, count } = await query.range(from, from + pageSize - 1)
+
+  if (error) {
+    console.error('Error fetching filtered products:', error)
+    throw error
+  }
+
+  const total = count ?? 0
+  return {
+    products: (data ?? []) as ProductGridRow[],
+    total,
+    page,
+    pageSize,
+    totalPages: Math.max(1, Math.ceil(total / pageSize)),
+  }
+}
+
+export interface ProductFacets {
+  /** brand name -> product count, sorted by name */
+  brands: { name: string; count: number }[]
+  /** country -> product count, sorted by name */
+  countries: { name: string; count: number }[]
+  /** badge name -> product count (stored certification OR computed rule) */
+  badgeCounts: Record<string, number>
+  /** direct (non-rolled-up) product count per category id */
+  categoryCounts: Record<string, number>
+  priceRange: [number, number]
+  total: number
+}
+
+/** Filter-sidebar options + counts, one light query over the published
+ *  catalog instead of shipping every product to the client. */
+export async function getProductFacets(): Promise<ProductFacets> {
+  const supabase = createBuildClient()
+  const { data, error } = await supabase
+    .from('products_with_taxonomy')
+    .select(
+      'brand_name, country_of_origin, price, category_id, bifl_certification, bifl_total_score, durability_score, repairability_score, warranty_score, sustainability_score, social_score'
+    )
+    .eq('status', 'published')
+    .limit(10000)
+
+  if (error) {
+    console.error('Error fetching product facets:', error)
+    throw error
+  }
+
+  const brandMap = new Map<string, number>()
+  const countryMap = new Map<string, number>()
+  const badgeCounts: Record<string, number> = {}
+  const categoryCounts: Record<string, number> = {}
+  let min = Infinity
+  let max = 0
+
+  for (const row of data ?? []) {
+    if (row.brand_name?.trim()) {
+      const b = row.brand_name.trim()
+      brandMap.set(b, (brandMap.get(b) ?? 0) + 1)
+    }
+    if (row.country_of_origin?.trim()) {
+      const c = row.country_of_origin.trim()
+      countryMap.set(c, (countryMap.get(c) ?? 0) + 1)
+    }
+    if (row.category_id) {
+      categoryCounts[row.category_id] = (categoryCounts[row.category_id] ?? 0) + 1
+    }
+    const badges = row.bifl_certification || calculateBadges(row)
+    for (const badge of [
+      'Gold Standard',
+      'Lifetime Warranty',
+      'Crowd Favorite',
+      'BIFL Approved',
+      'Repair Friendly',
+      'Eco Hero',
+    ]) {
+      if (badges.includes(badge)) badgeCounts[badge] = (badgeCounts[badge] ?? 0) + 1
+    }
+    const price = typeof row.price === 'number' ? row.price : parseFloat(row.price ?? '')
+    if (!isNaN(price) && price > 0) {
+      min = Math.min(min, price)
+      max = Math.max(max, price)
+    }
+  }
+
+  const toSorted = (m: Map<string, number>) =>
+    [...m.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => a.name.localeCompare(b.name))
+
+  return {
+    brands: toSorted(brandMap),
+    countries: toSorted(countryMap),
+    badgeCounts,
+    categoryCounts,
+    priceRange: min === Infinity ? [0, 10000] : [Math.floor(min), Math.ceil(max)],
+    total: data?.length ?? 0,
+  }
+}
+
+/**
+ * Cached wrappers for /products. Reading searchParams makes the route
+ * render dynamically, so these keep the underlying Supabase reads on a
+ * 30-minute data cache (unstable_cache keys include the arguments, so each
+ * filter combination caches separately).
+ */
+export const getProductFacetsCached = unstable_cache(getProductFacets, ['product-facets'], {
+  revalidate: 1800,
+})
+
+export const getProductsFilteredCached = unstable_cache(
+  getProductsFiltered,
+  ['products-filtered'],
+  { revalidate: 1800 }
+)
+
 
 export async function getFeaturedProducts() {
-  const supabase = await createClient()
+  const supabase = createBuildClient()
 
   const { data, error } = await supabase
     .from('products_with_taxonomy')
@@ -101,7 +366,7 @@ export async function getFeaturedProducts() {
 }
 
 export async function getProductById(id: string) {
-  const supabase = await createClient()
+  const supabase = createBuildClient()
 
   // Validate the ID parameter
   if (!id || typeof id !== 'string') {
@@ -155,7 +420,7 @@ export async function getProductById(id: string) {
 }
 
 export async function getProductBySlug(slug: string) {
-  const supabase = await createClient()
+  const supabase = createBuildClient()
 
   const { data, error } = await supabase
     .from('products')
@@ -190,7 +455,7 @@ export async function searchProducts(
   limit = 20,
   offset = 0
 ) {
-  const supabase = await createClient()
+  const supabase = createBuildClient()
 
   let query = supabase
     .from('products_with_taxonomy')
@@ -248,7 +513,7 @@ export async function searchProducts(
 
 // Taxonomy queries
 export async function getBrands() {
-  const supabase = await createClient()
+  const supabase = createBuildClient()
 
   const { data, error } = await supabase
     .from('brands')
@@ -265,7 +530,7 @@ export async function getBrands() {
 
 // Get main categories only (parent_id IS NULL)
 export async function getCategories(): Promise<Database['public']['Tables']['categories']['Row'][]> {
-  const supabase = await createClient()
+  const supabase = createBuildClient()
 
   const { data, error } = await supabase
     .from('categories')
@@ -285,7 +550,7 @@ export async function getCategories(): Promise<Database['public']['Tables']['cat
 
 // Get all categories (main and subcategories)
 export async function getAllCategories(): Promise<Database['public']['Tables']['categories']['Row'][]> {
-  const supabase = await createClient()
+  const supabase = createBuildClient()
 
   const { data, error } = await supabase
     .from('categories')
@@ -302,9 +567,18 @@ export async function getAllCategories(): Promise<Database['public']['Tables']['
   return data || []
 }
 
+/** Cached category lists for dynamically-rendered routes (see the
+ *  getProductsFilteredCached comment). */
+export const getCategoriesCached = unstable_cache(getCategories, ['categories-main'], {
+  revalidate: 1800,
+})
+export const getAllCategoriesCached = unstable_cache(getAllCategories, ['categories-all'], {
+  revalidate: 1800,
+})
+
 // Get subcategories for a specific parent category
 export async function getSubcategories(parentId: string): Promise<Database['public']['Tables']['categories']['Row'][]> {
-  const supabase = await createClient()
+  const supabase = createBuildClient()
 
   const { data, error } = await supabase
     .from('categories')
@@ -323,7 +597,7 @@ export async function getSubcategories(parentId: string): Promise<Database['publ
 }
 
 export async function getCategoriesWithProductCounts() {
-  const supabase = await createClient()
+  const supabase = createBuildClient()
 
   // First get all categories
   const categories = await getCategories()
@@ -350,7 +624,7 @@ export async function getCategoriesWithProductCounts() {
 }
 
 export async function getMaterials() {
-  const supabase = await createClient()
+  const supabase = createBuildClient()
 
   const { data, error } = await supabase
     .from('materials')
@@ -366,7 +640,7 @@ export async function getMaterials() {
 }
 
 export async function getPriceRanges() {
-  const supabase = await createClient()
+  const supabase = createBuildClient()
 
   const { data, error } = await supabase
     .from('price_ranges')
@@ -383,7 +657,7 @@ export async function getPriceRanges() {
 
 // Review queries
 export async function getProductReviews(productId: string) {
-  const supabase = await createClient()
+  const supabase = createBuildClient()
 
   const { data, error } = await supabase
     .from('reviews')
@@ -402,7 +676,7 @@ export async function getProductReviews(productId: string) {
 
 // Get similar products based on category and exclude current product
 export async function getSimilarProducts(productId: string, categoryId?: string, limit = 8) {
-  const supabase = await createClient()
+  const supabase = createBuildClient()
 
   let query = supabase
     .from('products_with_taxonomy')
@@ -446,7 +720,7 @@ export async function getSimilarProducts(productId: string, categoryId?: string,
 
 // Client-side queries for mutations
 export async function addReview(review: Database['public']['Tables']['reviews']['Insert']) {
-  const supabase = await createClient()
+  const supabase = createBuildClient()
 
   const { data, error } = await sb.insert(supabase, 'reviews', [review])
 
@@ -496,7 +770,7 @@ export async function toggleProductFeatured(productId: string, isFeatured: boole
 }
 
 export async function getAllProductsForAdmin() {
-  const supabase = await createClient()
+  const supabase = createBuildClient()
 
   const { data, error } = await supabase
     .from('products')
@@ -533,7 +807,7 @@ export async function getAllProductsForAdmin() {
 
 // Curation queries
 export async function getFeaturedCurations() {
-  const supabase = await createClient()
+  const supabase = createBuildClient()
 
   const { data, error } = await supabase
     .from('curations')
@@ -569,7 +843,7 @@ export async function getFeaturedCurations() {
 
 // Buying guide queries
 export async function getPublishedGuides(limit = 6) {
-  const supabase = await createClient()
+  const supabase = createBuildClient()
 
   const { data, error } = await supabase
     .from('buying_guides')

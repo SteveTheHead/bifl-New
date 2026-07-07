@@ -24,7 +24,7 @@ export async function generateStaticParams() {
   const { data: categories } = await supabase
     .from('categories')
     .select('slug')
-    .limit(500)
+    .limit(10000) // effectively uncapped; every category pre-renders at build
 
   return (categories || []).map((category: { slug: string }) => ({
     slug: category.slug,
