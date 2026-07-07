@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Brain, Star, TrendingUp, User, RefreshCw } from 'lucide-react'
 import { usePersonalizedRecommendations } from '@/hooks/use-behavior-tracking'
 import BadgeDisplay from '@/components/BadgeDisplay'
@@ -193,9 +194,12 @@ export function SmartRecommendations({
               <div className="bg-gray-50 rounded-lg p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                 {/* Product Image */}
                 <div className="relative mb-4">
-                  <img
+                  <Image
                     src={product.featured_image_url || '/placeholder-product.png'}
                     alt={product.name}
+                    width={320}
+                    height={160}
+                    sizes="(max-width: 768px) 100vw, 33vw"
                     className="w-full h-40 object-contain rounded-lg"
                   />
                   <BadgeDisplay

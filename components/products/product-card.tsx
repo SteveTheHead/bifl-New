@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import BadgeDisplay from '@/components/BadgeDisplay'
 import { AddToCompareButton } from '@/components/compare/add-to-compare-button'
 import { Star, Wrench, Shield } from 'lucide-react'
@@ -37,10 +38,13 @@ export function ProductCard({ product, variant = 'vertical' }: ProductCardProps)
         <div className="flex gap-4">
           {/* Image */}
           <Link href={`/products/${product.slug || product.id}`} className="relative w-32 h-32 flex-shrink-0 group/image">
-            <img
+            <Image
               className="w-full h-full object-contain rounded-lg group-hover/image:scale-105 transition-transform duration-300"
               src={product.featured_image_url || '/placeholder-product.png'}
               alt={product.name || 'Product'}
+              width={128}
+              height={128}
+              sizes="128px"
             />
             <BadgeDisplay
               product={product}
@@ -151,10 +155,13 @@ export function ProductCard({ product, variant = 'vertical' }: ProductCardProps)
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-brand-teal/30 hover:-translate-y-1">
       {/* Image */}
       <Link href={`/products/${product.slug || product.id}`} className="relative aspect-square p-4 block group/image">
-        <img
+        <Image
           className="w-full h-full object-contain group-hover/image:scale-105 transition-transform duration-300"
           src={product.featured_image_url || '/placeholder-product.png'}
           alt={product.name || 'Product'}
+          width={400}
+          height={400}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
         <BadgeDisplay
           product={product}

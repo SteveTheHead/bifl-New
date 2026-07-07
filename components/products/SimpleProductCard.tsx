@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import BadgeDisplay from '@/components/BadgeDisplay'
 import { AddToCompareButton } from '@/components/compare/add-to-compare-button'
 
@@ -32,10 +33,13 @@ export function SimpleProductCard({ product }: SimpleProductCardProps) {
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 text-center transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
       <Link href={`/products/${product.slug}`} className="relative mb-4 block group/image">
-        <img
+        <Image
           className="w-full h-56 object-contain group-hover/image:scale-105 transition-transform duration-300"
           src={product.featured_image_url || '/placeholder-product.png'}
           alt={product.name || 'Product'}
+          width={400}
+          height={224}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
         <BadgeDisplay
           product={product}

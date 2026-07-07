@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { BarChart3, X, Eye } from 'lucide-react'
 import { useCompare } from '@/contexts/compare-context'
 
@@ -41,9 +42,12 @@ export function FloatingCompareBar() {
                 style={{ zIndex: compareProducts.length - index }}
               >
                 {product.images && product.images.length > 0 ? (
-                  <img
+                  <Image
                     src={product.images[0]}
                     alt={product.name}
+                    width={32}
+                    height={32}
+                    sizes="32px"
                     className="w-full h-full object-cover"
                   />
                 ) : (

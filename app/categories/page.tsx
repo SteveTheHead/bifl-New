@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     url: `${baseUrl}/categories`,
     images: [
       {
-        url: '/images/categories/hero Picture 1.png',
+        url: '/og-image.jpg',
         width: 1200,
         height: 630,
         alt: 'Browse all BIFL product categories'
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Browse All Categories - Buy It For Life Products',
     description: 'Explore all product categories and find the best Buy It For Life products that last a lifetime.',
-    images: ['/images/categories/hero Picture 1.png']
+    images: ['/og-image.jpg']
   },
   robots: {
     index: true,

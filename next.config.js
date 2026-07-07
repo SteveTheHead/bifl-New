@@ -7,6 +7,10 @@ const nextConfig = {
     ignoreDuringBuilds: false,
   },
   images: {
+    // Serve modern formats through the Vercel image optimizer
+    formats: ['image/avif', 'image/webp'],
+    // Product/category images change rarely; cache optimized variants 31 days
+    minimumCacheTTL: 2678400,
     remotePatterns: [
       {
         protocol: 'https',
@@ -31,6 +35,11 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'gagdrneksilycmcewyvt.supabase.co',
+      },
+      {
+        // Cloudflare R2 public bucket (admin image uploads)
+        protocol: 'https',
+        hostname: 'pub-6f0cf05705c7412b93a792350f3b3aa5.r2.dev',
       },
       {
         protocol: 'https',

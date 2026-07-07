@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     siteName: 'Buy It For Life',
     images: [
       {
-        url: '/images/categories/hero Picture 1.png',
+        url: '/og-image.jpg',
         width: 1200,
         height: 630,
         alt: 'Buy It For Life - Durable Products',
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Buy It For Life - Community-Verified Durable Products',
     description: 'Discover 327+ community-verified products built to last. Comprehensive BIFL ratings on durability, repairability, and warranty.',
-    images: ['/images/categories/hero Picture 1.png'],
+    images: ['/og-image.jpg'],
   },
 
   alternates: {
@@ -128,9 +128,10 @@ export default async function HomePage() {
       <section className="relative h-[500px] sm:h-[550px] md:h-[600px] lg:h-[650px] overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="/images/categories/hero Picture 1.png"
+            src="/images/categories/hero-picture-1.webp"
             alt="high quality leather boots vintage tools compass on wooden surface dark moody lighting"
             fill
+            sizes="100vw"
             className="object-cover"
             priority
           />
@@ -309,17 +310,17 @@ export default async function HomePage() {
             {categories?.map((category) => {
               // Map category names to local images
               const categoryImageMap: Record<string, string> = {
-                'Footwear & Accessories': '/images/categories/Footwear.png',
-                'Tools & Hardware': '/images/categories/Tools.png',
-                'Home & Kitchen': '/images/categories/Home & Kitchen.png',
-                'Outdoor & Camping': '/images/categories/Outdoor and camping.png',
-                'Clothing & Apparel': '/images/categories/clothing.png',
-                'Travel & Everyday Carry': '/images/categories/everyday carry.png',
-                'Electronics & Tech': '/images/categories/electronics and tech.png',
-                'Automotive & Cycling': '/images/categories/automotivecycling.png'
+                'Footwear & Accessories': '/images/categories/footwear.webp',
+                'Tools & Hardware': '/images/categories/tools.webp',
+                'Home & Kitchen': '/images/categories/home-kitchen.webp',
+                'Outdoor & Camping': '/images/categories/outdoor-camping.webp',
+                'Clothing & Apparel': '/images/categories/clothing.webp',
+                'Travel & Everyday Carry': '/images/categories/everyday-carry.webp',
+                'Electronics & Tech': '/images/categories/electronics-tech.webp',
+                'Automotive & Cycling': '/images/categories/automotive-cycling.webp'
               }
 
-              const imageUrl = categoryImageMap[category.name] || '/images/categories/Home & Kitchen.png'
+              const imageUrl = categoryImageMap[category.name] || '/images/categories/home-kitchen.webp'
 
               return (
                 <Link key={category.id} href={`/products?categories=${category.id}`}>
@@ -329,6 +330,7 @@ export default async function HomePage() {
                       alt={`${category.name.toLowerCase()} products`}
                       width={400}
                       height={256}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                       className="w-full h-48 sm:h-56 md:h-64 object-cover group-hover:scale-110 transition-transform duration-300"
                     />
                     <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-all duration-300"></div>
