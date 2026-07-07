@@ -92,7 +92,6 @@ A comprehensive, production-ready product directory for discovering durable, lon
 - **Storage:** Cloudflare R2
 - **Analytics:** Google Analytics + Microsoft Clarity
 - **Deployment:** Vercel
-- **Payments:** Polar.sh (optional subscription system)
 
 ---
 
@@ -143,10 +142,7 @@ A comprehensive, production-ready product directory for discovering durable, lon
 │   │   ├── auth.ts            # Better Auth config
 │   │   ├── admin.ts           # Admin auth utilities
 │   │   └── password.ts        # Password hashing
-│   ├── subscription.ts         # Polar subscription utils
 │   └── upload-image.ts         # Cloudflare R2 upload
-├── utils/
-│   └── supabase/              # Supabase client utilities
 ├── supabase/
 │   └── migrations/            # Database migrations
 └── scripts/
@@ -240,14 +236,6 @@ R2_UPLOAD_IMAGE_ACCESS_KEY_ID=your-r2-access-key
 R2_UPLOAD_IMAGE_SECRET_ACCESS_KEY=your-r2-secret-key
 R2_UPLOAD_IMAGE_BUCKET_NAME=your-bucket-name
 
-# ============================================
-# OPTIONAL - Polar.sh Subscriptions
-# ============================================
-POLAR_ACCESS_TOKEN=your-polar-access-token
-POLAR_WEBHOOK_SECRET=your-polar-webhook-secret
-POLAR_SUCCESS_URL=http://localhost:3000/success
-NEXT_PUBLIC_STARTER_TIER=free
-NEXT_PUBLIC_STARTER_SLUG=bifl-directory
 ```
 
 4. **Database Setup**

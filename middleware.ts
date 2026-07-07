@@ -8,7 +8,6 @@ export async function middleware(request: NextRequest) {
   const shouldBlockCrawlers = pathname.startsWith('/admin') ||
                               pathname.startsWith('/api') ||
                               pathname.startsWith('/user-dashboard') ||
-                              pathname.startsWith('/dashboard') ||
                               pathname.startsWith('/_next')
 
   if (shouldBlockCrawlers) {
