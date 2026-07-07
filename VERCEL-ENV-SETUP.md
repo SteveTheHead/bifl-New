@@ -64,15 +64,6 @@ GOOGLE_CLIENT_SECRET=your-google-oauth-client-secret
 ```
 **Generate secret:** `openssl rand -base64 32`
 
-### Polar Integration (for subscriptions)
-```
-POLAR_ACCESS_TOKEN=your-polar-access-token
-POLAR_WEBHOOK_SECRET=your-polar-webhook-secret
-POLAR_SUCCESS_URL=dashboard
-NEXT_PUBLIC_STARTER_TIER=tier-id
-NEXT_PUBLIC_STARTER_SLUG=tier-slug
-```
-
 ### AI Features (OpenAI/Anthropic)
 ```
 OPENAI_API_KEY=sk-...
@@ -105,7 +96,6 @@ R2_UPLOAD_IMAGE_BUCKET_NAME=your-bucket-name
 - [ ] `BETTER_AUTH_SECRET` (for user authentication)
 - [ ] `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` (for Google sign-in)
 - [ ] `OPENAI_API_KEY` (for AI features)
-- [ ] `POLAR_ACCESS_TOKEN` (for subscriptions)
 
 ---
 

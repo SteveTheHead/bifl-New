@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useSession } from '@/components/auth/auth-client'
+import { useSession } from '@/lib/auth-client'
 import { useFavorites } from '@/lib/hooks/use-favorites'
 import { sb } from '@/lib/supabase-utils'
 import Link from 'next/link'

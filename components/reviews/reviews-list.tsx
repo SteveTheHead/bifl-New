@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { ThumbsUp, Flag, CheckCircle, ChevronDown, ChevronUp } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { useSession } from '@/components/auth/auth-client'
+import { useSession } from '@/lib/auth-client'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { sb } from '@/lib/supabase-utils'
 
