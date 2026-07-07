@@ -99,14 +99,12 @@ export async function generateMetadata(
       title,
       description,
       url: curationUrl,
-      image: curation.featured_image_url || undefined,
       type: 'website',
     }),
 
     twitter: generateTwitterCard({
       title,
       description,
-      image: curation.featured_image_url || undefined,
     }),
 
     alternates: {

@@ -200,14 +200,12 @@ export async function generateMetadata(
       title,
       description,
       url: guideUrl,
-      image: guide.featured_image_url || undefined,
       type: 'article',
     }),
 
     twitter: generateTwitterCard({
       title,
       description,
-      image: guide.featured_image_url || undefined,
     }),
 
     alternates: {
