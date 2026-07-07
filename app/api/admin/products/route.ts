@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getAllProductsForAdmin } from '@/lib/supabase/queries'
 import { sb } from '@/lib/supabase-utils'
 import { requireAdmin } from '@/lib/auth/admin'
+import { productWriteSchema } from '@/lib/validation/product'
 
 export async function GET(request: NextRequest) {
   try {
@@ -39,45 +40,22 @@ export async function POST(request: NextRequest) {
     const unauthorized = await requireAdmin()
     if (unauthorized) return unauthorized
 
-    const body = await request.json()
+    const parsed = productWriteSchema.safeParse(await request.json())
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Invalid product data', details: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      )
+    }
+    if (!parsed.data.name || !parsed.data.slug) {
+      return NextResponse.json({ error: 'Name and slug are required' }, { status: 400 })
+    }
+
     const supabase = await createClient()
 
-    const { data: products, error } = await sb.insert(supabase, 'products', [{
-      name: body.name,
-      slug: body.slug,
-      brand_id: body.brand_id,
-      category_id: body.category_id,
-      excerpt: body.excerpt,
-      description: body.description,
-      price: body.price,
-      featured_image_url: body.featured_image_url,
-      gallery_images: body.gallery_images || [],
-      bifl_total_score: body.bifl_total_score,
-      durability_score: body.durability_score,
-      repairability_score: body.repairability_score,
-      sustainability_score: body.sustainability_score,
-      social_score: body.social_score,
-      warranty_score: body.warranty_score,
-      dimensions: body.dimensions,
-      weight: body.weight,
-      lifespan_expectation: body.lifespan_expectation,
-      warranty_years: body.warranty_years,
-      country_of_origin: body.country_of_origin,
-      use_case: body.use_case,
-      affiliate_link: body.affiliate_link,
-      manufacturer_link: body.manufacturer_link,
-      verdict_summary: body.verdict_summary,
-      verdict_bullets: body.verdict_bullets || [],
-      durability_notes: body.durability_notes,
-      repairability_notes: body.repairability_notes,
-      sustainability_notes: body.sustainability_notes,
-      social_notes: body.social_notes,
-      warranty_notes: body.warranty_notes,
-      general_notes: body.general_notes,
-      meta_title: body.meta_title,
-      meta_description: body.meta_description,
-      status: body.status || 'draft'
-    }])
+    const { data: products, error } = await sb.insert(supabase, 'products', [
+      { status: 'draft', ...parsed.data },
+    ])
 
     if (error) throw error
     const product = products?.[0]

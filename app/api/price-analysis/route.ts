@@ -21,7 +21,9 @@ export async function POST(request: NextRequest) {
     const currentPrice = parseFloat((product as any).price || '0')
     const productName = `${(product as any).name} - ${(product as any).brands?.name || 'Unknown Brand'}`
 
-    // Generate sample price history if none provided (for demonstration)
+    // Generate sample price history if none provided (for demonstration).
+    // Flagged so the UI can label the output as illustrative, not real data.
+    const isIllustrative = !priceHistory
     const finalPriceHistory: PricePoint[] = priceHistory || generateSamplePriceHistory(currentPrice)
 
     const result: {
@@ -61,6 +63,7 @@ export async function POST(request: NextRequest) {
         currentPrice
       },
       priceHistory: finalPriceHistory.length,
+      isIllustrative,
       ...result,
       generated_at: new Date().toISOString()
     })
@@ -83,8 +86,10 @@ function generateSamplePriceHistory(currentPrice: number): PricePoint[] {
     const date = new Date(now)
     date.setDate(date.getDate() - i)
 
-    // Add some realistic price variation
-    const variation = 0.1 + (Math.random() * 0.2) // ±10-20% variation
+    // Vary AROUND the current price: 0.9-1.1 = ±10%. (The old formula
+    // multiplied by 0.1-0.3, producing prices at 10-30% OF the real price —
+    // audit M18.)
+    const variation = 0.9 + (Math.random() * 0.2)
     const seasonalFactor = 1 + 0.1 * Math.sin((i / 90) * Math.PI * 2) // Seasonal pattern
     const trendFactor = 1 - (i / 90) * 0.05 // Slight downward trend over time
 

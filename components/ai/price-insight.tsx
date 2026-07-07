@@ -43,6 +43,7 @@ interface PriceInsightProps {
 export function PriceInsight({ productId, className = '' }: PriceInsightProps) {
   const [analysis, setAnalysis] = useState<PriceAnalysis | null>(null)
   const [prediction, setPrediction] = useState<PricePrediction | null>(null)
+  const [isIllustrative, setIsIllustrative] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -75,6 +76,7 @@ export function PriceInsight({ productId, className = '' }: PriceInsightProps) {
 
       setAnalysis(data.analysis)
       setPrediction(data.prediction)
+      setIsIllustrative(!!data.isIllustrative)
     } catch (error) {
       console.error('Price analysis error:', error)
       setError('Unable to load price insights')
@@ -163,6 +165,18 @@ export function PriceInsight({ productId, className = '' }: PriceInsightProps) {
           <RefreshCw className="w-4 h-4" />
         </button>
       </div>
+
+      {/* Data-honesty label: the API generates sample history when no real
+          price tracking exists — never present that as real market data */}
+      {isIllustrative && (
+        <div className="mb-4 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+          <span>
+            Illustrative estimate based on typical price patterns, not tracked
+            price history for this product.
+          </span>
+        </div>
+      )}
 
       {/* Price Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">

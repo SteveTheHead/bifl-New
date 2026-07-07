@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { X, Plus, ExternalLink } from 'lucide-react'
@@ -61,6 +61,7 @@ export function CompareModal() {
   const { compareProducts, showCompareModal, setShowCompareModal, removeFromCompare, canAddMore } = useCompare()
   const [detailedProducts, setDetailedProducts] = useState<CompareProduct[]>([])
   const [loading, setLoading] = useState(false)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     if (showCompareModal && compareProducts.length > 0) {
@@ -80,7 +81,15 @@ export function CompareModal() {
 
     if (showCompareModal) {
       document.addEventListener('keydown', handleEscape)
-      return () => document.removeEventListener('keydown', handleEscape)
+      // Move focus into the dialog on open (a11y — audit M10)
+      closeButtonRef.current?.focus()
+      // Lock background scroll while the modal is open
+      const prevOverflow = document.body.style.overflow
+      document.body.style.overflow = 'hidden'
+      return () => {
+        document.removeEventListener('keydown', handleEscape)
+        document.body.style.overflow = prevOverflow
+      }
     }
     // handleClose only calls the stable setShowCompareModal setter; re-subscribing each render is unnecessary
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -116,15 +125,20 @@ export function CompareModal() {
       onClick={handleClose}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="compare-modal-title"
         className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
+        {/* Header (dark gradient — title must be light) */}
         <div className="bg-gradient-to-r from-brand-dark to-brand-darker text-white p-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-black">Compare Products</h2>
+          <h2 id="compare-modal-title" className="text-xl font-bold text-white">Compare Products</h2>
           <button
+            ref={closeButtonRef}
             onClick={handleClose}
             className="text-white/80 hover:text-white transition-colors p-2"
+            aria-label="Close comparison"
           >
             <X className="w-6 h-6" />
           </button>
@@ -357,7 +371,7 @@ export function CompareModal() {
                                     href={product.affiliate_link}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="bg-green-600 text-black text-[10px] font-medium py-1.5 px-3 rounded hover:bg-green-700 transition-colors flex items-center justify-center gap-1"
+                                    className="bg-green-600 text-white text-[10px] font-medium py-1.5 px-3 rounded hover:bg-green-700 transition-colors flex items-center justify-center gap-1"
                                   >
                                     Buy Now
                                     <ExternalLink className="w-2.5 h-2.5" />

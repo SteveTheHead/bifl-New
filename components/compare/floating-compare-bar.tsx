@@ -25,10 +25,10 @@ export function FloatingCompareBar() {
     <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40">
       <div className="bg-brand-dark text-white px-6 py-3 rounded-full shadow-lg border border-white/20 backdrop-blur-sm">
         <div className="flex items-center gap-4">
-          {/* Product Count */}
+          {/* Product Count (bar is bg-brand-dark, so text must be light) */}
           <div className="flex items-center gap-2">
-            <BarChart3 className="w-5 h-5" style={{ color: '#000000' }} />
-            <span className="font-medium" style={{ color: '#000000' }}>
+            <BarChart3 className="w-5 h-5 text-white" />
+            <span className="font-medium text-white">
               {compareProducts.length} Product{compareProducts.length !== 1 ? 's' : ''} to Compare
             </span>
           </div>
@@ -83,9 +83,9 @@ export function FloatingCompareBar() {
 
             <button
               onClick={clearCompare}
-              className="transition-colors p-1"
-              style={{ color: '#000000' }}
+              className="transition-colors p-1 text-white/80 hover:text-white"
               title="Clear all"
+              aria-label="Clear all products from comparison"
             >
               <X className="w-4 h-4" />
             </button>

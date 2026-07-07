@@ -258,6 +258,52 @@ async function importProducts(filePath: string, limit = 100, sheetName = 'Import
 // Acceptable status values for import
 const VALID_STATUSES = ['PUBLISHED', 'FINAL REVIEW!!', 'FINAL REVIEW']
 
+// When true, unknown categories abort the row instead of being auto-created.
+const STRICT_CATEGORIES = process.env.IMPORT_STRICT_CATEGORIES === 'true'
+
+/**
+ * Resolve a category by slug, optionally under a parent. Returns its id.
+ * In strict mode an unmapped category throws (fail-fast); otherwise it is
+ * created with the correct parent_id so hierarchy is preserved.
+ */
+async function resolveCategory(
+  name: string | undefined,
+  parentId: string | null
+): Promise<string | null> {
+  if (!name || name.trim() === '') return parentId
+  const slug = createSlug(name)
+
+  const { data: existing } = await supabase
+    .from('categories')
+    .select('id')
+    .eq('slug', slug)
+    .maybeSingle()
+
+  if (existing) return (existing as any).id
+
+  if (STRICT_CATEGORIES) {
+    throw new Error(
+      `Unmapped category "${name}" (slug: ${slug}). Add it to the categories table or run without IMPORT_STRICT_CATEGORIES.`
+    )
+  }
+
+  const { data: created, error } = await (supabase as any)
+    .from('categories')
+    .insert({
+      name: name.trim(),
+      slug,
+      description: `Products in the ${name.trim()} category`,
+      parent_id: parentId,
+      display_order: parentId ? 50 : 99,
+    })
+    .select('id')
+    .single()
+
+  if (error) throw new Error(`Failed to create category "${name}": ${error.message}`)
+  console.log(`📁 Created ${parentId ? 'subcategory' : 'category'}: ${name}`)
+  return created.id
+}
+
 async function processProduct(row: CSVRow) {
   if (!row.product_name || !row.brand || !VALID_STATUSES.includes(row.Status)) {
     console.log(`⏭️ Skipping ${row.product_name || 'unknown'} - missing data or status "${row.Status}" not in: ${VALID_STATUSES.join(', ')}`)
@@ -292,37 +338,22 @@ async function processProduct(row: CSVRow) {
       console.log(`🏷️ Created brand: ${row.brand}`)
     }
 
-    // Map category - create if doesn't exist
-    let categoryId: string | null = null
+    // Map category + subcategory into the real hierarchy (audit H4).
+    // The old importer slugified `category` and auto-created a flat top-level
+    // category, ignoring `sub_category` entirely — the root cause of the
+    // mis-categorization mess that needed four manual fix scripts.
+    //
+    // Now: resolve/create the top-level category, then resolve/create the
+    // sub_category as its child (parent_id), and assign the product to the
+    // leaf. In strict mode (IMPORT_STRICT_CATEGORIES=true) an unknown category
+    // fails the row instead of inventing one, so a dirty sheet can't silently
+    // reintroduce junk categories.
     const categoryText = row['category TEXT']
     const subCategoryText = row['sub_category TEXT']
-
-    if (categoryText && categoryText.trim() !== '') {
-      const categorySlug = createSlug(categoryText)
-      const { data: existingCategory } = await supabase
-        .from('categories')
-        .select('id')
-        .eq('slug', categorySlug)
-        .single()
-
-      if (existingCategory) {
-        categoryId = (existingCategory as any).id
-      } else {
-        const { data: newCategory } = await (supabase as any)
-          .from('categories')
-          .insert({
-            name: categoryText,
-            slug: categorySlug,
-            description: `Products in the ${categoryText} category`,
-            display_order: 99
-          })
-          .select('id')
-          .single()
-
-        categoryId = newCategory!.id
-        console.log(`📁 Created category: ${categoryText}`)
-      }
-    }
+    const parentId = await resolveCategory(categoryText, null)
+    const categoryId = subCategoryText?.trim()
+      ? await resolveCategory(subCategoryText, parentId)
+      : parentId
 
     // Parse price range
     let priceRangeId: string | null = null
@@ -426,12 +457,14 @@ async function processProduct(row: CSVRow) {
       average_rating: parseScore(row.star_rating)
     }
 
+    // Upsert by slug so re-running the import updates rows instead of
+    // creating duplicates / failing on the unique constraint (audit H4).
     const { error } = await (supabase as any)
       .from('products')
-      .insert(productData)
+      .upsert(productData, { onConflict: 'slug' })
 
     if (error) {
-      console.error(`❌ Failed to insert ${row.product_name}:`, error.message)
+      console.error(`❌ Failed to upsert ${row.product_name}:`, error.message)
     } else {
       console.log(`✅ Imported: ${row.brand} - ${row.product_name}`)
     }
