@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ProductCard } from '@/components/products/product-card'
 import { BuyingGuideSection } from '@/components/categories/buying-guide-section'
@@ -51,6 +51,9 @@ interface CategoryPageClientProps {
   products: Product[]
   availableBrands: Brand[]
   subcategories?: Subcategory[]
+  /** Cached guide from the category row, fetched server-side so the content
+   *  is in the initial HTML (crawlable). Null when none is stored/enabled. */
+  initialBuyingGuide?: BuyingGuide | null
   initialFilters: {
     sort?: string
     price_min?: string
@@ -64,51 +67,19 @@ export function CategoryPageClient({
   products,
   availableBrands,
   subcategories = [],
+  initialBuyingGuide = null,
   initialFilters
 }: CategoryPageClientProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [showFilters, setShowFilters] = useState(false)
-  const [buyingGuide, setBuyingGuide] = useState<BuyingGuide | null>(null)
-  const [loadingGuide, setLoadingGuide] = useState(true)
   const [showBuyingGuide, setShowBuyingGuide] = useState(true)
 
-  // Fetch buying guide (only if enabled for this category)
-  useEffect(() => {
-    // Only fetch if category has buying guide enabled
-    if (!category.show_buying_guide) {
-      setLoadingGuide(false)
-      setBuyingGuide(null)
-      return
-    }
-
-    const fetchBuyingGuide = async () => {
-      try {
-        setLoadingGuide(true)
-        const response = await fetch(`/api/categories/${category.slug}/buying-guide`)
-        if (response.ok) {
-          const text = await response.text()
-          try {
-            const data = JSON.parse(text)
-            setBuyingGuide(data.buyingGuide)
-          } catch (parseError) {
-            console.error('Error parsing buying guide JSON:', parseError)
-            setBuyingGuide(null)
-          }
-        } else {
-          setBuyingGuide(null)
-        }
-      } catch (error) {
-        console.error('Error fetching buying guide:', error)
-        setBuyingGuide(null)
-      } finally {
-        setLoadingGuide(false)
-      }
-    }
-
-    fetchBuyingGuide()
-  }, [category.slug, category.show_buying_guide])
+  // Server-provided; no client fetch (the old useEffect fetch hid the guide
+  // text from crawlers and delayed it behind an extra round trip)
+  const buyingGuide = initialBuyingGuide
+  const loadingGuide = false
 
   const updateFilters = (newFilters: Record<string, string | undefined>) => {
     const params = new URLSearchParams(searchParams.toString())

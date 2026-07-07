@@ -1,4 +1,5 @@
-import Script from 'next/script'
+// JSON-LD is rendered as plain inline <script> tags so structured data is
+// present in the server HTML (crawlers see it without executing JS).
 
 interface ProductSchemaProps {
   name: string
@@ -72,11 +73,10 @@ export function ProductStructuredData({ product }: { product: ProductSchemaProps
   }
 
   return (
-    <Script
+    <script
       id="product-schema"
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      strategy="afterInteractive"
     />
   )
 }
@@ -96,11 +96,10 @@ export function BreadcrumbStructuredData({ items }: { items: Array<{ name: strin
   }
 
   return (
-    <Script
+    <script
       id="breadcrumb-schema"
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      strategy="afterInteractive"
     />
   )
 }
@@ -121,11 +120,10 @@ export function OrganizationStructuredData() {
   }
 
   return (
-    <Script
+    <script
       id="organization-schema"
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      strategy="afterInteractive"
     />
   )
 }
@@ -147,11 +145,10 @@ export function FAQStructuredData({ faqs }: { faqs: Array<{ question: string; an
   }
 
   return (
-    <Script
+    <script
       id="faq-schema"
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      strategy="afterInteractive"
     />
   )
 }
@@ -199,11 +196,10 @@ export function ArticleStructuredData({ article }: { article: ArticleSchemaProps
   }
 
   return (
-    <Script
+    <script
       id="article-schema"
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      strategy="afterInteractive"
     />
   )
 }
@@ -279,11 +275,10 @@ export function ItemListStructuredData({
   }
 
   return (
-    <Script
+    <script
       id="itemlist-schema"
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      strategy="afterInteractive"
     />
   )
 }
@@ -309,11 +304,10 @@ export function WebSiteStructuredData() {
   }
 
   return (
-    <Script
+    <script
       id="website-schema"
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      strategy="afterInteractive"
     />
   )
 }
@@ -354,12 +348,11 @@ export function ReviewStructuredData({ productName, reviews }: ReviewSchemaProps
   return (
     <>
       {schemas.map((schema, index) => (
-        <Script
+        <script
           key={`review-schema-${index}`}
           id={`review-schema-${index}`}
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-          strategy="afterInteractive"
         />
       ))}
     </>

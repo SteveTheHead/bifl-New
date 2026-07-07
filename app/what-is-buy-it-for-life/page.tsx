@@ -31,7 +31,7 @@ export default function WhatIsBuyItForLife() {
       "name": "Buy It For Life Products",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://buyitforlifeproducts.com/logo.png"
+        "url": "https://www.buyitforlifeproducts.com/logo.png"
       }
     },
     "datePublished": "2025-10-31",
@@ -149,7 +149,7 @@ export default function WhatIsBuyItForLife() {
                 <Card className="bg-white border-0 shadow-xl text-center hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
                   <CardContent className="p-8">
                     <div className="text-5xl font-bold text-brand-teal mb-3">2.6M+</div>
-                    <div className="text-sm font-medium text-brand-gray uppercase tracking-wide">Active Members</div>
+                    <div className="text-sm font-medium text-brand-gray uppercase tracking-wide">r/BuyItForLife Members</div>
                   </CardContent>
                 </Card>
                 <Card className="bg-white border-0 shadow-xl text-center hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
@@ -518,7 +518,7 @@ export default function WhatIsBuyItForLife() {
               Ready to Discover BIFL Products?
             </h2>
             <p className="text-xl text-brand-gray mb-12 leading-relaxed">
-              Explore our curated directory of 327+ products rated on durability, repairability, warranty, and community consensus.
+              Explore our curated directory of hundreds of products rated on durability, repairability, warranty, and community consensus.
             </p>
             <div className="flex flex-wrap justify-center gap-5">
               <Link

@@ -29,16 +29,16 @@ const scoringMethodologySchema = {
   "author": {
     "@type": "Organization",
     "name": "Buy It For Life Products",
-    "url": "https://buyitforlifeproducts.com"
+    "url": "https://www.buyitforlifeproducts.com"
   },
   "publisher": {
     "@type": "Organization",
     "name": "Buy It For Life Products",
-    "url": "https://buyitforlifeproducts.com"
+    "url": "https://www.buyitforlifeproducts.com"
   },
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": "https://buyitforlifeproducts.com/scoring-methodology"
+    "@id": "https://www.buyitforlifeproducts.com/scoring-methodology"
   }
 }
 

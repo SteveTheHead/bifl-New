@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Metadata } from 'next'
-import { getCategories, getFeaturedProducts, getFeaturedCurations, getPublishedGuides } from '@/lib/supabase/queries'
+import { getCategories, getFeaturedProducts, getFeaturedCurations, getPublishedGuides, getSiteStats } from '@/lib/supabase/queries'
 import { Card, CardContent } from '@/components/ui/card'
 import BadgeDisplay from '@/components/BadgeDisplay'
 import { OrganizationStructuredData, WebSiteStructuredData } from '@/components/seo/structured-data'
@@ -12,15 +12,17 @@ import { HeroProductCarousel } from '@/components/homepage/hero-product-carousel
 // Note: Removed force-dynamic to enable static generation with revalidation
 export const revalidate = 3600 // Revalidate every hour
 
-// SEO Metadata
-export const metadata: Metadata = {
+// SEO Metadata — product count computed from the live catalog (audit M14)
+export async function generateMetadata(): Promise<Metadata> {
+  const { roundedProducts } = await getSiteStats()
+  return {
   title: 'Buy It For Life - Community-Verified Durable Products That Last',
-  description: 'Discover 327+ community-verified products built to last. Comprehensive BIFL ratings on durability, repairability, and warranty. Find quality items worth buying once.',
+  description: `Discover ${roundedProducts} community-verified products built to last. Comprehensive BIFL ratings on durability, repairability, and warranty. Find quality items worth buying once.`,
   keywords: ['buy it for life', 'BIFL', 'durable products', 'lifetime warranty', 'quality products', 'sustainable shopping', 'long-lasting products'],
 
   openGraph: {
     title: 'Buy It For Life - Community-Verified Durable Products That Last',
-    description: 'Discover 327+ community-verified products built to last. Comprehensive BIFL ratings on durability, repairability, and warranty.',
+    description: `Discover ${roundedProducts} community-verified products built to last. Comprehensive BIFL ratings on durability, repairability, and warranty.`,
     url: process.env.NEXT_PUBLIC_APP_URL || 'https://www.buyitforlifeproducts.com',
     siteName: 'Buy It For Life',
     images: [
@@ -38,7 +40,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Buy It For Life - Community-Verified Durable Products',
-    description: 'Discover 327+ community-verified products built to last. Comprehensive BIFL ratings on durability, repairability, and warranty.',
+    description: `Discover ${roundedProducts} community-verified products built to last. Comprehensive BIFL ratings on durability, repairability, and warranty.`,
     images: ['/og-image.jpg'],
   },
 
@@ -54,6 +56,7 @@ export const metadata: Metadata = {
       follow: true,
     },
   },
+  }
 }
 
 // Score badge styling function (matching product grid)
@@ -248,7 +251,7 @@ export default async function HomePage() {
               </div>
               <h3 className="text-xl font-semibold text-brand-dark mb-4">Community-Sourced</h3>
               <p className="text-brand-gray">
-                Our recommendations come from the 2.6M+ Buy It For Life community, sustainability forums, and real owners who&apos;ve tested products for years, sometimes decades.
+                Our recommendations come from the 2.6M-member r/BuyItForLife community, sustainability forums, and real owners who&apos;ve tested products for years, sometimes decades.
               </p>
             </div>
 
